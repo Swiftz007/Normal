@@ -1,0 +1,338 @@
+--=========================
+--  FLUENT LOAD
+--=========================
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+--=========================
+--  SERVICES
+--=========================
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+local LP = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+--=========================
+-- WINDOW
+--=========================
+local Window = Fluent:CreateWindow({
+    Title = "Reaper Hub",
+    SubTitle = "Fuck Project",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(520, 360),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.RightControl
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "user" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+--=========================
+--  STATE
+--=========================
+local State = {
+    WS = false,
+    JP = false,
+    INFJ = false,
+    NC = false,
+    ESP = false
+}
+
+local WSValue = 16
+local JPValue = 50
+
+local DefaultWS = 16
+local DefaultJP = 50
+
+--=========================
+--  CHARACTER HOOK
+--=========================
+local function HookChar(char)
+    local hum = char:WaitForChild("Humanoid")
+    task.wait(0.1)
+
+    DefaultWS = hum.WalkSpeed
+    DefaultJP = hum.UseJumpPower and hum.JumpPower or 50
+end
+
+if LP.Character then HookChar(LP.Character) end
+LP.CharacterAdded:Connect(HookChar)
+
+local function GetHum()
+    local c = LP.Character
+    return c and c:FindFirstChildOfClass("Humanoid")
+end
+
+--=========================
+--  MOVEMENT
+--=========================
+RunService.RenderStepped:Connect(function()
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+
+    hum.WalkSpeed = State.WS and WSValue or DefaultWS
+
+    hum.UseJumpPower = true
+    hum.JumpPower = State.JP and JPValue or DefaultJP
+
+    if State.NC then
+        for _,v in pairs(char:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+    end
+end)
+
+--=========================
+--  INFINITE JUMP
+--=========================
+UIS.JumpRequest:Connect(function()
+    if State.INFJ then
+        local hum = GetHum()
+        if hum then
+            hum:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
+--=========================
+-- ESP SYSTEM [ Fixed ]
+--=========================
+local ESPObjects = {}
+local BoxColor = Color3.fromRGB(255,0,0)
+local LineColor = Color3.fromRGB(0,255,0)
+
+local function CreateESP()
+    local box = Drawing.new("Square")
+    box.Visible = false
+    box.Thickness = 1
+    box.Filled = false
+
+    local line = Drawing.new("Line")
+    line.Visible = false
+    line.Thickness = 1
+
+    return {box = box, line = line}
+end
+
+local function ClearESP()
+    for _,v in pairs(ESPObjects) do
+        pcall(function()
+            v.box:Remove()
+            v.line:Remove()
+        end)
+    end
+    ESPObjects = {}
+end
+
+local function InitESP()
+    ClearESP()
+
+    for _,p in ipairs(Players:GetPlayers()) do
+        if p ~= LP then
+            ESPObjects[p] = CreateESP()
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(function(p)
+    if State.ESP and p ~= LP then
+        ESPObjects[p] = CreateESP()
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(p)
+    if ESPObjects[p] then
+        pcall(function()
+            ESPObjects[p].box:Remove()
+            ESPObjects[p].line:Remove()
+        end)
+        ESPObjects[p] = nil
+    end
+end)
+
+--=========================
+--  BOX SIZE [ Fixed ]
+--=========================
+local function GetBox(char)
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local head = char:FindFirstChild("Head")
+    if not hrp or not head then return nil end
+
+    local headPos = Camera:WorldToViewportPoint(head.Position)
+    local rootPos = Camera:WorldToViewportPoint(hrp.Position)
+
+    local height = math.abs(headPos.Y - rootPos.Y) * 2
+    local width = height / 1.5
+
+    return width, height, rootPos
+end
+
+--=========================
+-- ESP [ Fixed ]
+--=========================
+RunService.RenderStepped:Connect(function()
+    if not State.ESP then return end
+
+    for plr,obj in pairs(ESPObjects) do
+        pcall(function()
+            local char = plr.Character
+            if not char then return end
+
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not hrp then return end
+
+            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+
+            if onScreen then
+                local w,h,root2D = GetBox(char)
+                if not w or not h then return end
+
+                -- ✔ BOX (accurate head-to-root)
+                obj.box.Size = Vector2.new(w, h)
+                obj.box.Position = Vector2.new(pos.X - w/2, pos.Y - h/2)
+                obj.box.Color = BoxColor
+                obj.box.Visible = true
+
+                -- ✔ LINE (perfect center bottom)
+                obj.line.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
+                obj.line.To = Vector2.new(root2D.X, root2D.Y)
+                obj.line.Color = LineColor
+                obj.line.Visible = true
+            else
+                obj.box.Visible = false
+                obj.line.Visible = false
+            end
+        end)
+    end
+end)
+
+--=========================
+-- UI
+--=========================
+Tabs.Main:AddToggle("WS", {
+    Title = "WalkSpeed",
+    Default = false,
+    Callback = function(v) State.WS = v end
+})
+
+Tabs.Main:AddInput("WSV", {
+    Title = "Speed Value",
+    Default = "16",
+    Callback = function(v)
+        WSValue = tonumber(v) or 16
+    end
+})
+
+Tabs.Main:AddToggle("JP", {
+    Title = "JumpPower",
+    Default = false,
+    Callback = function(v) State.JP = v end
+})
+
+Tabs.Main:AddInput("JPV", {
+    Title = "Jump Value",
+    Default = "50",
+    Callback = function(v)
+        JPValue = tonumber(v) or 50
+    end
+})
+
+Tabs.Main:AddToggle("INFJ", {
+    Title = "Infinite Jump",
+    Default = false,
+    Callback = function(v) State.INFJ = v end
+})
+
+Tabs.Main:AddToggle("NC", {
+    Title = "Noclip",
+    Default = false,
+    Callback = function(v) State.NC = v end
+})
+
+Tabs.Main:AddToggle("ESP", {
+    Title = "ESP Enable",
+    Default = false,
+    Callback = function(v)
+        State.ESP = v
+
+        if v then
+            task.wait(0.1)
+            InitESP()
+        else
+            ClearESP()
+        end
+    end
+})
+
+Tabs.Main:AddColorpicker("BoxColor", {
+    Title = "Box Color",
+    Default = BoxColor,
+    Callback = function(v)
+        if typeof(v) == "Color3" then
+            BoxColor = v
+        end
+    end
+})
+
+Tabs.Main:AddColorpicker("LineColor", {
+    Title = "Line Color",
+    Default = LineColor,
+    Callback = function(v)
+        if typeof(v) == "Color3" then
+            LineColor = v
+        end
+    end
+})
+
+--=========================
+-- ⚙ SETTINGS TAB
+--=========================
+
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:SetLibrary(Fluent)
+
+InterfaceManager:SetFolder("ReaperHub")
+SaveManager:SetFolder("ReaperHub/configs")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+SaveManager:LoadAutoloadConfig()
+
+local player = game.Players.LocalPlayer
+
+--  กันสร้างซ้ำ
+if player.PlayerGui:FindFirstChild("ToggleUI") then
+    player.PlayerGui.ToggleUI:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ToggleUI"
+gui.Parent = player:WaitForChild("PlayerGui")
+gui.ResetOnSpawn = false
+
+local button = Instance.new("TextButton")
+button.Parent = gui
+button.Size = UDim2.new(0, 100, 0, 40)
+button.Position = UDim2.new(0, 20, 0.5, 0)
+button.Text = "Fuck"
+button.BackgroundColor3 = Color3.fromRGB(30,30,30)
+button.TextColor3 = Color3.new(1,1,1)
+button.TextScaled = true
+
+pcall(function()
+    button.Draggable = true
+end)
+
+button.MouseButton1Click:Connect(function()
+    Window:Minimize(not Window.Minimized)
+end
