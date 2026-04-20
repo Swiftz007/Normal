@@ -238,120 +238,166 @@ end
 end)
 
 --=========================
--- 🔥 ESP SYSTEM (ACCURATE FIX)
+-- 🔥 ESP SYSTEM (OPTIMIZED FINAL)
 --=========================
 local ESPObjects = {}
+local Cache = {}
+
 local BoxColor = Color3.fromRGB(255,0,0)
 local LineColor = Color3.fromRGB(0,255,0)
 
+local ESPConnection
+
+--=========================
+-- 🔥 CREATE ESP
+--=========================
 local function CreateESP()
-local box = Drawing.new("Square")
-box.Visible = false
-box.Thickness = 1
-box.Filled = false
+    local box = Drawing.new("Square")
+    box.Visible = false
+    box.Thickness = 1
+    box.Filled = false
 
-local line = Drawing.new("Line")  
-line.Visible = false  
-line.Thickness = 1  
+    local line = Drawing.new("Line")
+    line.Visible = false
+    line.Thickness = 1
 
-return {box = box, line = line}
-
+    return {box = box, line = line}
 end
 
+--=========================
+-- 🔥 CLEAR ESP (NO LEAK)
+--=========================
 local function ClearESP()
-for _,v in pairs(ESPObjects) do
-pcall(function()
-v.box:Remove()
-v.line:Remove()
-end)
-end
-ESPObjects = {}
+    for plr,v in pairs(ESPObjects) do
+        if v.box then v.box:Remove() end
+        if v.line then v.line:Remove() end
+        ESPObjects[plr] = nil
+    end
+    Cache = {}
 end
 
+--=========================
+-- 🔥 CHARACTER CACHE
+--=========================
+local function SetupCharacter(plr, char)
+    local hrp = char:WaitForChild("HumanoidRootPart", 5)
+    local head = char:WaitForChild("Head", 5)
+
+    if not hrp or not head then return end
+
+    Cache[plr] = {
+        hrp = hrp,
+        head = head
+    }
+end
+
+--=========================
+-- 🔥 INIT ESP
+--=========================
 local function InitESP()
-ClearESP()
+    ClearESP()
 
-for _,p in ipairs(Players:GetPlayers()) do  
-    if p ~= LP then  
-        ESPObjects[p] = CreateESP()  
-    end  
-end
+    for _,plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LP then
+            ESPObjects[plr] = CreateESP()
 
-end
+            if plr.Character then
+                SetupCharacter(plr, plr.Character)
+            end
 
-Players.PlayerAdded:Connect(function(p)
-if State.ESP and p ~= LP then
-ESPObjects[p] = CreateESP()
-end
-end)
-
-Players.PlayerRemoving:Connect(function(p)
-if ESPObjects[p] then
-pcall(function()
-ESPObjects[p].box:Remove()
-ESPObjects[p].line:Remove()
-end)
-ESPObjects[p] = nil
-end
-end)
-
---=========================
--- 🔥 BOX SIZE CALC (FIXED REAL)
---=========================
-local function GetBox(char)
-local hrp = char:FindFirstChild("HumanoidRootPart")
-local head = char:FindFirstChild("Head")
-if not hrp or not head then return nil end
-
-local headPos = Camera:WorldToViewportPoint(head.Position)  
-local rootPos = Camera:WorldToViewportPoint(hrp.Position)  
-
-local height = math.abs(headPos.Y - rootPos.Y) * 2  
-local width = height / 1.5  
-
-return width, height, rootPos
-
+            plr.CharacterAdded:Connect(function(char)
+                SetupCharacter(plr, char)
+            end)
+        end
+    end
 end
 
 --=========================
--- 🔥 ESP LOOP (FIXED ACCURATE)
+-- 🔥 PLAYER EVENTS
 --=========================
-RunService.RenderStepped:Connect(function()
-if not State.ESP then return end
+Players.PlayerAdded:Connect(function(plr)
+    if plr == LP then return end
 
-for plr,obj in pairs(ESPObjects) do  
-    pcall(function()  
-        local char = plr.Character  
-        if not char then return end  
+    if State.ESP then
+        ESPObjects[plr] = CreateESP()
+    end
 
-        local hrp = char:FindFirstChild("HumanoidRootPart")  
-        if not hrp then return end  
+    plr.CharacterAdded:Connect(function(char)
+        SetupCharacter(plr, char)
+    end)
+end)
 
-        local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)  
+Players.PlayerRemoving:Connect(function(plr)
+    if ESPObjects[plr] then
+        ESPObjects[plr].box:Remove()
+        ESPObjects[plr].line:Remove()
+        ESPObjects[plr] = nil
+    end
+    Cache[plr] = nil
+end)
 
-        if onScreen then  
-            local w,h,root2D = GetBox(char)  
-            if not w or not h then return end  
+--=========================
+-- 🔥 START LOOP (ANTI DUPLICATE)
+--=========================
+local function StartESP()
+    if ESPConnection then
+        ESPConnection:Disconnect()
+    end
 
-            -- ✔ BOX (accurate head-to-root)  
-            obj.box.Size = Vector2.new(w, h)  
-            obj.box.Position = Vector2.new(pos.X - w/2, pos.Y - h/2)  
-            obj.box.Color = BoxColor  
-            obj.box.Visible = true  
+    ESPConnection = RunService.RenderStepped:Connect(function()
+        if not State.ESP then return end
 
-            -- ✔ LINE (perfect center bottom)  
-            obj.line.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)  
-            obj.line.To = Vector2.new(root2D.X, root2D.Y)  
-            obj.line.Color = LineColor  
-            obj.line.Visible = true  
-        else  
-            obj.box.Visible = false  
-            obj.line.Visible = false  
-        end  
-    end)  
+        local camPos = Camera.ViewportSize
+
+        for plr,obj in pairs(ESPObjects) do
+            local data = Cache[plr]
+            if not data then
+                obj.box.Visible = false
+                obj.line.Visible = false
+                continue
+            end
+
+            local hrp = data.hrp
+            local head = data.head
+
+            if not hrp or not head then
+                obj.box.Visible = false
+                obj.line.Visible = false
+                continue
+            end
+
+            local rootPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+
+            if onScreen then
+                local headPos = Camera:WorldToViewportPoint(head.Position)
+
+                local height = math.abs(headPos.Y - rootPos.Y) * 2
+                local width = height / 1.5
+
+                -- BOX
+                obj.box.Size = Vector2.new(width, height)
+                obj.box.Position = Vector2.new(rootPos.X - width/2, rootPos.Y - height/2)
+                obj.box.Color = BoxColor
+                obj.box.Visible = true
+
+                -- LINE
+                obj.line.From = Vector2.new(camPos.X/2, camPos.Y)
+                obj.line.To = Vector2.new(rootPos.X, rootPos.Y)
+                obj.line.Color = LineColor
+                obj.line.Visible = true
+            else
+                obj.box.Visible = false
+                obj.line.Visible = false
+            end
+        end
+    end)
 end
 
-end)
+--=========================
+-- 🔥 ENABLE ESP
+--=========================
+InitESP()
+StartESP()
 
 --=========================
 -- 🔥 UI
