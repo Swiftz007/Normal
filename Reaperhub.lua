@@ -1,3 +1,135 @@
+-- Loading Screen Script (LocalScript)
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- BLUR
+local blur = Instance.new("BlurEffect")
+blur.Size = 0
+blur.Parent = Lighting
+TweenService:Create(blur, TweenInfo.new(0.5), {Size = 50}):Play()
+
+-- GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1,0,1,0)
+bg.BackgroundColor3 = Color3.fromRGB(0,0,0)
+bg.BackgroundTransparency = 0.4
+bg.Parent = screenGui
+
+-- TITLE
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,80)
+title.Position = UDim2.new(0,0,0.25,0)
+title.BackgroundTransparency = 1
+title.Text = "Reaper Hub"
+title.TextSize = 44
+title.Font = Enum.Font.GothamBlack
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.TextStrokeTransparency = 0.5
+title.Parent = bg
+
+-- BAR BG
+local barBG = Instance.new("Frame")
+barBG.Size = UDim2.new(0.4,0,0,8)
+barBG.Position = UDim2.new(0.3,0,0.5,0)
+barBG.BackgroundColor3 = Color3.fromRGB(60,60,60)
+barBG.BorderSizePixel = 0
+barBG.Parent = bg
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(1,0)
+corner.Parent = barBG
+
+-- BAR
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(0,0,1,0)
+bar.BackgroundColor3 = Color3.fromRGB(255,255,255)
+bar.BorderSizePixel = 0
+bar.Parent = barBG
+
+local corner2 = Instance.new("UICorner")
+corner2.CornerRadius = UDim.new(1,0)
+corner2.Parent = bar
+
+-- PERCENT TEXT
+local percentText = Instance.new("TextLabel")
+percentText.Size = UDim2.new(1,0,0,30)
+percentText.Position = UDim2.new(0,0,1,5)
+percentText.BackgroundTransparency = 1
+percentText.Text = "0%"
+percentText.TextSize = 20
+percentText.Font = Enum.Font.GothamBold
+percentText.TextColor3 = Color3.fromRGB(255,255,255)
+percentText.Parent = barBG
+
+-- CHANGING TEXT
+local infoText = Instance.new("TextLabel")
+infoText.Size = UDim2.new(1,0,0,30)
+infoText.Position = UDim2.new(0,0,0.6,0)
+infoText.BackgroundTransparency = 1
+infoText.Text = ""
+infoText.TextSize = 18
+infoText.Font = Enum.Font.Gotham
+infoText.TextColor3 = Color3.fromRGB(200,200,200)
+infoText.Parent = bg
+
+-- TEXT LIST
+local messages = {
+	"Reaper Hub better",
+	"Credit : Quantum X Reaper",
+	"Code : Lua"
+}
+
+-- TEXT LOOP
+task.spawn(function()
+	local i = 1
+	while true do
+		infoText.Text = messages[i]
+		i = i + 1
+		if i > #messages then i = 1 end
+		task.wait(1.5)
+	end
+end)
+
+-- LOADING ANIMATION
+for i = 1,100 do
+	local progress = i/100
+	
+	TweenService:Create(bar, TweenInfo.new(0.05), {
+		Size = UDim2.new(progress,0,1,0)
+	}):Play()
+	
+	percentText.Text = i.."%"
+	task.wait(0.05)
+end
+
+-- WAIT นิดให้เต็ม 100%
+task.wait(0.3)
+
+-- FADE OUT
+TweenService:Create(bg, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+TweenService:Create(title, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+TweenService:Create(bar, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+TweenService:Create(barBG, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+TweenService:Create(percentText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+TweenService:Create(infoText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+TweenService:Create(blur, TweenInfo.new(0.5), {Size = 0}):Play()
+
+task.wait(0.6)
+
+screenGui:Destroy()
+blur:Destroy()
+
+task.wait(2)
+
 --=========================
 -- 🔥 FLUENT LOAD
 --=========================
