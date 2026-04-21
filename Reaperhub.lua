@@ -1,3 +1,7 @@
+-- Key System by x2sxqz
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/Keysystem.lua"))()
+task.wait(2)
+
 -- Loading Screen Script (LocalScript)
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
