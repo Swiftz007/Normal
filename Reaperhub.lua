@@ -609,12 +609,15 @@ button.MouseButton1Click:Connect(function()
         or Color3.fromRGB(255,0,0)
 end)
 
-task.wait(1)
-getgenv().reaper = true
+if getgenv().reaper == nil then
+    getgenv().reaper = true
+end
 
 if not getgenv().reaper then
     return
 end
+
+task.wait(1)
 
 --// Services Tp Fly
 local Players = game:GetService("Players")
