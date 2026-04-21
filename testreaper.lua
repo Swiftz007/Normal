@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 1.6",
+SubTitle = "Beta 1.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
