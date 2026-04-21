@@ -109,7 +109,7 @@ local key = getgenv().Key
 
 -- ตรวจว่ามีคีย์หรือไม่
 if not key then
-    player:Kick("Please set getgenv().Key first")
+    player:Kick("Reaper Hub Wrong key")
     return
 end
 
