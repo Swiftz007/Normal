@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 1.7",
+SubTitle = "Beta 1.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -368,18 +368,24 @@ Tabs.Server:AddButton({
     end
 })
 
-Tabs.Server:AddButton({
-    Title = "Copy Job ID",
-    Description = "Copy current server JobId",
-    Callback = function()
-        setclipboard(game.JobId)
+Tabs.Server:AddLabel("Teleport JobID")
+
+Tabs.Server:AddTextbox({
+    Title = "JobID",
+    Placeholder = "Enter JobId",
+    Callback = function(v)
+        jobInput = v
     end
 })
 
 Tabs.Server:AddButton({
-    Title = "TP JobID",
+    Title = "Teleport",
     Callback = function()
-        jobInput = jobInput
+        game:GetService("TeleportService"):TeleportToPlaceInstance(
+            game.PlaceId,
+            jobInput,
+            game.Players.LocalPlayer
+        )
     end
 })
 
