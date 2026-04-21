@@ -376,6 +376,33 @@ Tabs.Server:AddButton({
     end
 })
 
+Tabs.Server:AddSection({ Title = "TP JobID" })
+
+local jobInput = ""
+
+Tabs.Server:AddInput({
+    Title = "JobID",
+    Default = "",
+    Placeholder = "Enter JobId",
+    Callback = function(v)
+        jobInput = v
+    end
+})
+
+Tabs.Server:AddButton({
+    Title = "Teleport",
+    Description = "Teleport to JobId",
+    Callback = function()
+        if jobInput and jobInput ~= "" then
+            game:GetService("TeleportService"):TeleportToPlaceInstance(
+                game.PlaceId,
+                jobInput,
+                game.Players.LocalPlayer
+            )
+        end
+    end
+})
+
 --=========================
 -- ⚙ SETTINGS TAB
 --=========================
