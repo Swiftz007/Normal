@@ -129,13 +129,3 @@ if not isValidKey(key) then
 end
 
 print("Key verified! Loading main script...")
-task.wait(0.5)
-
--- โหลด PlaceID.lua
-local success, err = pcall(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Project-Swiftz/refs/heads/main/PlaceID.lua"))()
-end)
-
-if not success then
-    warn("[Swiftz Hub] Load Error:", err)
-end
