@@ -610,6 +610,12 @@ button.MouseButton1Click:Connect(function()
 end)
 
 task.wait(1)
+getgenv().reaper = true
+
+if not getgenv().reaper then
+    return
+end
+
 --// Services Tp Fly
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
