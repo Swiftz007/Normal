@@ -609,6 +609,9 @@ button.MouseButton1Click:Connect(function()
         or Color3.fromRGB(255,0,0)
 end)
 
+--===============--
+-- Select true && false -- 👽
+--===============--
 if getgenv().reaper == nil then
     getgenv().reaper = true
 end
