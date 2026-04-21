@@ -104,28 +104,3 @@ local correctKeys = {
     "X1QT-6LKM-4VRP-8HND-3JWF", -- User key 99
     "Z8KP-3LQT-7VMR-5HND-2JWF"  -- User key 100
 }
-
-local key = getgenv().Key
-
--- ตรวจว่ามีคีย์หรือไม่
-if not key then
-    player:Kick("Reaper Hub Wrong key")
-    return
-end
-
--- ฟังก์ชันเช็คคีย์
-local function isValidKey(k)
-    for _, v in ipairs(correctKeys) do
-        if k == v then
-            return true
-        end
-    end
-    return false
-end
-
-if not isValidKey(key) then
-    player:Kick("Invalid Key")
-    return
-end
-
-print("Key verified! Loading main script...")
