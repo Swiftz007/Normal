@@ -635,7 +635,7 @@ Frame.Parent = ScreenGui
 Frame.Active = true
 Frame.Draggable = true
 
-Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 😎
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,14)
 
 local Stroke = Instance.new("UIStroke")
 Stroke.Color = Color3.fromRGB(10,10,10)
