@@ -613,7 +613,7 @@ end)
 -- Select true && false -- 👽
 --===============--
 if getgenv().reaper == nil then
-    getgenv().reaper = true
+    getgenv().reaper = false
 end
 
 if not getgenv().reaper then
