@@ -663,7 +663,7 @@ Button.TextColor3 = Color3.fromRGB(255,255,255)
 Button.BackgroundColor3 = Color3.fromRGB(0, 200, 0) -- เขียว
 Button.BorderSizePixel = 0
 Button.Parent = Frame
-Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 😎
+Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 14)
 
 --// Random Player
 local function getRandomPlayer()
