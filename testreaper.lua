@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 2.0",
+SubTitle = "Beta 2.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -370,15 +370,18 @@ Tabs.Server:AddButton({
 
 local jobInput = ""
 
-Tabs.Server:AddButton({
-    Title = "Set JobID",
-    Callback = function()
-        jobInput = game.JobId
+Tabs.Server:AddLabel("Teleport JobID")
+
+Tabs.Server:AddTextbox({
+    Title = "JobID",
+    Placeholder = "Paste JobId here",
+    Callback = function(v)
+        jobInput = v
     end
 })
 
 Tabs.Server:AddButton({
-    Title = "Teleport to JobID",
+    Title = "Teleport",
     Callback = function()
         if jobInput and jobInput ~= "" then
             game:GetService("TeleportService"):TeleportToPlaceInstance(
