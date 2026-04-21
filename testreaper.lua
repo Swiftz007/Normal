@@ -368,6 +368,14 @@ Tabs.Server:AddButton({
     end
 })
 
+Tabs.Server:AddButton({
+    Title = "Copy Job ID",
+    Description = "Copy current server JobId",
+    Callback = function()
+        setclipboard(game.JobId)
+    end
+})
+
 --=========================
 -- ⚙ SETTINGS TAB
 --=========================
