@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 2.8",
+SubTitle = "Beta 2.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -372,7 +372,7 @@ Tabs.Credit:AddParagraph({
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
-local selectedPlayer = nil
+local selectedPlayer
 local teleportEnabled = false
 
 local function getPlayerList()
@@ -385,28 +385,25 @@ local function getPlayerList()
     return list
 end
 
-local function tweenToPlayer(plr)
-    if not plr then return end
+local function tweenTo(plr)
+    if not plr or not plr.Character then return end
 
     local char = Players.LocalPlayer.Character
-    local targetChar = plr.Character
-
-    if not char or not targetChar then return end
+    if not char then return end
 
     local root = char:FindFirstChild("HumanoidRootPart")
-    local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+    local target = plr.Character:FindFirstChild("HumanoidRootPart")
 
-    if not root or not targetRoot then return end
+    if not root or not target then return end
 
-    pcall(function()
-        TweenService:Create(
-            root,
-            TweenInfo.new(0.4, Enum.EasingStyle.Linear),
-            {CFrame = targetRoot.CFrame + Vector3.new(0, 3, 0)}
-        ):Play()
-    end)
+    TweenService:Create(
+        root,
+        TweenInfo.new(0.4, Enum.EasingStyle.Linear),
+        {CFrame = target.CFrame + Vector3.new(0, 3, 0)}
+    ):Play()
 end
 
+-- Dropdown
 local PlayerDropdown = Tabs.Teleport:AddDropdown({
     Title = "Select Player",
     Values = getPlayerList(),
@@ -415,24 +412,23 @@ local PlayerDropdown = Tabs.Teleport:AddDropdown({
     end
 })
 
+-- Refresh (สำคัญ: ใช้ Update ไม่ใช่ SetValues)
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
         local list = getPlayerList()
 
-        -- กัน crash เพราะบาง Fluent ไม่มี SetValues
-        pcall(function()
-            if PlayerDropdown.SetValues then
-                PlayerDropdown:SetValues(list)
-            elseif PlayerDropdown.Refresh then
-                PlayerDropdown:Refresh(list)
-            end
-        end)
+        if PlayerDropdown.Update then
+            PlayerDropdown:Update(list)
+        elseif PlayerDropdown.Refresh then
+            PlayerDropdown:Refresh(list)
+        end
     end
 })
 
+-- Toggle teleport
 Tabs.Teleport:AddToggle({
-    Title = "Teleport",
+    Title = "Teleport Tween",
     Default = false,
     Callback = function(state)
         teleportEnabled = state
@@ -441,9 +437,9 @@ Tabs.Teleport:AddToggle({
             task.spawn(function()
                 while teleportEnabled do
                     if selectedPlayer then
-                        tweenToPlayer(selectedPlayer)
+                        tweenTo(selectedPlayer)
                     end
-                    task.wait(0.6)
+                    task.wait(0.5)
                 end
             end)
         end
