@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 3.0",
+SubTitle = "Beta 3.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -372,27 +372,35 @@ Tabs.Credit:AddParagraph({
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
-local selectedPlayer = nil
+local selectedPlayer
 local teleportEnabled = false
 
 local function getPlayerList()
     local list = {}
+
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= Players.LocalPlayer then
             table.insert(list, p.Name)
         end
     end
+
+    -- กัน nil 100%
+    if #list == 0 then
+        table.insert(list, "No Players")
+    end
+
     return list
 end
 
 local function tweenTo(plr)
-    if not plr or not plr.Character then return end
-
+    if not plr then return end
     local char = Players.LocalPlayer.Character
-    if not char then return end
+    local targetChar = plr.Character
+
+    if not char or not targetChar then return end
 
     local root = char:FindFirstChild("HumanoidRootPart")
-    local target = plr.Character:FindFirstChild("HumanoidRootPart")
+    local target = targetChar:FindFirstChild("HumanoidRootPart")
 
     if not root or not target then return end
 
@@ -403,35 +411,31 @@ local function tweenTo(plr)
     ):Play()
 end
 
--- Dropdown (safe)
+-- 🔥 IMPORTANT: Values ต้อง fix ตอนสร้างเท่านั้น
 local PlayerDropdown = Tabs.Teleport:AddDropdown({
     Title = "Select Player",
-    Values = getPlayerList(),
+    Values = getPlayerList(), -- ต้องไม่ nil 100%
     Callback = function(value)
         selectedPlayer = Players:FindFirstChild(value)
     end
 })
 
--- Refresh (ใช้ Values ใหม่ตอนสร้างใหม่แทน update ปัญหา)
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        local newList = getPlayerList()
+        -- ❗ วิธีที่ถูกกับ Fluent ตัวนี้ = recreate tab element แบบ safe
+        local newValues = getPlayerList()
 
-        -- rebuild dropdown (กัน Fluent bug)
-        if PlayerDropdown then
-            PlayerDropdown = Tabs.Teleport:AddDropdown({
-                Title = "Select Player",
-                Values = newList,
-                Callback = function(value)
-                    selectedPlayer = Players:FindFirstChild(value)
-                end
-            })
-        end
+        PlayerDropdown = Tabs.Teleport:AddDropdown({
+            Title = "Select Player",
+            Values = newValues,
+            Callback = function(value)
+                selectedPlayer = Players:FindFirstChild(value)
+            end
+        })
     end
 })
 
--- Toggle teleport
 Tabs.Teleport:AddToggle({
     Title = "Teleport Tween",
     Default = false,
