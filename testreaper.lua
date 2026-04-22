@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 4.3",
+SubTitle = "Beta 4.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -392,30 +392,29 @@ local function getList()
 end
 
 -- =========================
--- CREATE DROPDOWN FUNCTION
+-- CREATE DROPDOWN ONCE ONLY
 -- =========================
-local function createDropdown()
-    local dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
-        Title = "Select Player",
-        Values = getList(),
-    })
+local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
+    Title = "Select Player",
+    Values = getList(),
+})
 
-    dropdown:OnChanged(function(value)
-        selectedPlayer = Players:FindFirstChild(value)
-    end)
-
-    return dropdown
-end
-
-local Dropdown = createDropdown()
+Dropdown:OnChanged(function(value)
+    selectedPlayer = Players:FindFirstChild(value)
+end)
 
 -- =========================
--- REFRESH (RECREATE ONLY)
+-- REFRESH (SAFE METHOD)
 -- =========================
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        Dropdown = createDropdown()
+        -- ❗ SAFE WAY: just update values, NO recreate
+        local list = getList()
+
+        if Dropdown.SetValues then
+            Dropdown:SetValues(list)
+        end
     end
 })
 
@@ -448,6 +447,7 @@ Tabs.Teleport:AddToggle("tp", {
                         end
                     end
                 end
+
                 task.wait(0.5)
             end
         end)
