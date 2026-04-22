@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 5.1",
+SubTitle = "Beta 5.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -346,6 +346,50 @@ LineColor = v
 end
 end
 })
+
+-- Add Hitbox
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local hitboxEnabled = false
+
+local function applyHitbox(player)
+    if player == LocalPlayer then return end
+
+    local char = player.Character
+    if not char then return end
+
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    if hitboxEnabled then
+        root.Size = Vector3.new(6,6,6)
+        root.Transparency = 0.6
+        root.Material = Enum.Material.ForceField
+        root.Color = Color3.fromRGB(255, 0, 0)
+        root.CanCollide = false
+    else
+        root.Size = Vector3.new(2,2,1)
+        root.Transparency = 1
+        root.Material = Enum.Material.Plastic
+    end
+end
+
+task.spawn(function()
+    while true do
+        for _, p in ipairs(Players:GetPlayers()) do
+            pcall(applyHitbox, p)
+        end
+        task.wait(0.3)
+    end
+end)
+
+Tabs.ESP:AddToggle("Hitbox", {
+    Title = "Hitbox Expand",
+    Default = false
+}):OnChanged(function(v)
+    hitboxEnabled = v
+end)
 
 -- Credit
 Tabs.Credit:AddParagraph({
