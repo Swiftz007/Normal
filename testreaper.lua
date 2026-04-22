@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 4.0",
+SubTitle = "Beta 4.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -375,47 +375,32 @@ local TweenService = game:GetService("TweenService")
 local selectedPlayer
 local teleportEnabled = false
 
-local function getList()
-    local list = {}
-
+local function getFirstPlayer()
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= Players.LocalPlayer then
-            table.insert(list, p.Name)
+            return p
         end
     end
-
-    if #list == 0 then
-        list = {"No Players"}
-    end
-
-    return list
 end
 
 -- =========================
--- CREATE DROPDOWN
--- =========================
-local function createDropdown()
-    local dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
-        Title = "Select Player",
-        Values = getList(),
-    })
-
-    dropdown:OnChanged(function(value)
-        selectedPlayer = Players:FindFirstChild(value)
-    end)
-
-    return dropdown
-end
-
-local PlayerDropdown = createDropdown()
-
--- =========================
--- REFRESH BUTTON (FIXED)
+-- SAFE SELECT BUTTON (แทน dropdown)
 -- =========================
 Tabs.Teleport:AddButton({
-    Title = "Refresh Players",
+    Title = "Select Player (Auto)",
     Callback = function()
-        PlayerDropdown = createDropdown()
+        selectedPlayer = getFirstPlayer()
+        print("Selected:", selectedPlayer and selectedPlayer.Name)
+    end
+})
+
+-- =========================
+-- REFRESH (SAFE)
+-- =========================
+Tabs.Teleport:AddButton({
+    Title = "Refresh Player",
+    Callback = function()
+        selectedPlayer = getFirstPlayer()
     end
 })
 
