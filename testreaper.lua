@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 4.8",
+SubTitle = "Beta 4.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -375,7 +375,10 @@ local TweenService = game:GetService("TweenService")
 local selectedPlayer
 local teleportEnabled = false
 
-local function getPlayerList()
+-- =========================
+-- GET PLAYER LIST
+-- =========================
+local function getList()
     local list = {}
 
     for _, p in ipairs(Players:GetPlayers()) do
@@ -392,37 +395,55 @@ local function getPlayerList()
 end
 
 -- =========================
--- SAFE SELECTOR (BUTTON BASED DROPDOWN)
+-- DROPDOWN (CREATE ONCE)
 -- =========================
-local currentIndex = 1
-local playerList = getPlayerList()
-
-local function updateList()
-    playerList = getPlayerList()
-    currentIndex = 1
-end
-
-Tabs.Teleport:AddButton({
-    Title = "Select: " .. playerList[currentIndex],
-    Callback = function(self)
-        currentIndex += 1
-        if currentIndex > #playerList then
-            currentIndex = 1
-        end
-
-        self.Title = "Select: " .. playerList[currentIndex]
-        selectedPlayer = Players:FindFirstChild(playerList[currentIndex])
-    end
+local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
+    Title = "Select Player",
+    Values = getList(),
+    Multi = false
 })
 
+Dropdown:OnChanged(function(value)
+    selectedPlayer = Players:FindFirstChild(value)
+end)
+
 -- =========================
--- REFRESH LIST
+-- SAFE REFRESH SYSTEM
+-- =========================
+local refreshing = false
+
+local function safeRefresh()
+    if refreshing then return end
+    refreshing = true
+
+    task.delay(0.2, function() -- delay กัน UI crash
+        local success = pcall(function()
+            if Dropdown and Dropdown.SetValues then
+                Dropdown:SetValues(getList())
+            end
+        end)
+
+        if not success then
+            warn("Dropdown refresh failed")
+        end
+
+        refreshing = false
+    end)
+end
+
+-- =========================
+-- AUTO REFRESH (PLAYER JOIN/LEAVE)
+-- =========================
+Players.PlayerAdded:Connect(safeRefresh)
+Players.PlayerRemoving:Connect(safeRefresh)
+
+-- =========================
+-- MANUAL REFRESH BUTTON
 -- =========================
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        updateList()
-        print("Refreshed")
+        safeRefresh()
     end
 })
 
@@ -455,6 +476,7 @@ Tabs.Teleport:AddToggle("tp", {
                         end
                     end
                 end
+
                 task.wait(0.5)
             end
         end)
