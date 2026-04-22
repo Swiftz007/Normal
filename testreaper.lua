@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 4.9",
+SubTitle = "Beta 5.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -375,27 +375,18 @@ local TweenService = game:GetService("TweenService")
 local selectedPlayer
 local teleportEnabled = false
 
--- =========================
--- GET PLAYER LIST
--- =========================
 local function getList()
     local list = {}
-
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= Players.LocalPlayer then
             table.insert(list, p.Name)
         end
     end
-
-    if #list == 0 then
-        list = {"No Players"}
-    end
-
     return list
 end
 
 -- =========================
--- DROPDOWN (CREATE ONCE)
+-- DROPDOWN (ต้องมี ID + ห้ามมั่ว)
 -- =========================
 local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
     Title = "Select Player",
@@ -403,52 +394,31 @@ local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
     Multi = false
 })
 
-Dropdown:OnChanged(function(value)
-    selectedPlayer = Players:FindFirstChild(value)
+-- 🔥 IMPORTANT: delay bind กัน Fluent บัค
+task.defer(function()
+    Dropdown:OnChanged(function(value)
+        selectedPlayer = Players:FindFirstChild(value)
+    end)
 end)
 
 -- =========================
--- SAFE REFRESH SYSTEM
--- =========================
-local refreshing = false
-
-local function safeRefresh()
-    if refreshing then return end
-    refreshing = true
-
-    task.delay(0.2, function() -- delay กัน UI crash
-        local success = pcall(function()
-            if Dropdown and Dropdown.SetValues then
-                Dropdown:SetValues(getList())
-            end
-        end)
-
-        if not success then
-            warn("Dropdown refresh failed")
-        end
-
-        refreshing = false
-    end)
-end
-
--- =========================
--- AUTO REFRESH (PLAYER JOIN/LEAVE)
--- =========================
-Players.PlayerAdded:Connect(safeRefresh)
-Players.PlayerRemoving:Connect(safeRefresh)
-
--- =========================
--- MANUAL REFRESH BUTTON
+-- REFRESH (แบบไม่พัง)
 -- =========================
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        safeRefresh()
+        task.wait(0.1)
+
+        if Dropdown and Dropdown.SetValues then
+            pcall(function()
+                Dropdown:SetValues(getList())
+            end)
+        end
     end
 })
 
 -- =========================
--- TELEPORT TOGGLE
+-- TELEPORT
 -- =========================
 Tabs.Teleport:AddToggle("tp", {
     Title = "Teleport Tween",
@@ -476,7 +446,6 @@ Tabs.Teleport:AddToggle("tp", {
                         end
                     end
                 end
-
                 task.wait(0.5)
             end
         end)
