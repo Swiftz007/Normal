@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 2.9",
+SubTitle = "Beta 3.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -372,7 +372,7 @@ Tabs.Credit:AddParagraph({
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
-local selectedPlayer
+local selectedPlayer = nil
 local teleportEnabled = false
 
 local function getPlayerList()
@@ -398,12 +398,12 @@ local function tweenTo(plr)
 
     TweenService:Create(
         root,
-        TweenInfo.new(0.4, Enum.EasingStyle.Linear),
+        TweenInfo.new(0.4),
         {CFrame = target.CFrame + Vector3.new(0, 3, 0)}
     ):Play()
 end
 
--- Dropdown
+-- Dropdown (safe)
 local PlayerDropdown = Tabs.Teleport:AddDropdown({
     Title = "Select Player",
     Values = getPlayerList(),
@@ -412,16 +412,21 @@ local PlayerDropdown = Tabs.Teleport:AddDropdown({
     end
 })
 
--- Refresh (สำคัญ: ใช้ Update ไม่ใช่ SetValues)
+-- Refresh (ใช้ Values ใหม่ตอนสร้างใหม่แทน update ปัญหา)
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        local list = getPlayerList()
+        local newList = getPlayerList()
 
-        if PlayerDropdown.Update then
-            PlayerDropdown:Update(list)
-        elseif PlayerDropdown.Refresh then
-            PlayerDropdown:Refresh(list)
+        -- rebuild dropdown (กัน Fluent bug)
+        if PlayerDropdown then
+            PlayerDropdown = Tabs.Teleport:AddDropdown({
+                Title = "Select Player",
+                Values = newList,
+                Callback = function(value)
+                    selectedPlayer = Players:FindFirstChild(value)
+                end
+            })
         end
     end
 })
