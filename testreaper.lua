@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 2.5",
+SubTitle = "Beta 2.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -369,7 +369,7 @@ Tabs.Credit:AddParagraph({
 })
 
 -- Teleport
-local PlayerDropdown = Tabs.Teleport:AddDropdown({
+Tabs.Teleport:AddDropdown({
     Title = "Select Player",
     Values = getPlayerList(),
     Callback = function(value)
