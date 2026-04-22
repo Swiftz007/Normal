@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 2.2",
+SubTitle = "Beta 2.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -27,6 +27,7 @@ MinimizeKey = Enum.KeyCode.RightControl
 
 local Tabs = {
 Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+ESP = Window:AddTab({ Title = "ESP", Icon = "box" }),
 Server = Window:AddTab({ Title = "Server", Icon = "server" }),
 Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
@@ -308,7 +309,7 @@ Default = false,
 Callback = function(v) State.NC = v end
 })
 
-Tabs.Main:AddToggle("ESP", {
+Tabs.ESP:AddToggle("ESP", {
 Title = "ESP Enable",
 Default = false,
 Callback = function(v)
@@ -324,7 +325,7 @@ end
 
 })
 
-Tabs.Main:AddColorpicker("BoxColor", {
+Tabs.ESP:AddColorpicker("BoxColor", {
 Title = "Box Color",
 Default = BoxColor,
 Callback = function(v)
@@ -334,7 +335,7 @@ end
 end
 })
 
-Tabs.Main:AddColorpicker("LineColor", {
+Tabs.ESP:AddColorpicker("LineColor", {
 Title = "Line Color",
 Default = LineColor,
 Callback = function(v)
@@ -365,16 +366,6 @@ Tabs.Server:AddButton({
             game.PlaceId,
             game.Players.LocalPlayer
         )
-    end
-})
-
-local jobInput = ""
-
-Tabs.Server:AddTextbox({
-    Title = "JobID",
-    Placeholder = "Enter JobId",
-    Callback = function(v)
-        jobInput = v
     end
 })
 
