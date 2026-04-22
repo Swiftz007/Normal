@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 5.0",
+SubTitle = "Beta 5.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -450,6 +450,61 @@ Tabs.Teleport:AddToggle("tp", {
             end
         end)
     end
+end)
+
+local spectating = false
+local originalCameraSubject = nil
+local Camera = workspace.CurrentCamera
+
+-- =========================
+-- SPECTATE TOGGLE
+-- =========================
+Tabs.Teleport:AddToggle("spec", {
+    Title = "Spectate Player",
+    Default = false
+}):OnChanged(function(state)
+    spectating = state
+
+    local localPlayer = Players.LocalPlayer
+
+    if state then
+        if selectedPlayer and selectedPlayer.Character then
+            local humanoid = selectedPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+            if humanoid then
+                -- เก็บของเดิมไว้
+                originalCameraSubject = Camera.CameraSubject
+
+                -- เปลี่ยนไปดูเป้า
+                Camera.CameraSubject = humanoid
+            end
+        end
+    else
+        -- กลับมาที่ตัวเรา
+        if localPlayer.Character then
+            local humanoid = localPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                Camera.CameraSubject = humanoid
+            end
+        end
+    end
+end)
+
+-- =========================
+-- UPDATE TARGET (เวลาเปลี่ยน dropdown)
+-- =========================
+task.defer(function()
+    Dropdown:OnChanged(function(value)
+        selectedPlayer = Players:FindFirstChild(value)
+
+        -- ถ้ากำลัง spectate อยู่ → เปลี่ยนทันที
+        if spectating and selectedPlayer and selectedPlayer.Character then
+            local humanoid = selectedPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                Camera.CameraSubject = humanoid
+            end
+        end
+    end)
 end)
 
 -- Server ⚔️
