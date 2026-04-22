@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 2.3",
+SubTitle = "Beta 2.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -349,6 +349,21 @@ end
 -- Credit
 Tabs.Credit:AddParagraph({
     Title = "Credit",
+    Content = "Make by : x2sxqz"
+})
+
+Tabs.Credit:AddParagraph({
+    Title = "Discord",
+    Content = "https://discord.gg/krbmvBQhJD"
+})
+
+Tabs.Credit:AddParagraph({
+    Title = "UX/UI",
+    Content = "Fluent"
+})
+
+Tabs.Credit:AddParagraph({
+    Title = "Optimize",
     Content = "Make by : x2sxqz"
 })
 
