@@ -368,6 +368,22 @@ Tabs.Credit:AddParagraph({
     Content = "Make by : x2sxqz"
 })
 
+-- Teleport
+local PlayerDropdown = Tabs.Teleport:AddDropdown({
+    Title = "Select Player",
+    Values = getPlayerList(),
+    Callback = function(value)
+        selectedPlayer = Players:FindFirstChild(value)
+    end
+})
+
+Tabs.Teleport:AddButton({
+    Title = "Refresh Players",
+    Callback = function()
+        PlayerDropdown:SetValues(getPlayerList())
+    end
+})
+
 -- Server ⚔️
 Tabs.Server:AddButton({
     Title = "Rejoin",
