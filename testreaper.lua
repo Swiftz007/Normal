@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 3.2",
+SubTitle = "Beta 3.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -369,90 +369,10 @@ Tabs.Credit:AddParagraph({
 })
 
 -- Teleport
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-
-local selectedPlayer
-
-local function safeGetPlayers()
-    local list = {}
-
-    local ok, result = pcall(function()
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= Players.LocalPlayer then
-                table.insert(list, p.Name)
-            end
-        end
-    end)
-
-    if not ok then
-        return {"Error Loading"}
-    end
-
-    if #list == 0 then
-        return {"No Players"}
-    end
-
-    return list
-end
-
--- Dropdown (ต้อง safe 100%)
-local PlayerDropdown = Tabs.Teleport:AddDropdown({
-    Title = "Select Player",
-    Values = safeGetPlayers(),
-    Callback = function(value)
-        local plr = Players:FindFirstChild(value)
-        if plr then
-            selectedPlayer = plr
-        end
-    end
-})
-
 Tabs.Teleport:AddButton({
-    Title = "Refresh Players",
+    Title = "TAB TEST",
     Callback = function()
-        local newList = safeGetPlayers()
-
-        PlayerDropdown = Tabs.Teleport:AddDropdown({
-            Title = "Select Player",
-            Values = newList,
-            Callback = function(value)
-                local plr = Players:FindFirstChild(value)
-                if plr then
-                    selectedPlayer = plr
-                end
-            end
-        })
-    end
-})
-
-Tabs.Teleport:AddToggle({
-    Title = "Teleport Tween",
-    Default = false,
-    Callback = function(state)
-        if state then
-            task.spawn(function()
-                while state do
-                    if selectedPlayer
-                        and selectedPlayer.Character
-                        and Players.LocalPlayer.Character then
-
-                        local root = Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                        local target = selectedPlayer.Character:FindFirstChild("HumanoidRootPart")
-
-                        if root and target then
-                            TweenService:Create(
-                                root,
-                                TweenInfo.new(0.4),
-                                {CFrame = target.CFrame + Vector3.new(0, 3, 0)}
-                            ):Play()
-                        end
-                    end
-
-                    task.wait(0.5)
-                end
-            end)
-        end
+        print("Teleport tab is working")
     end
 })
 
