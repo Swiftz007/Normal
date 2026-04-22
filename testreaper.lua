@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 2.4",
+SubTitle = "Beta 2.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -28,6 +28,7 @@ MinimizeKey = Enum.KeyCode.RightControl
 local Tabs = {
 Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
 Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+Teleport = Window:AddTab({ Title = "Teleport", Icon = "menu" }),
 ESP = Window:AddTab({ Title = "ESP", Icon = "box" }),
 Server = Window:AddTab({ Title = "Server", Icon = "server" }),
 Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
