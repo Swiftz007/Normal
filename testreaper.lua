@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 4.2",
+SubTitle = "Beta 4.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -392,24 +392,30 @@ local function getList()
 end
 
 -- =========================
--- DROPDOWN (MANUAL SELECT)
+-- CREATE DROPDOWN FUNCTION
 -- =========================
-local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
-    Title = "Select Player",
-    Values = getList(),
-})
+local function createDropdown()
+    local dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
+        Title = "Select Player",
+        Values = getList(),
+    })
 
-Dropdown:OnChanged(function(value)
-    selectedPlayer = Players:FindFirstChild(value)
-end)
+    dropdown:OnChanged(function(value)
+        selectedPlayer = Players:FindFirstChild(value)
+    end)
+
+    return dropdown
+end
+
+local Dropdown = createDropdown()
 
 -- =========================
--- REFRESH LIST
+-- REFRESH (RECREATE ONLY)
 -- =========================
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        Dropdown:SetValues(getList())
+        Dropdown = createDropdown()
     end
 })
 
