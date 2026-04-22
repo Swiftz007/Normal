@@ -374,7 +374,11 @@ local TweenService = game:GetService("TweenService")
 
 local selectedPlayer
 local teleportEnabled = false
+local dropdownOpen = false
 
+-- =========================
+-- GET PLAYER LIST
+-- =========================
 local function getList()
     local list = {}
 
@@ -392,29 +396,44 @@ local function getList()
 end
 
 -- =========================
--- CREATE DROPDOWN ONCE ONLY
+-- SELECT BUTTON (OPEN LIST)
 -- =========================
-local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
-    Title = "Select Player",
-    Values = getList(),
-})
+local function createPlayerButtons()
+    local list = getList()
 
-Dropdown:OnChanged(function(value)
-    selectedPlayer = Players:FindFirstChild(value)
-end)
+    for _, name in ipairs(list) do
+        Tabs.Teleport:AddButton({
+            Title = "👤 " .. name,
+            Callback = function()
+                selectedPlayer = Players:FindFirstChild(name)
+                print("Selected:", name)
+            end
+        })
+    end
+end
 
 -- =========================
--- REFRESH (SAFE METHOD)
+-- MAIN SELECT BUTTON
 -- =========================
 Tabs.Teleport:AddButton({
-    Title = "Refresh Players",
+    Title = "📂 Open Player List",
     Callback = function()
-        -- ❗ SAFE WAY: just update values, NO recreate
-        local list = getList()
+        dropdownOpen = not dropdownOpen
 
-        if Dropdown.SetValues then
-            Dropdown:SetValues(list)
+        if dropdownOpen then
+            createPlayerButtons()
         end
+    end
+})
+
+-- =========================
+-- REFRESH LIST
+-- =========================
+Tabs.Teleport:AddButton({
+    Title = "🔄 Refresh List",
+    Callback = function()
+        dropdownOpen = true
+        createPlayerButtons()
     end
 })
 
@@ -447,7 +466,6 @@ Tabs.Teleport:AddToggle("tp", {
                         end
                     end
                 end
-
                 task.wait(0.5)
             end
         end)
