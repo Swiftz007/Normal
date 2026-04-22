@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 4.7",
+SubTitle = "Beta 4.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -375,7 +375,7 @@ local TweenService = game:GetService("TweenService")
 local selectedPlayer
 local teleportEnabled = false
 
-local function getList()
+local function getPlayerList()
     local list = {}
 
     for _, p in ipairs(Players:GetPlayers()) do
@@ -392,45 +392,37 @@ local function getList()
 end
 
 -- =========================
--- CREATE DROPDOWN (ONLY ONCE)
+-- SAFE SELECTOR (BUTTON BASED DROPDOWN)
 -- =========================
-local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
-    Title = "Select Player",
-    Values = getList(),
-    Multi = false,
-})
+local currentIndex = 1
+local playerList = getPlayerList()
 
-Dropdown:OnChanged(function(value)
-    selectedPlayer = Players:FindFirstChild(value)
-end)
-
--- =========================
--- SAFE REFRESH (IMPORTANT FIX)
--- =========================
-local function refreshDropdown()
-    local success, err = pcall(function()
-        local list = getList()
-
-        -- ใช้เฉพาะถ้า lib รองรับจริง
-        if Dropdown.SetValues then
-            Dropdown:SetValues(list)
-        else
-            warn("SetValues not supported in this Fluent build")
-        end
-    end)
-
-    if not success then
-        warn("Dropdown refresh failed:", err)
-    end
+local function updateList()
+    playerList = getPlayerList()
+    currentIndex = 1
 end
 
+Tabs.Teleport:AddButton({
+    Title = "Select: " .. playerList[currentIndex],
+    Callback = function(self)
+        currentIndex += 1
+        if currentIndex > #playerList then
+            currentIndex = 1
+        end
+
+        self.Title = "Select: " .. playerList[currentIndex]
+        selectedPlayer = Players:FindFirstChild(playerList[currentIndex])
+    end
+})
+
 -- =========================
--- REFRESH BUTTON
+-- REFRESH LIST
 -- =========================
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        refreshDropdown()
+        updateList()
+        print("Refreshed")
     end
 })
 
@@ -463,7 +455,6 @@ Tabs.Teleport:AddToggle("tp", {
                         end
                     end
                 end
-
                 task.wait(0.5)
             end
         end)
