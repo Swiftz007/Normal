@@ -26,6 +26,7 @@ MinimizeKey = Enum.KeyCode.RightControl
 })
 
 local Tabs = {
+Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
 Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 ESP = Window:AddTab({ Title = "ESP", Icon = "box" }),
 Server = Window:AddTab({ Title = "Server", Icon = "server" }),
@@ -343,6 +344,12 @@ if typeof(v) == "Color3" then
 LineColor = v
 end
 end
+})
+
+-- Credit
+Tabs.Credit:AddParagraph({
+    Title = "Credit",
+    Content = "Make by : x2sxqz"
 })
 
 -- Server ⚔️
