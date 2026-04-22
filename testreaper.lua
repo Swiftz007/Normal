@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 2.6",
+SubTitle = "Beta 2.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -369,7 +369,42 @@ Tabs.Credit:AddParagraph({
 })
 
 -- Teleport
-Tabs.Teleport:AddDropdown({
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local selectedPlayer = nil
+local teleportEnabled = false
+
+-- ดึงรายชื่อผู้เล่น
+local function getPlayerList()
+    local list = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= Players.LocalPlayer then
+            table.insert(list, p.Name)
+        end
+    end
+    return list
+end
+
+-- Tween teleport
+local function tweenToCharacter(targetChar)
+    local lpChar = Players.LocalPlayer.Character
+    if not lpChar or not targetChar then return end
+
+    local root = lpChar:FindFirstChild("HumanoidRootPart")
+    local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+
+    if not root or not targetRoot then return end
+
+    TweenService:Create(
+        root,
+        TweenInfo.new(0.6, Enum.EasingStyle.Linear),
+        {CFrame = targetRoot.CFrame + Vector3.new(0, 3, 0)}
+    ):Play()
+end
+
+-- Dropdown
+local PlayerDropdown = Tabs.Teleport:AddDropdown({
     Title = "Select Player",
     Values = getPlayerList(),
     Callback = function(value)
@@ -377,10 +412,41 @@ Tabs.Teleport:AddDropdown({
     end
 })
 
+-- Refresh button (manual only)
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        PlayerDropdown:SetValues(getPlayerList())
+        local list = getPlayerList()
+
+        if PlayerDropdown.SetValues then
+            PlayerDropdown:SetValues(list)
+        elseif PlayerDropdown.Refresh then
+            PlayerDropdown:Refresh(list)
+        end
+
+        if PlayerDropdown.Set then
+            PlayerDropdown:Set("")
+        end
+    end
+})
+
+-- Toggle teleport
+Tabs.Teleport:AddToggle({
+    Title = "Teleport",
+    Default = false,
+    Callback = function(state)
+        teleportEnabled = state
+
+        if teleportEnabled then
+            task.spawn(function()
+                while teleportEnabled do
+                    if selectedPlayer and selectedPlayer.Character then
+                        tweenToCharacter(selectedPlayer.Character)
+                    end
+                    task.wait(0.8)
+                end
+            end)
+        end
     end
 })
 
