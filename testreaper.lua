@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 3.6",
+SubTitle = "Beta 3.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -370,28 +370,72 @@ Tabs.Credit:AddParagraph({
 
 -- Teleport
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 
-Tabs.Teleport:AddButton({
-    Title = "TAB OK",
-    Callback = function()
-        print("working")
+local selectedPlayer
+
+local function getList()
+    local list = {}
+
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= Players.LocalPlayer then
+            table.insert(list, p.Name)
+        end
     end
+
+    if #list == 0 then
+        list = {"No Players"}
+    end
+
+    return list
+end
+
+local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
+    Title = "Select Player",
+    Values = getList(),
+    Multi = false,
+    Default = nil,
 })
 
--- 🔥 HARD FIX: static values เท่านั้น
-Tabs.Teleport:AddDropdown({
-    Title = "Select Player",
-    Values = {"Player1"},
-    Callback = function(v)
-        print(v)
+Dropdown:OnChanged(function(value)
+    selectedPlayer = Players:FindFirstChild(value)
+end)
+
+Tabs.Teleport:AddButton({
+    Title = "Refresh Players",
+    Callback = function()
+        Dropdown:SetValues(getList())
     end
 })
 
 Tabs.Teleport:AddToggle({
-    Title = "Teleport Test",
+    Title = "Teleport Tween",
     Default = false,
     Callback = function(state)
-        print("toggle:", state)
+        if state then
+            task.spawn(function()
+                while state do
+                    if selectedPlayer and selectedPlayer.Character then
+                        local char = Players.LocalPlayer.Character
+                        local target = selectedPlayer.Character
+
+                        if char and target then
+                            local root = char:FindFirstChild("HumanoidRootPart")
+                            local tRoot = target:FindFirstChild("HumanoidRootPart")
+
+                            if root and tRoot then
+                                TweenService:Create(
+                                    root,
+                                    TweenInfo.new(0.4),
+                                    {CFrame = tRoot.CFrame + Vector3.new(0, 3, 0)}
+                                ):Play()
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
     end
 })
 
