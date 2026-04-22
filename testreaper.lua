@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 4.6",
+SubTitle = "Beta 4.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -392,11 +392,12 @@ local function getList()
 end
 
 -- =========================
--- DROPDOWN (ONLY ONCE)
+-- CREATE DROPDOWN (ONLY ONCE)
 -- =========================
 local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
     Title = "Select Player",
     Values = getList(),
+    Multi = false,
 })
 
 Dropdown:OnChanged(function(value)
@@ -404,19 +405,32 @@ Dropdown:OnChanged(function(value)
 end)
 
 -- =========================
--- REFRESH (SAFE METHOD - REASSIGN ONLY VALUES IF SUPPORTED)
+-- SAFE REFRESH (IMPORTANT FIX)
+-- =========================
+local function refreshDropdown()
+    local success, err = pcall(function()
+        local list = getList()
+
+        -- ใช้เฉพาะถ้า lib รองรับจริง
+        if Dropdown.SetValues then
+            Dropdown:SetValues(list)
+        else
+            warn("SetValues not supported in this Fluent build")
+        end
+    end)
+
+    if not success then
+        warn("Dropdown refresh failed:", err)
+    end
+end
+
+-- =========================
+-- REFRESH BUTTON
 -- =========================
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        local list = getList()
-
-        if Dropdown.SetValues then
-            Dropdown:SetValues(list)
-        else
-            -- fallback: do nothing (safe)
-            print("SetValues not supported in this build")
-        end
+        refreshDropdown()
     end
 })
 
