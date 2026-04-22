@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 3.8",
+SubTitle = "Beta 3.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -372,13 +372,10 @@ Tabs.Credit:AddParagraph({
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
-local selectedPlayer = nil
+local selectedPlayer
 local teleportEnabled = false
 
--- =========================
--- GET PLAYER LIST
--- =========================
-local function getPlayerList()
+local function getList()
     local list = {}
 
     for _, p in ipairs(Players:GetPlayers()) do
@@ -394,56 +391,35 @@ local function getPlayerList()
     return list
 end
 
--- =========================
--- TELEPORT FUNCTION
--- =========================
-local function tweenToPlayer(plr)
-    if not plr then return end
-    if not plr.Character then return end
-
-    local myChar = Players.LocalPlayer.Character
-    if not myChar then return end
-
-    local root = myChar:FindFirstChild("HumanoidRootPart")
-    local target = plr.Character:FindFirstChild("HumanoidRootPart")
-
-    if not root or not target then return end
-
-    TweenService:Create(
-        root,
-        TweenInfo.new(0.4, Enum.EasingStyle.Linear),
-        {CFrame = target.CFrame + Vector3.new(0, 3, 0)}
-    ):Play()
+local function createDropdown()
+    return Tabs.Teleport:AddDropdown("PlayerDropdown", {
+        Title = "Select Player",
+        Values = getList(),
+        Multi = false,
+    })
 end
 
--- =========================
--- DROPDOWN
--- =========================
-local PlayerDropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
-    Title = "Select Player",
-    Values = getPlayerList(),
-    Multi = false,
-    Default = nil,
-})
+-- initial dropdown
+local PlayerDropdown = createDropdown()
 
-PlayerDropdown:OnChanged(function(value)
-    selectedPlayer = Players:FindFirstChild(value)
+PlayerDropdown:OnChanged(function(v)
+    selectedPlayer = Players:FindFirstChild(v)
 end)
 
--- =========================
--- REFRESH BUTTON
--- =========================
+-- refresh (RECREATE ONLY)
 Tabs.Teleport:AddButton({
     Title = "Refresh Players",
     Callback = function()
-        PlayerDropdown:SetValues(getPlayerList())
+        PlayerDropdown = createDropdown()
+
+        PlayerDropdown:OnChanged(function(v)
+            selectedPlayer = Players:FindFirstChild(v)
+        end)
     end
 })
 
--- =========================
--- TELEPORT TOGGLE
--- =========================
-Tabs.Teleport:AddToggle("TeleportToggle", {
+-- teleport toggle
+Tabs.Teleport:AddToggle("tp", {
     Title = "Teleport Tween",
     Default = false
 }):OnChanged(function(state)
@@ -452,9 +428,24 @@ Tabs.Teleport:AddToggle("TeleportToggle", {
     if state then
         task.spawn(function()
             while teleportEnabled do
-                if selectedPlayer then
-                    tweenToPlayer(selectedPlayer)
+                if selectedPlayer and selectedPlayer.Character then
+                    local char = Players.LocalPlayer.Character
+                    local target = selectedPlayer.Character
+
+                    if char and target then
+                        local root = char:FindFirstChild("HumanoidRootPart")
+                        local tRoot = target:FindFirstChild("HumanoidRootPart")
+
+                        if root and tRoot then
+                            TweenService:Create(
+                                root,
+                                TweenInfo.new(0.4),
+                                {CFrame = tRoot.CFrame + Vector3.new(0, 3, 0)}
+                            ):Play()
+                        end
+                    end
                 end
+
                 task.wait(0.5)
             end
         end)
