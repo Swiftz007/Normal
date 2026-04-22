@@ -16,8 +16,8 @@ local Camera = workspace.CurrentCamera
 -- 🔥 WINDOW
 --=========================
 local Window = Fluent:CreateWindow({
-Title = "Reaper Hub",
-SubTitle = "Beta 3.4",
+Title = "Reaper Hub |",
+SubTitle = "Beta 3.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -370,19 +370,15 @@ Tabs.Credit:AddParagraph({
 
 -- Teleport
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 
-local selectedPlayer = nil
+local selectedPlayer
 local teleportEnabled = false
 
--- =========================
--- SAFE PLAYER LIST
--- =========================
 local function getPlayerList()
     local list = {}
 
     for _, p in ipairs(Players:GetPlayers()) do
-        if p and p ~= Players.LocalPlayer and p.Name then
+        if p ~= Players.LocalPlayer then
             table.insert(list, p.Name)
         end
     end
@@ -395,84 +391,65 @@ local function getPlayerList()
 end
 
 -- =========================
--- TWEEN FUNCTION SAFE
+-- WAIT UI STABLE (สำคัญมาก)
 -- =========================
-local function tweenToPlayer(plr)
-    if not plr then return end
-    if not plr.Character then return end
-
-    local char = Players.LocalPlayer.Character
-    if not char then return end
-
-    local root = char:FindFirstChild("HumanoidRootPart")
-    local target = plr.Character:FindFirstChild("HumanoidRootPart")
-
-    if not root or not target then return end
-
-    TweenService:Create(
-        root,
-        TweenInfo.new(0.4, Enum.EasingStyle.Linear),
-        {CFrame = target.CFrame + Vector3.new(0, 3, 0)}
-    ):Play()
-end
+task.wait(1)
 
 -- =========================
--- DROPDOWN (SAFE INIT)
--- =========================
-local PlayerDropdown = Tabs.Teleport:AddDropdown({
-    Title = "Select Player",
-    Values = getPlayerList(),
-    Callback = function(value)
-        local plr = Players:FindFirstChild(value)
-        if plr then
-            selectedPlayer = plr
-        end
-    end
-})
-
--- =========================
--- REFRESH BUTTON (NO CRASH)
+-- TEST BUTTON (พิสูจน์ว่า tab ยัง active)
 -- =========================
 Tabs.Teleport:AddButton({
-    Title = "Refresh Players",
+    Title = "TAB OK",
     Callback = function()
-        local list = getPlayerList()
-
-        -- ❗ IMPORTANT: recreate dropdown (Fluent safe method)
-        PlayerDropdown = Tabs.Teleport:AddDropdown({
-            Title = "Select Player",
-            Values = list,
-            Callback = function(value)
-                local plr = Players:FindFirstChild(value)
-                if plr then
-                    selectedPlayer = plr
-                end
-            end
-        })
+        print("Teleport tab works")
     end
 })
 
 -- =========================
--- TELEPORT TOGGLE
+-- SAFE DROPDOWN (delayed init)
 -- =========================
-Tabs.Teleport:AddToggle({
-    Title = "Teleport Tween",
-    Default = false,
-    Callback = function(state)
-        teleportEnabled = state
+task.spawn(function()
+    task.wait(0.5)
 
-        if state then
-            task.spawn(function()
-                while teleportEnabled do
-                    if selectedPlayer then
-                        tweenToPlayer(selectedPlayer)
-                    end
-                    task.wait(0.5)
-                end
-            end)
+    local PlayerDropdown = Tabs.Teleport:AddDropdown({
+        Title = "Select Player",
+        Values = getPlayerList(),
+        Callback = function(value)
+            selectedPlayer = Players:FindFirstChild(value)
         end
-    end
-})
+    })
+
+    Tabs.Teleport:AddButton({
+        Title = "Refresh Players",
+        Callback = function()
+            PlayerDropdown:Refresh(getPlayerList())
+        end
+    })
+
+    Tabs.Teleport:AddToggle({
+        Title = "Teleport Tween",
+        Default = false,
+        Callback = function(state)
+            teleportEnabled = state
+
+            if state then
+                task.spawn(function()
+                    while teleportEnabled do
+                        if selectedPlayer and selectedPlayer.Character then
+                            local root = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            local target = selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+                            if root and target then
+                                root.CFrame = target.CFrame + Vector3.new(0, 3, 0)
+                            end
+                        end
+                        task.wait(0.5)
+                    end
+                end)
+            end
+        end
+    })
+end)
 
 -- Server ⚔️
 Tabs.Server:AddButton({
