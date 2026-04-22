@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 4.5",
+SubTitle = "Beta 4.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -374,11 +374,7 @@ local TweenService = game:GetService("TweenService")
 
 local selectedPlayer
 local teleportEnabled = false
-local dropdownOpen = false
 
--- =========================
--- GET PLAYER LIST
--- =========================
 local function getList()
     local list = {}
 
@@ -396,44 +392,31 @@ local function getList()
 end
 
 -- =========================
--- SELECT BUTTON (OPEN LIST)
+-- DROPDOWN (ONLY ONCE)
 -- =========================
-local function createPlayerButtons()
-    local list = getList()
-
-    for _, name in ipairs(list) do
-        Tabs.Teleport:AddButton({
-            Title = "👤 " .. name,
-            Callback = function()
-                selectedPlayer = Players:FindFirstChild(name)
-                print("Selected:", name)
-            end
-        })
-    end
-end
-
--- =========================
--- MAIN SELECT BUTTON
--- =========================
-Tabs.Teleport:AddButton({
-    Title = "📂 Open Player List",
-    Callback = function()
-        dropdownOpen = not dropdownOpen
-
-        if dropdownOpen then
-            createPlayerButtons()
-        end
-    end
+local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
+    Title = "Select Player",
+    Values = getList(),
 })
 
+Dropdown:OnChanged(function(value)
+    selectedPlayer = Players:FindFirstChild(value)
+end)
+
 -- =========================
--- REFRESH LIST
+-- REFRESH (SAFE METHOD - REASSIGN ONLY VALUES IF SUPPORTED)
 -- =========================
 Tabs.Teleport:AddButton({
-    Title = "🔄 Refresh List",
+    Title = "Refresh Players",
     Callback = function()
-        dropdownOpen = true
-        createPlayerButtons()
+        local list = getList()
+
+        if Dropdown.SetValues then
+            Dropdown:SetValues(list)
+        else
+            -- fallback: do nothing (safe)
+            print("SetValues not supported in this build")
+        end
     end
 })
 
@@ -466,6 +449,7 @@ Tabs.Teleport:AddToggle("tp", {
                         end
                     end
                 end
+
                 task.wait(0.5)
             end
         end)
