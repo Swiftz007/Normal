@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 7.1",
+SubTitle = "lib Beta 7.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -109,29 +109,13 @@ end)
 --=========================
 -- 🔥 INFINITE JUMP
 --=========================
-local UIS = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-
-local jumpQueued = false
-
 UIS.JumpRequest:Connect(function()
-    if State.INFJ then
-        jumpQueued = true
-    end
-end)
-
-RunService.Heartbeat:Connect(function()
-    if not jumpQueued then return end
-    jumpQueued = false
-
-    local char = LP.Character
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-    if not hum then return end
-
-    if hum.FloorMaterial ~= Enum.Material.Air then
-        hum:ChangeState(Enum.HumanoidStateType.Jumping)
-        hum.Jump = true
-    end
+if State.INFJ then
+local hum = GetHum()
+if hum then
+hum:ChangeState(Enum.HumanoidStateType.Jumping)
+end
+end
 end)
 
 --=========================
