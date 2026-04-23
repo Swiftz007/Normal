@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 6.8",
+SubTitle = "lib Beta 6.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -109,18 +109,20 @@ end)
 --=========================
 -- 🔥 INFINITE JUMP
 --=========================
+local UIS = game:GetService("UserInputService")
+
 UIS.JumpRequest:Connect(function()
     if not State.INFJ then return end
 
-    local hum = GetHum()
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
     if not hum then return end
 
-    -- 🔥 reset state ก่อน
-    hum:ChangeState(Enum.HumanoidStateType.Freefall)
-    task.wait()
-
-    -- 🔥 force jump
-    hum:ChangeState(Enum.HumanoidStateType.Jumping)
+    -- 🔥 บังคับกระโดดจริง (ไม่พึ่ง state อย่างเดียว)
+    if hum.FloorMaterial ~= Enum.Material.Air then
+        hum:ChangeState(Enum.HumanoidStateType.Jumping)
+        hum.Jump = true
+    end
 end)
 
 --=========================
