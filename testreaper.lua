@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 6.3",
+SubTitle = "lib Beta 6.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -314,6 +314,35 @@ Callback = function(v) State.NC = v end
 
 -- Anti AFK
 local VirtualUser = game:GetService("VirtualUser")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- สร้าง UI Timer
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AntiAFK_Timer"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local Label = Instance.new("TextLabel")
+Label.Size = UDim2.new(0, 220, 0, 50)
+Label.Position = UDim2.new(0.5, -110, 0.15, 0) -- กลางจอด้านบน
+Label.BackgroundTransparency = 0.3
+Label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Label.TextColor3 = Color3.fromRGB(0, 255, 0)
+Label.TextScaled = true
+Label.Visible = false
+Label.Font = Enum.Font.GothamBold
+Label.Text = "Anti AFK: 00:00"
+Label.Parent = ScreenGui
+
+local function formatTime(sec)
+    local m = math.floor(sec / 60)
+    local s = sec % 60
+    return string.format("%02d:%02d", m, s)
+end
+
+local running = false
+local startTime = 0
 
 Tabs.Player:AddToggle("AntiAFK", {
     Title = "Anti AFK",
@@ -321,7 +350,20 @@ Tabs.Player:AddToggle("AntiAFK", {
     Callback = function(v)
         if v then
             getgenv().AntiAFK = true
+            running = true
+            startTime = os.time()
+            Label.Visible = true
 
+            -- อัปเดตเวลา
+            task.spawn(function()
+                while getgenv().AntiAFK do
+                    local elapsed = os.time() - startTime
+                    Label.Text = "Anti AFK: " .. formatTime(elapsed)
+                    task.wait(1)
+                end
+            end)
+
+            -- Anti AFK loop
             task.spawn(function()
                 while getgenv().AntiAFK do
                     task.wait(1080)
@@ -334,10 +376,13 @@ Tabs.Player:AddToggle("AntiAFK", {
 
         else
             getgenv().AntiAFK = false
+            running = false
+            Label.Visible = false
         end
     end
 })
 
+--ESP
 Tabs.ESP:AddToggle("ESP", {
 Title = "ESP Enable",
 Default = false,
