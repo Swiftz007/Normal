@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 6.6",
+SubTitle = "lib Beta 6.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -38,11 +38,11 @@ Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 -- 🔥 STATE
 --=========================
 local State = {
-WS = false,
-JP = false,
-INFJ = false,
-NC = false,
-ESP = false
+    WS = false,
+    JP = false,
+    INFJ = false,
+    NC = false,
+    ESP = false
 }
 
 local WSValue = 16
@@ -51,47 +51,59 @@ local JPValue = 50
 local DefaultWS = 16
 local DefaultJP = 50
 
+local initialized = false
+
 --=========================
 -- 🔥 CHARACTER HOOK
 --=========================
 local function HookChar(char)
-local hum = char:WaitForChild("Humanoid")
-task.wait(0.1)
+    local hum = char:WaitForChild("Humanoid")
+    task.wait(0.1)
 
-DefaultWS = hum.WalkSpeed  
-DefaultJP = hum.UseJumpPower and hum.JumpPower or 50
-
+    -- 🔥 FIX: ล็อกค่า default แค่ครั้งเดียว
+    if not initialized then
+        DefaultWS = hum.WalkSpeed
+        DefaultJP = hum.UseJumpPower and hum.JumpPower or 50
+        initialized = true
+    end
 end
 
 if LP.Character then HookChar(LP.Character) end
 LP.CharacterAdded:Connect(HookChar)
 
-local function GetHum()
-local c = LP.Character
-return c and c:FindFirstChildOfClass("Humanoid")
-end
+-- 🔥 FIX: re-apply ตอน respawn (เฉพาะ WS/JP)
+LP.CharacterAdded:Connect(function(char)
+    task.wait(0.1)
+
+    local hum = char:WaitForChild("Humanoid")
+    hum.UseJumpPower = true
+
+    hum.WalkSpeed = State.WS and WSValue or DefaultWS
+    hum.JumpPower = State.JP and JPValue or DefaultJP
+end)
 
 --=========================
 -- 🔥 MOVEMENT
 --=========================
 RunService.RenderStepped:Connect(function()
-local char = LP.Character
-local hum = char and char:FindFirstChildOfClass("Humanoid")
-if not hum then return end
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
 
-hum.WalkSpeed = State.WS and WSValue or DefaultWS  
+    -- WalkSpeed
+    if State.WS then
+        hum.WalkSpeed = WSValue
+    else
+        hum.WalkSpeed = DefaultWS
+    end
 
-hum.UseJumpPower = true  
-hum.JumpPower = State.JP and JPValue or DefaultJP  
-
-if State.NC then  
-    for _,v in pairs(char:GetDescendants()) do  
-        if v:IsA("BasePart") then  
-            v.CanCollide = false  
-        end  
-    end  
-end
-
+    -- JumpPower
+    hum.UseJumpPower = true
+    if State.JP then
+        hum.JumpPower = JPValue
+    else
+        hum.JumpPower = DefaultJP
+    end
 end)
 
 --=========================
