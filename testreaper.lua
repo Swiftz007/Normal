@@ -9,6 +9,9 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 
+local CameraSensitivity = 1
+local SensitivityEnabled = false
+
 local LP = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
@@ -17,7 +20,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 7.4",
+SubTitle = "lib Beta 7.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1061,6 +1064,61 @@ Tabs.Settings:AddToggle("FPSBoost", {
     optimized = v
     applyOptimize(v)
 end)
+
+-- Sensi
+--=========================
+-- 📷 CAMERA SETTINGS
+--=========================
+local CameraSensitivity = 1
+local SensitivityEnabled = false
+
+local function GetCamera()
+    return workspace.CurrentCamera
+end
+
+--=========================
+-- 📱 TOUCH CAMERA SYSTEM
+--=========================
+UIS.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        if not SensitivityEnabled then return end
+
+        local camera = GetCamera()
+        if not camera then return end
+
+        local delta = input.Delta
+
+        camera.CFrame = camera.CFrame * CFrame.Angles(
+            0,
+            -delta.X * 0.003 * CameraSensitivity,
+            0
+        )
+    end
+end)
+
+--=========================
+-- 🎛️ FLUENT TOGGLE
+--=========================
+Tabs.Settings:AddToggle("Fast Camera", {
+    Title = "Fast Camera",
+    Default = false,
+    Callback = function(Value)
+        SensitivityEnabled = Value
+    end
+})
+
+--=========================
+-- 🎚️ SENSITIVITY SLIDER (optional)
+--=========================
+Tabs.Settings:AddSlider("Camera Sensitivity", {
+    Title = "Sensitivity",
+    Min = 0.5,
+    Max = 3,
+    Default = 1,
+    Callback = function(Value)
+        CameraSensitivity = Value
+    end
+})
 
 --=========================
 -- ⚙ SETTINGS TAB
