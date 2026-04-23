@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 5.5",
+SubTitle = "Beta 5.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -261,6 +261,280 @@ local function StartESP()
             end
         end
     end)
+end
+
+-- Tab main
+Tabs.Main:AddToggle("TPFlyUI", {
+    Title = "TP Fly UI",
+    Default = false
+}):OnChanged(function(v)
+    if v then
+        createTPFly()
+    else
+        removeTPFly()
+    end
+end)
+
+Tabs.Main:AddToggle("InvisUI", {
+    Title = "Invis UI",
+    Default = false
+}):OnChanged(function(v)
+    if v then
+        createInvis()
+    else
+        removeInvis()
+    end
+end)
+
+-- Button conect
+-- Tp Fly
+local tpGui = nil
+
+function createTPFly()
+    if tpGui then return end
+
+    --// Services Tp Fly
+    local Players = game:GetService("Players")
+    local TweenService = game:GetService("TweenService")
+
+    local LocalPlayer = Players.LocalPlayer
+
+    --// CONFIG
+    local TWEEN_SPEED = 2
+    local SKY_HEIGHT = 150
+
+    --// GUI
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "TPFlyUI"
+    ScreenGui.Parent = game.CoreGui
+    tpGui = ScreenGui
+
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(0, 180, 0, 85)
+    Frame.Position = UDim2.new(0.5, -90, 0.5, -42)
+    Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Frame.BackgroundTransparency = 0.35
+    Frame.BorderSizePixel = 0
+    Frame.Parent = ScreenGui
+    Frame.Active = true
+    Frame.Draggable = true
+
+    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 14)
+
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = Color3.fromRGB(10,10,10)
+    Stroke.Thickness = 2
+    Stroke.Transparency = 0.1
+    Stroke.Parent = Frame
+
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 22)
+    Title.Position = UDim2.new(0, 0, 0, 3)
+    Title.BackgroundTransparency = 1
+    Title.Text = "TP Fly"
+    Title.TextColor3 = Color3.fromRGB(255,255,255)
+    Title.TextScaled = true
+    Title.Font = Enum.Font.GothamBold
+    Title.Parent = Frame
+
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(0, 140, 0, 36)
+    Button.Position = UDim2.new(0.5, -70, 0, 35)
+    Button.Text = "Tween"
+    Button.TextColor3 = Color3.fromRGB(255,255,255)
+    Button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    Button.BorderSizePixel = 0
+    Button.Parent = Frame
+    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 14)
+
+    local function getRandomPlayer()
+        local list = {}
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer then
+                table.insert(list, p)
+            end
+        end
+        if #list == 0 then return nil end
+        return list[math.random(1, #list)]
+    end
+
+    local working = false
+
+    Button.MouseButton1Click:Connect(function()
+        if working then return end
+        working = true
+
+        Button.Text = "Tween..."
+        Button.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+
+        local targetPlayer = getRandomPlayer()
+        if not targetPlayer then
+            working = false
+            Button.Text = "Tween"
+            Button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+            return
+        end
+
+        local char = LocalPlayer.Character
+        local targetChar = targetPlayer.Character
+        if not char or not targetChar then return end
+
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
+        if not hrp or not targetHRP then return end
+
+        hrp.CFrame = hrp.CFrame + Vector3.new(0, SKY_HEIGHT, 0)
+        task.wait(0.2)
+
+        local above = targetHRP.Position + Vector3.new(0, 120, 0)
+        local tween1 = TweenService:Create(hrp, TweenInfo.new(TWEEN_SPEED), {CFrame = CFrame.new(above)})
+        tween1:Play()
+        tween1.Completed:Wait()
+
+        hrp.CFrame = CFrame.new(targetHRP.Position + Vector3.new(0, 10, 0))
+        task.wait(0.1)
+
+        local tween2 = TweenService:Create(hrp, TweenInfo.new(TWEEN_SPEED / 2), {CFrame = targetHRP.CFrame})
+        tween2:Play()
+        tween2.Completed:Wait()
+
+        Button.Text = "Tween"
+        Button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        working = false
+    end)
+end
+
+function removeTPFly()
+    if tpGui then
+        tpGui:Destroy()
+        tpGui = nil
+    end
+end
+
+-- มุดดิน V2
+local invisGui = nil
+
+function createInvis()
+    if invisGui then return end
+
+    --// มุดดิน V2
+    local player = game.Players.LocalPlayer
+    local RunService = game:GetService("RunService")
+
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    local toggled = false
+    local savedCFrame
+    local lockConnection
+
+    local OFFSET_Y = 6
+
+    --================ GUI =================--
+
+    local gui = Instance.new("ScreenGui", game.CoreGui)
+    gui.Name = "InvisClean"
+    gui.ResetOnSpawn = false
+    invisGui = gui
+
+    local frame = Instance.new("Frame", gui)
+    frame.Size = UDim2.new(0, 180, 0, 95)
+    frame.Position = UDim2.new(0.42, 0, 0.35, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(40,40,55)
+    frame.BackgroundTransparency = 0.2
+    frame.Active = true
+    frame.Draggable = true
+
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0,14)
+
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Thickness = 1.5
+    stroke.Color = Color3.fromRGB(10,10,15)
+    stroke.Transparency = 0.1
+
+    local title = Instance.new("TextLabel", frame)
+    title.Size = UDim2.new(1,0,0,28)
+    title.BackgroundTransparency = 1
+    title.Text = "มุดดิน V2"
+    title.TextColor3 = Color3.fromRGB(220,220,255)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 14
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.7,0,0,32)
+    button.Position = UDim2.new(0.15,0,0.55,0)
+    button.Text = "ปิด"
+    button.BackgroundColor3 = Color3.fromRGB(255,0,0)
+    button.TextColor3 = Color3.new(1,1,1)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 16
+
+    Instance.new("UICorner", button).CornerRadius = UDim.new(0,10)
+
+    --================ SYSTEM =================--
+
+    local function refresh()
+        char = player.Character or player.CharacterAdded:Wait()
+        hrp = char:WaitForChild("HumanoidRootPart")
+    end
+
+    player.CharacterAdded:Connect(function()
+        task.wait(1)
+        refresh()
+    end)
+
+    local function lockPosition(cf)
+        if lockConnection then lockConnection:Disconnect() end
+
+        lockConnection = RunService.RenderStepped:Connect(function()
+            if hrp then
+                hrp.CFrame = cf
+                hrp.Velocity = Vector3.zero
+                hrp.RotVelocity = Vector3.zero
+            end
+        end)
+    end
+
+    local function unlock()
+        if lockConnection then
+            lockConnection:Disconnect()
+            lockConnection = nil
+        end
+    end
+
+    --================ TOGGLE =================--
+
+    button.MouseButton1Click:Connect(function()
+        refresh()
+
+        if not toggled then
+            savedCFrame = hrp.CFrame
+            local target = hrp.CFrame - Vector3.new(0, OFFSET_Y, 0)
+
+            lockPosition(target)
+
+            button.Text = "เปิด"
+            button.BackgroundColor3 = Color3.fromRGB(0,255,0)
+            toggled = true
+        else
+            unlock()
+
+            if savedCFrame then
+                hrp.CFrame = savedCFrame
+            end
+
+            button.Text = "ปิด"
+            button.BackgroundColor3 = Color3.fromRGB(255,0,0)
+            toggled = false
+        end
+    end)
+end
+
+function removeInvis()
+    if invisGui then
+        invisGui:Destroy()
+        invisGui = nil
+    end
 end
 
 --=========================
