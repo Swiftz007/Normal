@@ -20,7 +20,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 7.5",
+SubTitle = "lib Beta 7.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1067,48 +1067,21 @@ end)
 
 -- Sensi
 --=========================
--- 📷 CAMERA SETTINGS
---=========================
-local CameraSensitivity = 1
-local SensitivityEnabled = false
-
-local function GetCamera()
-    return workspace.CurrentCamera
-end
-
---=========================
--- 📱 TOUCH CAMERA SYSTEM
---=========================
-UIS.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch then
-        if not SensitivityEnabled then return end
-
-        local camera = GetCamera()
-        if not camera then return end
-
-        local delta = input.Delta
-
-        camera.CFrame = camera.CFrame * CFrame.Angles(
-            0,
-            -delta.X * 0.003 * CameraSensitivity,
-            0
-        )
-    end
-end)
-
---=========================
--- 🎛️ FLUENT TOGGLE
+-- 🎛️ TOGGLE (FLUENT UI)
 --=========================
 Tabs.Settings:AddToggle("Fast Camera", {
-    Title = "Fast Camera",
+    Title = "Fast Camera (Mobile)",
     Default = false,
     Callback = function(Value)
         SensitivityEnabled = Value
+
+        -- เปิด/ปิดระบบ sensitivity ของ Roblox โดยตรง (ปลอดภัยสุด)
+        UIS.MouseDeltaSensitivity = Value and CameraSensitivity or 1
     end
 })
 
 --=========================
--- 🎚️ SENSITIVITY SLIDER (optional)
+-- 🎚️ SLIDER (FLUENT UI)
 --=========================
 Tabs.Settings:AddSlider("Camera Sensitivity", {
     Title = "Sensitivity",
@@ -1117,6 +1090,11 @@ Tabs.Settings:AddSlider("Camera Sensitivity", {
     Default = 1,
     Callback = function(Value)
         CameraSensitivity = Value
+
+        -- ถ้าเปิดอยู่ อัปเดตทันที
+        if SensitivityEnabled then
+            UIS.MouseDeltaSensitivity = Value
+        end
     end
 })
 
