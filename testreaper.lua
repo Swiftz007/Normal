@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 5.4",
+SubTitle = "Beta 5.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -579,18 +579,34 @@ Tabs.Server:AddButton({
 local optimized = false
 local saved = {}
 
-local function applyTextureOptimize(state)
+local function applyOptimize(state)
     if state then
         for _, v in ipairs(game:GetDescendants()) do
+            
             if v:IsA("Texture") or v:IsA("Decal") then
                 saved[v] = v.Transparency
                 v.Transparency = 1
+
+            elseif v:IsA("BasePart") then
+                saved[v] = {
+                    Material = v.Material,
+                    Reflectance = v.Reflectance
+                }
+
+                v.Material = Enum.Material.SmoothPlastic
+                v.Reflectance = 0
             end
+
         end
     else
-        for obj, trans in pairs(saved) do
+        for obj, data in pairs(saved) do
             if obj and obj.Parent then
-                obj.Transparency = trans
+                if typeof(data) == "table" then
+                    obj.Material = data.Material
+                    obj.Reflectance = data.Reflectance
+                else
+                    obj.Transparency = data
+                end
             end
         end
         saved = {}
@@ -602,7 +618,7 @@ Tabs.Settings:AddToggle("FPSBoost", {
     Default = false
 }):OnChanged(function(v)
     optimized = v
-    applyTextureOptimize(v)
+    applyOptimize(v)
 end)
 
 --=========================
