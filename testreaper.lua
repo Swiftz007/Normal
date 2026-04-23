@@ -628,8 +628,8 @@ end)
 InterfaceManager:SetLibrary(Fluent)
 SaveManager:SetLibrary(Fluent)
 
-InterfaceManager:SetFolder("FluentHub")
-SaveManager:SetFolder("FluentHub/configs")
+InterfaceManager:SetFolder("ReaperHub")
+SaveManager:SetFolder("ReaperHub/configs")
 
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
