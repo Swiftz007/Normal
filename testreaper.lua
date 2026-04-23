@@ -465,7 +465,7 @@ end)
 -- Credit
 Tabs.Credit:AddParagraph({
     Title = "Credit",
-    Content = "Make by : x2sxqz"
+    Content = "Made by x2sxqz"
 })
 
 Tabs.Credit:AddParagraph({
@@ -474,13 +474,8 @@ Tabs.Credit:AddParagraph({
 })
 
 Tabs.Credit:AddParagraph({
-    Title = "UX/UI",
-    Content = "Fluent"
-})
-
-Tabs.Credit:AddParagraph({
-    Title = "Optimize",
-    Content = "Make by : x2sxqz"
+    Title = "UI Library",
+    Content = "Fluent UI"
 })
 
 -- Teleport
