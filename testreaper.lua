@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 6.2",
+SubTitle = "lib Beta 6.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -310,6 +310,32 @@ Tabs.Player:AddToggle("NC", {
 Title = "Noclip",
 Default = false,
 Callback = function(v) State.NC = v end
+})
+
+-- Anti AFK
+local VirtualUser = game:GetService("VirtualUser")
+
+Tabs.Player:AddToggle("AntiAFK", {
+    Title = "Anti AFK",
+    Default = false,
+    Callback = function(v)
+        if v then
+            getgenv().AntiAFK = true
+
+            task.spawn(function()
+                while getgenv().AntiAFK do
+                    task.wait(1080)
+
+                    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                    task.wait(1)
+                    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                end
+            end)
+
+        else
+            getgenv().AntiAFK = false
+        end
+    end
 })
 
 Tabs.ESP:AddToggle("ESP", {
