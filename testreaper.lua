@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 7.3",
+SubTitle = "lib Beta 7.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -54,12 +54,22 @@ local DefaultJP = 50
 local initialized = false
 
 --=========================
--- 🔥 SERVICES
+-- 🔥 CHARACTER HOOK
 --=========================
-local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
+local function HookChar(char)
+    local hum = char:WaitForChild("Humanoid")
+    task.wait(0.1)
 
-local LP = Players.LocalPlayer
+    -- 🔥 FIX: ล็อก default แค่ครั้งเดียว (กันค่าค้าง/เพี้ยนตอน respawn)
+    if not initialized then
+        DefaultWS = hum.WalkSpeed
+        DefaultJP = hum.UseJumpPower and hum.JumpPower or 50
+        initialized = true
+    end
+end
+
+if LP.Character then HookChar(LP.Character) end
+LP.CharacterAdded:Connect(HookChar)
 
 --=========================
 -- 🔥 GET HUM
@@ -70,52 +80,47 @@ local function GetHum()
 end
 
 --=========================
--- 🔥 CHARACTER HOOK
+-- 🔥 MOVEMENT
 --=========================
-local function HookChar(char)
-    local hum = char:WaitForChild("Humanoid")
-    task.wait(0.1)
+RunService.RenderStepped:Connect(function()
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
 
-    -- ล็อก default แค่ครั้งเดียว
-    if not initialized then
-        DefaultWS = hum.WalkSpeed
-        DefaultJP = hum.UseJumpPower and hum.JumpPower or 50
-        initialized = true
+    -- WalkSpeed
+    if State.WS then
+        hum.WalkSpeed = WSValue
+    else
+        hum.WalkSpeed = DefaultWS
     end
 
-    -- รี-apply ตอน respawn
-    hum.WalkSpeed = State.WS and WSValue or DefaultWS
+    -- JumpPower
     hum.UseJumpPower = true
-    hum.JumpPower = State.JP and JPValue or DefaultJP
-end
+    if State.JP then
+        hum.JumpPower = JPValue
+    else
+        hum.JumpPower = DefaultJP
+    end
 
-if LP.Character then HookChar(LP.Character) end
-LP.CharacterAdded:Connect(HookChar)
-
---=========================
--- 🔥 WS / JP APPLY (ใช้ตอน toggle เท่านั้น)
---=========================
-local function ApplyMovement()
-    local hum = GetHum()
-    if not hum then return end
-
-    hum.WalkSpeed = State.WS and WSValue or DefaultWS
-    hum.UseJumpPower = true
-    hum.JumpPower = State.JP and JPValue or DefaultJP
-end
+    -- NC (ไม่แก้ logic เดิม)
+    if State.NC then
+        for _,v in pairs(char:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+    end
+end)
 
 --=========================
--- 🔥 INFINITE JUMP (ไม่ชน WS/JP แล้ว)
+-- 🔥 INFINITE JUMP
 --=========================
 UIS.JumpRequest:Connect(function()
-    if not State.INFJ then return end
-
-    local hum = GetHum()
-    if not hum then return end
-
-    if hum.FloorMaterial ~= Enum.Material.Air then
-        hum:ChangeState(Enum.HumanoidStateType.Jumping)
-        hum.Jump = true
+    if State.INFJ then
+        local hum = GetHum()
+        if hum then
+            hum:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
     end
 end)
 
