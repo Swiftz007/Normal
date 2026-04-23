@@ -9,9 +9,6 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 
-local CameraSensitivity = 1
-local SensitivityEnabled = false
-
 local LP = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
@@ -20,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 7.6",
+SubTitle = "lib Beta 7.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1065,38 +1062,6 @@ Tabs.Settings:AddToggle("FPSBoost", {
     applyOptimize(v)
 end)
 
--- Sensi
---=========================
--- 🎛️ TOGGLE (FLUENT UI)
---=========================
-Tabs.Settings:AddToggle("Fast Camera", {
-    Title = "Fast Camera (Mobile)",
-    Default = false,
-    Callback = function(Value)
-        SensitivityEnabled = Value
-
-        -- เปิด/ปิดระบบ sensitivity ของ Roblox โดยตรง (ปลอดภัยสุด)
-        UIS.MouseDeltaSensitivity = Value and CameraSensitivity or 1
-    end
-})
-
---=========================
--- 🎚️ SLIDER (FLUENT UI)
---=========================
-Tabs.Settings:AddSlider("Camera Sensitivity", {
-    Title = "Sensitivity",
-    Min = 0.5,
-    Max = 3,
-    Default = 1,
-    Callback = function(Value)
-        CameraSensitivity = Value
-
-        -- ถ้าเปิดอยู่ อัปเดตทันที
-        if SensitivityEnabled then
-            UIS.MouseDeltaSensitivity = Value
-        end
-    end
-})
 
 --=========================
 -- ⚙ SETTINGS TAB
