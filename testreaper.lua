@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 5.6",
+SubTitle = "Beta 5.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -264,46 +264,20 @@ local function StartESP()
 end
 
 -- Tab main
-Tabs.Main:AddToggle("TPFlyUI", {
-    Title = "TP Fly UI",
-    Default = false
-}):OnChanged(function(v)
-    if v then
-        createTPFly()
-    else
-        removeTPFly()
-    end
-end)
+--================ TP FLY =================--
 
-Tabs.Main:AddToggle("InvisUI", {
-    Title = "Invis UI",
-    Default = false
-}):OnChanged(function(v)
-    if v then
-        createInvis()
-    else
-        removeInvis()
-    end
-end)
-
--- Button conect
--- Tp Fly
 local tpGui = nil
 
 function createTPFly()
     if tpGui then return end
 
-    --// Services Tp Fly
     local Players = game:GetService("Players")
     local TweenService = game:GetService("TweenService")
-
     local LocalPlayer = Players.LocalPlayer
 
-    --// CONFIG
     local TWEEN_SPEED = 2
     local SKY_HEIGHT = 150
 
-    --// GUI
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "TPFlyUI"
     ScreenGui.Parent = game.CoreGui
@@ -368,20 +342,15 @@ function createTPFly()
         Button.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 
         local targetPlayer = getRandomPlayer()
-        if not targetPlayer then
-            working = false
-            Button.Text = "Tween"
-            Button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-            return
-        end
+        if not targetPlayer then goto reset end
 
         local char = LocalPlayer.Character
         local targetChar = targetPlayer.Character
-        if not char or not targetChar then return end
+        if not char or not targetChar then goto reset end
 
         local hrp = char:FindFirstChild("HumanoidRootPart")
         local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
-        if not hrp or not targetHRP then return end
+        if not hrp or not targetHRP then goto reset end
 
         hrp.CFrame = hrp.CFrame + Vector3.new(0, SKY_HEIGHT, 0)
         task.wait(0.2)
@@ -394,10 +363,11 @@ function createTPFly()
         hrp.CFrame = CFrame.new(targetHRP.Position + Vector3.new(0, 10, 0))
         task.wait(0.1)
 
-        local tween2 = TweenService:Create(hrp, TweenInfo.new(TWEEN_SPEED / 2), {CFrame = targetHRP.CFrame})
+        local tween2 = TweenService:Create(hrp, TweenInfo.new(TWEEN_SPEED/2), {CFrame = targetHRP.CFrame})
         tween2:Play()
         tween2.Completed:Wait()
 
+        ::reset::
         Button.Text = "Tween"
         Button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
         working = false
@@ -411,26 +381,20 @@ function removeTPFly()
     end
 end
 
--- มุดดิน V2
+--================ INVIS V2 =================--
+
 local invisGui = nil
+local lockConnection = nil
+local toggled = false
+local savedCFrame = nil
 
 function createInvis()
     if invisGui then return end
 
-    --// มุดดิน V2
     local player = game.Players.LocalPlayer
     local RunService = game:GetService("RunService")
 
-    local char = player.Character or player.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
-
-    local toggled = false
-    local savedCFrame
-    local lockConnection
-
     local OFFSET_Y = 6
-
-    --================ GUI =================--
 
     local gui = Instance.new("ScreenGui", game.CoreGui)
     gui.Name = "InvisClean"
@@ -471,27 +435,18 @@ function createInvis()
 
     Instance.new("UICorner", button).CornerRadius = UDim.new(0,10)
 
-    --================ SYSTEM =================--
-
-    local function refresh()
-        char = player.Character or player.CharacterAdded:Wait()
-        hrp = char:WaitForChild("HumanoidRootPart")
-    end
-
-    player.CharacterAdded:Connect(function()
-        task.wait(1)
-        refresh()
-    end)
-
     local function lockPosition(cf)
         if lockConnection then lockConnection:Disconnect() end
 
         lockConnection = RunService.RenderStepped:Connect(function()
-            if hrp then
-                hrp.CFrame = cf
-                hrp.Velocity = Vector3.zero
-                hrp.RotVelocity = Vector3.zero
-            end
+            local char = player.Character
+            if not char then return end
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not hrp then return end
+
+            hrp.CFrame = cf
+            hrp.Velocity = Vector3.zero
+            hrp.RotVelocity = Vector3.zero
         end)
     end
 
@@ -502,10 +457,11 @@ function createInvis()
         end
     end
 
-    --================ TOGGLE =================--
-
     button.MouseButton1Click:Connect(function()
-        refresh()
+        local char = player.Character
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
 
         if not toggled then
             savedCFrame = hrp.CFrame
@@ -531,11 +487,42 @@ function createInvis()
 end
 
 function removeInvis()
+    if lockConnection then
+        lockConnection:Disconnect()
+        lockConnection = nil
+    end
+
     if invisGui then
         invisGui:Destroy()
         invisGui = nil
     end
+
+    toggled = false
 end
+
+--================ TOGGLE =================--
+
+Tabs.Main:AddToggle("TPFlyUI", {
+    Title = "TP Fly",
+    Default = false
+}):OnChanged(function(v)
+    if v then
+        createTPFly()
+    else
+        removeTPFly()
+    end
+end)
+
+Tabs.Main:AddToggle("InvisUI", {
+    Title = "มุดดิน V2",
+    Default = false
+}):OnChanged(function(v)
+    if v then
+        createInvis()
+    else
+        removeInvis()
+    end
+end)
 
 --=========================
 -- 🔥 ENABLE ESP
