@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 5.2",
+SubTitle = "Beta 5.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -574,6 +574,46 @@ Tabs.Server:AddButton({
         )
     end
 })
+
+-- FPS BOOST
+local Lighting = game:GetService("Lighting")
+
+local optimizeEnabled = false
+
+local function applyOptimize(state)
+    if state then
+        -- ลดกราฟิก
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        Lighting.Brightness = 2
+
+        for _, v in ipairs(game:GetDescendants()) do
+            if v:IsA("Texture") or v:IsA("Decal") then
+                v.Transparency = 1
+            elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                v.Enabled = false
+            elseif v:IsA("Explosion") then
+                v.BlastPressure = 1
+                v.BlastRadius = 1
+            elseif v:IsA("Fire") or v:IsA("Smoke") then
+                v.Enabled = false
+            end
+        end
+    else
+        -- รีเซ็ตบางค่า (ไม่ 100% เดิม แต่พอใช้)
+        Lighting.GlobalShadows = true
+        Lighting.FogEnd = 1000
+        Lighting.Brightness = 2
+    end
+end
+
+Tabs.Settings:AddToggle("Optimize", {
+    Title = "FPS Boost / Optimize",
+    Default = false
+}):OnChanged(function(v)
+    optimizeEnabled = v
+    applyOptimize(v)
+end)
 
 --=========================
 -- ⚙ SETTINGS TAB
