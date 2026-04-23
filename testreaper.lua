@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 6.0",
+SubTitle = "Beta 6.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -572,6 +572,49 @@ Tabs.Server:AddButton({
         game:GetService("TeleportService"):Teleport(
             game.PlaceId,
             game.Players.LocalPlayer
+        )
+    end
+})
+
+-- JobID
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+local LocalPlayer = Players.LocalPlayer
+local currentJobIdInput = ""
+
+-- 📋 Copy JobId
+Tabs.Server:AddButton({
+    Title = "Copy Job ID",
+    Description = "Copy current server Job ID",
+    Callback = function()
+        if setclipboard then
+            setclipboard(game.JobId)
+        end
+    end
+})
+
+-- ⌨️ Input JobId
+Tabs.Server:AddInput("JobIdInput", {
+    Title = "Job ID",
+    Default = "",
+    Placeholder = "Paste Job ID here...",
+    Callback = function(text)
+        currentJobIdInput = text
+    end
+})
+
+-- 🚀 Join JobId
+Tabs.Server:AddButton({
+    Title = "Join Server",
+    Description = "Join server using Job ID",
+    Callback = function()
+        if currentJobIdInput == "" then return end
+
+        TeleportService:TeleportToPlaceInstance(
+            game.PlaceId,
+            currentJobIdInput,
+            LocalPlayer
         )
     end
 })
