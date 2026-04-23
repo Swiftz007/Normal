@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 local correctKeys = {
-    "X2SX-1234-5678-RRRR-TTTT", -- Admin key
+    "REAPER09", -- Admin key
     "S9KX-4TQ7-2MZL-8PWR-6HJD", -- User key 1
     "SB3F-7XQ2-L9VN-5KTR-1ZPM", -- User key 2
     "S7DL-2QWX-8VJN-4RKP-9TGH", -- User key 3
