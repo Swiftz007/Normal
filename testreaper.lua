@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 6.1",
+SubTitle = "Beta 6.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -616,6 +616,54 @@ Tabs.Server:AddButton({
             currentJobIdInput,
             LocalPlayer
         )
+    end
+})
+
+-- Join low server
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+local LocalPlayer = Players.LocalPlayer
+local PlaceId = game.PlaceId
+
+local function getServers(cursor)
+    local url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+    if cursor then
+        url = url .. "&cursor=" .. cursor
+    end
+
+    local response = game:HttpGet(url)
+    return HttpService:JSONDecode(response)
+end
+
+local function findLowServer()
+    local cursor = nil
+
+    for i = 1, 5 do -- ลองดึงหลายหน้า
+        local data = getServers(cursor)
+
+        for _, server in ipairs(data.data) do
+            if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                return server.id
+            end
+        end
+
+        cursor = data.nextPageCursor
+        if not cursor then break end
+    end
+end
+
+-- 🔘 ปุ่ม
+Tabs.Server:AddButton({
+    Title = "Join Low Server",
+    Description = "Join server with low players",
+    Callback = function()
+        local serverId = findLowServer()
+
+        if serverId then
+            TeleportService:TeleportToPlaceInstance(PlaceId, serverId, LocalPlayer)
+        end
     end
 })
 
