@@ -20,7 +20,7 @@ Title = "Reaper Hub",
 SubTitle = "lib Beta 6.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
-Theme = "Darker",
+Theme = "Dark",
 MinimizeKey = Enum.KeyCode.RightControl
 })
 
