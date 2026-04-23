@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Beta 5.9",
+SubTitle = "Beta 6.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Acrylic = true,
@@ -819,7 +819,7 @@ end
 --================ TOGGLE (ใช้ Callback เท่านั้น) =================--
 
 Tabs.Main:AddToggle("TPFlyUI", {
-    Title = "TP Fly",
+    Title = "Floating TpFly ",
     Default = false,
     Callback = function(v)
         if v then
@@ -831,7 +831,7 @@ Tabs.Main:AddToggle("TPFlyUI", {
 })
 
 Tabs.Main:AddToggle("InvisUI", {
-    Title = "Invis V2",
+    Title = "Floating มุดดิน V2",
     Default = false,
     Callback = function(v)
         if v then
