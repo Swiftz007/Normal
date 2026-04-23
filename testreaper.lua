@@ -28,8 +28,9 @@ MinimizeKey = Enum.KeyCode.RightControl
 local Tabs = {
 Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
 Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-Teleport = Window:AddTab({ Title = "Teleport", Icon = "menu" }),
+Player = Window:AddTab({ Title = "Player", Icon = "user" }),
 ESP = Window:AddTab({ Title = "ESP", Icon = "box" }),
+Teleport = Window:AddTab({ Title = "Teleport", Icon = "menu" }),
 Server = Window:AddTab({ Title = "Server", Icon = "server" }),
 Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
@@ -271,13 +272,13 @@ StartESP()
 --=========================
 -- 🔥 UI
 --=========================
-Tabs.Main:AddToggle("WS", {
+Tabs.Player:AddToggle("WS", {
 Title = "WalkSpeed",
 Default = false,
 Callback = function(v) State.WS = v end
 })
 
-Tabs.Main:AddInput("WSV", {
+Tabs.Player:AddInput("WSV", {
 Title = "Speed Value",
 Default = "16",
 Callback = function(v)
@@ -285,13 +286,13 @@ WSValue = tonumber(v) or 16
 end
 })
 
-Tabs.Main:AddToggle("JP", {
+Tabs.Player:AddToggle("JP", {
 Title = "JumpPower",
 Default = false,
 Callback = function(v) State.JP = v end
 })
 
-Tabs.Main:AddInput("JPV", {
+Tabs.Player:AddInput("JPV", {
 Title = "Jump Value",
 Default = "50",
 Callback = function(v)
@@ -299,13 +300,13 @@ JPValue = tonumber(v) or 50
 end
 })
 
-Tabs.Main:AddToggle("INFJ", {
+Tabs.Player:AddToggle("INFJ", {
 Title = "Infinite Jump",
 Default = false,
 Callback = function(v) State.INFJ = v end
 })
 
-Tabs.Main:AddToggle("NC", {
+Tabs.Player:AddToggle("NC", {
 Title = "Noclip",
 Default = false,
 Callback = function(v) State.NC = v end
