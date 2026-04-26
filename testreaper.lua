@@ -361,7 +361,7 @@ end
 local running = false
 local startTime = 0
 
-Tabs.Main:AddToggle("AntiAFK", {
+Tabs.Settings:AddToggle("AntiAFK", {
     Title = "Anti AFK",
     Default = false,
     Callback = function(v)
