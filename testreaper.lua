@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 7.8",
+SubTitle = "lib Beta 7.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -361,7 +361,7 @@ end
 local running = false
 local startTime = 0
 
-Tabs.Player:AddToggle("AntiAFK", {
+Tabs.Main:AddToggle("AntiAFK", {
     Title = "Anti AFK",
     Default = false,
     Callback = function(v)
