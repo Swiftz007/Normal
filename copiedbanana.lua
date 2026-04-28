@@ -1,4 +1,3 @@
--- #6
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
@@ -8,6 +7,8 @@ local loadSuccess = false
 -- Load Fluent
 local success1 = pcall(function()
     vu1 = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+	local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+    local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
     loadSuccess = true
 end)
 
@@ -74,13 +75,12 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 })
 
 local v2 = vu1:CreateWindow({
-    ["Title"] = "Reaper Hub",
-    ["SubTitle"] = "BloxFruits",
-    ["TabWidth"] = 160,
-    ["Theme"] = "Darker",
-    ["Acrylic"] = false,
-    ["Size"] = UDim2.fromOffset(500, 320),
-    ["MinimizeKey"] = Enum.KeyCode.End
+Title = "Reaper Hub",
+    SubTitle = "lib beta 5.0",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.End
 })
 
 -- FIX TOGGLE MENU
