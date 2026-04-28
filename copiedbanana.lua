@@ -63,20 +63,20 @@ if not loadSuccess or not vu1 then
         sg:Destroy()
     end)
     
-    error("สคริปต์ไม่สามารถทำงานได้ เพราะ Fluent UI โหลดไม่สำเร็จ!")
+    error("พ่อมึงตาย")
     return
 end
 
 -- ถ้าโหลดสำเร็จ ให้สร้างหน้าต่างต่อไป
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Reaper Hub โหลดสำเร็จ";
-    Text = "กดปุ่ม END เพื่อเปิด/ปิดเมนู | สคริปต์พร้อมใช้งานแล้ว!";
+    Text = "พ่อมึงตาย";
     Duration = 5;
 })
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 6.0",
+    SubTitle = "lib beta 6.1",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -199,7 +199,7 @@ spawn(function()
         
         if not success or not MenuToggled then
             retryCount = retryCount + 1
-            warn("ลองตั้งค่า Toggle Menu ใหม่อีกครั้ง... (" .. retryCount .. "/" .. maxRetries .. ")")
+            warn("ควย (" .. retryCount .. "/" .. maxRetries .. ")")
             wait(1)
         else
             break
@@ -207,8 +207,8 @@ spawn(function()
     end
     
     if not MenuToggled then
-        warn("ไม่สามารถตั้งค่า Toggle Menu ได้หลังจาก…" .. maxRetries .. " lần thử!")
-        warn("ใช้ปุ่ม END เพื่อซ่อน/แสดงเมนู")
+        warn("มึงจะโปรหาพ่อมึงหรอ" .. maxRetries .. "ควย")
+        warn("เลิกใช้โปรโง่ๆแล้วมาซื้อโปรของกู")
     end
 end)
 
@@ -218,8 +218,8 @@ local vu3 = {
     Sea = v2:AddTab({ Title = "อีเว้นท์", Icon = "moon" }),
     Item = v2:AddTab({ Title = "ไอเท็ม", Icon = "box" }),
     Setting = v2:AddTab({ Title = "ตั้งค่า", Icon = "settings" }),
-    Status = v2:AddTab({ Title = "เว็บฮุก", Icon = "link" }),
-    Stats = v2:AddTab({ Title = "สถานะ", Icon = "bar-chart" }),
+    Status = v2:AddTab({ Title = "สถานะ", Icon = "link" }),
+    Stats = v2:AddTab({ Title = "ค่าพลัง", Icon = "bar-chart" }),
     Player = v2:AddTab({ Title = "ผู้เล่น", Icon = "user" }),
     Teleport = v2:AddTab({ Title = "เทเลพอร์ต", Icon = "map-pin" }),
     Visual = v2:AddTab({ Title = "ปลอม", Icon = "eye" }),
@@ -236,13 +236,13 @@ local v5 = game.PlaceId
 -- ตรวจสอบโลก
 if v5 == 2753915549 then
     Sea1 = true
-    print("โลกแรก")
+    print("1")
 elseif v5 == 4442272183 then
     Sea2 = true
-    print("โลกสอง")
+    print("2")
 elseif v5 == 7449423635 then
     Sea3 = true
-    print("โลกสาม")
+    print("3")
 else
     warn("ไม่ใช่เกม Blox Fruits!")
     game:GetService("StarterGui"):SetCore("SendNotification", {
