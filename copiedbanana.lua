@@ -1,4 +1,4 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/lib1.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
 local vu1
@@ -76,7 +76,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.3",
+    SubTitle = "lib beta 5.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
