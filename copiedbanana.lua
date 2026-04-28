@@ -1,18 +1,18 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
--- Fixed for KRN - Thử nhiều cách load
+-- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
 local vu1
-local loadSuccess = false
+local loadSuccess = falseloadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
 
--- Cách 1: Load từ GitHub (URL gốc)
+-- Load Fluent
 local success1 = pcall(function()
     vu1 = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
     loadSuccess = true
 end)
 
--- Nếu không load được, tạo UI cơ bản
+-- ถ้าโหลดไม่ได้ ให้สร้าง UI พื้นฐาน
 if not loadSuccess or not vu1 then
-    warn("⚠️ Không thể load Fluent UI! Đang tạo UI backup...")
+    warn("ไม่สามารถโหลด Fluent UI ได้! กำลังสร้าง UI สำรอง...")
     
     local sg = Instance.new("ScreenGui")
     sg.Name = "BananaCatBackup"
@@ -41,8 +41,7 @@ if not loadSuccess or not vu1 then
     msg.Size = UDim2.new(1, -20, 1, -50)
     msg.Position = UDim2.new(0, 10, 0, 45)
     msg.BackgroundTransparency = 1
-    msg.Text = "LỖI: Không thể load Fluent UI!\n\nNguyên nhân có thể:\n• KRNL không hỗ trợ HttpGet\n• Không có kết nối internet\n• GitHub bị chặn\n\nGiải pháp:\n✅ Dùng executor khác (Synapse X, Fluxus)\n✅ Bật VPN nếu GitHub bị chặn\n✅ Kiểm tra internet"
-    msg.TextColor3 = Color3.fromRGB(255, 255, 255)
+    msg.Text = "fuck"
     msg.Font = Enum.Font.Gotham
     msg.TextSize = 13
     msg.TextWrapped = true
@@ -62,20 +61,20 @@ if not loadSuccess or not vu1 then
         sg:Destroy()
     end)
     
-    error("❌ Script không thể chạy vì Fluent UI không load được!")
+    error("สคริปต์ไม่สามารถทำงานได้ เพราะ Fluent UI โหลดไม่สำเร็จ!")
     return
 end
 
 -- Nếu load thành công, tiếp tục tạo window
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "✅ Banana Cat Hub Đã Tải!";
-    Text = "Nhấn END để mở/đóng menu | Script đã sẵn sàng!";
+    Title = "Reaper Hub โหลดสำเร็จ";
+    Text = "กดปุ่ม END เพื่อเปิด/ปิดเมนู | สคริปต์พร้อมใช้งานแล้ว!";
     Duration = 5;
 })
 
 local v2 = vu1:CreateWindow({
-    ["Title"] = "Banana Cat Hub - Blox Fruit [ Miễn Phí ]",
-    ["SubTitle"] = "Bởi HDanh - Phiên Bản Đã Sửa",
+    ["Title"] = Reaper Hub - Blox Fruit",
+    ["SubTitle"] = "Fuck",
     ["TabWidth"] = 160,
     ["Theme"] = "Darker",
     ["Acrylic"] = false,
@@ -83,25 +82,25 @@ local v2 = vu1:CreateWindow({
     ["MinimizeKey"] = Enum.KeyCode.End
 })
 
--- FIX TOGGLE MENU - Hoạt động đúng với Fluent UI minimize icon
-local MenuVisible = true -- Trạng thái menu (mặc định hiện)
-local MenuToggled = false -- Đã setup chưa
+-- FIX TOGGLE MENU
+local MenuVisible = true --สถานะเมนู (ค่าเริ่มต้นคือแสดงอยู่)
+local MenuToggled = false -- ตั้งค่าเสร็จหรือยัง?
 
 spawn(function()
-    wait(2) -- Đợi UI load hoàn toàn
+    wait(2) -- รอให้ UI โหลดเสร็จทั้งหมดก่อน
     
     local function SetupMenuToggle()
         local CoreGui = game:GetService("CoreGui")
         local UserInputService = game:GetService("UserInputService")
         
-        -- Tìm Fluent UI
+        -- ค้นหา Fluent UI
         local fluentUI = CoreGui:FindFirstChild("Fluent") or CoreGui:FindFirstChild("FluentUI")
         if not fluentUI then
-            warn("⚠️ Không tìm thấy Fluent UI!")
+            warn("ไม่พบ Fluent UI!")
             return false
         end
         
-        -- Tìm Main Container (cái cần ẩn/hiện)
+        -- ค้นหา Main Container (ส่วนที่ต้องซ่อน/แสดง)
         local mainContainer = nil
         for _, child in pairs(fluentUI:GetDescendants()) do
             if child:IsA("Frame") or child:IsA("CanvasGroup") then
@@ -113,7 +112,7 @@ spawn(function()
             end
         end
         
-        -- Nếu không tìm thấy bằng tên, tìm frame lớn nhất
+        -- ถ้าไม่พบด้วยชื่อ ให้ค้นหา Frame ที่ใหญ่ที่สุด
         if not mainContainer then
             local maxSize = 0
             for _, child in pairs(fluentUI:GetDescendants()) do
@@ -128,67 +127,67 @@ spawn(function()
         end
         
         if not mainContainer then
-            warn("⚠️ Không tìm thấy Main Container!")
+            warn("ไม่พบ Main Container")
             return false
         end
         
-        print("✅ Đã tìm thấy Main Container: " .. mainContainer:GetFullName())
+        print("พบ Main Container แล้ว:" .. mainContainer:GetFullName())
         
-        -- Function toggle với state management
+        -- ฟังก์ชัน toggle พร้อมระบบจัดการสถานะ (state management)
         local function ToggleMenu()
             MenuVisible = not MenuVisible
             mainContainer.Visible = MenuVisible
             
-            -- Thông báo
-            local status = MenuVisible and "HIỆN" or "ẨN"
-            print("🔄 Menu đã " .. status)
+            -- การแจ้งเตือน
+            local status = MenuVisible and "SHOW" or "HIDE"
+            print("เปิดเมนูแลัว" .. status)
             
             pcall(function()
                 game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "🍌 Banana Cat Hub";
-                    Text = "Menu đã " .. status .. " | Nhấn END để đổi";
+                    Title = "Reaper Hub";
+                    Text = "เปิดเมนูแล้ว " .. status .. "| กด END เพื่อสลับ";
                     Duration = 2;
                 })
             end)
         end
         
-        -- Tìm và kết nối minimize button/icon
+        -- และเชื่อมต่อปุ่ม/ไอคอนย่อ (minimize) แล้ว
         local buttonConnected = false
         for _, desc in pairs(fluentUI:GetDescendants()) do
             if desc:IsA("ImageButton") then
-                -- Kết nối click event
+                -- เชื่อมต่ออีเวนต์การคลิก (Click Event)
                 desc.MouseButton1Click:Connect(function()
                     ToggleMenu()
                 end)
                 buttonConnected = true
-                print("✅ Đã kết nối ImageButton: " .. desc:GetFullName())
+                print("เชื่อมต่อ ImageButton แล้ว: " .. desc:GetFullName())
             elseif desc:IsA("TextButton") and desc.Name:lower():find("minim") then
                 desc.MouseButton1Click:Connect(function()
                     ToggleMenu()
                 end)
                 buttonConnected = true
-                print("✅ Đã kết nối TextButton: " .. desc:GetFullName())
+                print("เชื่อมต่อ TextButton แล้ว: " .. desc:GetFullName())
             end
         end
         
         if buttonConnected then
-            print("✅ Toggle button đã được kết nối!")
+            print("ปุ่ม Toggle เชื่อมต่อแล้ว!")
         else
-            warn("⚠️ Không tìm thấy minimize button, chỉ dùng phím END")
+            warn("ไม่พบปุ่มย่อ (minimize) ให้ใช้ปุ่ม END เท่านั้น")
         end
         
-        -- Backup: Phím END luôn hoạt động
+        --  สำรอง: ปุ่ม END ใช้งานได้เสมอ
         UserInputService.InputBegan:Connect(function(input, gameProcessed)
             if not gameProcessed and input.KeyCode == Enum.KeyCode.End then
                 ToggleMenu()
             end
         end)
         
-        print("✅ Toggle Menu đã setup thành công!")
+        print("ตั้งค่า Toggle Menu สำเร็จแล้ว!")
         return true
     end
     
-    -- Chạy setup với retry
+    -- รันการตั้งค่าพร้อมลองใหม่ (retry)
     local maxRetries = 3
     local retryCount = 0
     
@@ -199,7 +198,7 @@ spawn(function()
         
         if not success or not MenuToggled then
             retryCount = retryCount + 1
-            warn("⚠️ Thử lại setup toggle menu... (" .. retryCount .. "/" .. maxRetries .. ")")
+            warn("ลองตั้งค่า Toggle Menu ใหม่อีกครั้ง... (" .. retryCount .. "/" .. maxRetries .. ")")
             wait(1)
         else
             break
@@ -207,76 +206,76 @@ spawn(function()
     end
     
     if not MenuToggled then
-        warn("❌ Không thể setup toggle menu sau " .. maxRetries .. " lần thử!")
-        warn("💡 Dùng phím END để ẩn/hiện menu")
+        warn("ไม่สามารถตั้งค่า Toggle Menu ได้หลังจาก…" .. maxRetries .. " lần thử!")
+        warn("ใช้ปุ่ม END เพื่อซ่อน/แสดงเมนู")
     end
 end)
 
 local vu3 = {
     ["Info"] = v2:AddTab({
-        ["Title"] = "Thông Tin"
+        ["Title"] = "ข้อมูล"
     }),
     ["Main"] = v2:AddTab({
-        ["Title"] = "Cày Cấp"
+        ["Title"] = "กุลืม"
     }),
     ["Sea"] = v2:AddTab({
-        ["Title"] = "Sự Kiện"
+        ["Title"] = "อีเว้น"
     }),
     ["Item"] = v2:AddTab({
-        ["Title"] = "Lấy & Nâng Cấp Vật Phẩm"
+        ["Title"] = "ไอเท็ม"
     }),
     ["Setting"] = v2:AddTab({
-        ["Title"] = "Cài Đặt"
+        ["Title"] = "ตั้งค่า"
     }),
     ["Status"] = v2:AddTab({
-        ["Title"] = "Webhook"
+        ["Title"] = "เว็บฮุก"
     }),
     ["Stats"] = v2:AddTab({
-        ["Title"] = "Chỉ Số"
+        ["Title"] = "สถานะ"
     }),
     ["Player"] = v2:AddTab({
-        ["Title"] = "Người Chơi"
+        ["Title"] = "ผู้เล่น"
     }),
     ["Teleport"] = v2:AddTab({
-        ["Title"] = "Dịch Chuyển"
+        ["Title"] = "เทเลพอร์ต"
     }),
     ["Visual"] = v2:AddTab({
-        ["Title"] = "Giả Mạo"
+        ["Title"] = "Visual"
     }),
     ["Fruit"] = v2:AddTab({
-        ["Title"] = "Trái Ác Quỷ"
+        ["Title"] = "ผลปีศาจ"
     }),
     ["Raid"] = v2:AddTab({
-        ["Title"] = "Đột Kích"
+        ["Title"] = "Raid"
     }),
     ["Race"] = v2:AddTab({
-        ["Title"] = "Nâng Cấp Chủng Tộc"
+        ["Title"] = "เผ่า"
     }),
     ["Shop"] = v2:AddTab({
-        ["Title"] = "Cửa Hàng"
+        ["Title"] = "ร้านค้า"
     }),
     ["Misc"] = v2:AddTab({
-        ["Title"] = "Khác"
+        ["Title"] = "อื่นๆ"
     })
 }
 local vu4 = vu1.Options
 local v5 = game.PlaceId
 
--- Kiểm tra Sea
+-- ตรวจสอบโลก
 if v5 == 2753915549 then
     Sea1 = true
-    print("🌊 Đang ở First Sea")
+    print("โลกแรก")
 elseif v5 == 4442272183 then
     Sea2 = true
-    print("🌊 Đang ở Second Sea")
+    print("โลกสอง")
 elseif v5 == 7449423635 then
     Sea3 = true
-    print("🌊 Đang ở Third Sea")
+    print("โลกสาม")
 else
-    warn("⚠️ Không phải game Blox Fruits!")
+    warn("ไม่ใช่เกม Blox Fruits!")
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "❌ Lỗi!";
-        Text = "Script chỉ hoạt động trong Blox Fruits!";
+        Title = "fuck";
+        Text = "สคริปต์นี้ใช้งานได้เฉพาะใน Blox Fruits เท่านั้น!";
         Duration = 5;
     })
     wait(3)
@@ -2510,7 +2509,7 @@ end
 TweenSpeed = 350
 function Tween(p176)
     if not p176 then 
-        warn("⚠️ Tween: CFrame is nil!")
+        warn("Tween: CFrame is nil!")
         return 
     end
     
@@ -2814,29 +2813,22 @@ task.defer(function()
     end
 end)
 vu3.Info:AddButton({
-    ["Title"] = "HDanh Community",
+    ["Title"] = "Our Discord",
     ["Description"] = "Discord",
     ["Callback"] = function()
-        setclipboard(tostring("https://dsc.gg/nopermc"))
+        setclipboard(tostring("https://discord.gg/kaUfWxBjfH"))
     end
 })
 vu3.Info:AddButton({
-    ["Title"] = "HDanh Hub",
-    ["Description"] = "Youtube",
+    ["Title"] = "Reaper Hub",
+    ["Description"] = "Telegram",
     ["Callback"] = function()
-        setclipboard(tostring("https://youtube.com/@nopermc"))
-    end
-})
-vu3.Info:AddButton({
-    ["Title"] = "HDanh Hub",
-    ["Description"] = "Tiktok",
-    ["Callback"] = function()
-        setclipboard(tostring("www.tiktok.com/@uytins1vn._"))
+        setclipboard(tostring("@xSwiftz"))
     end
 })
 vu3.Info:AddParagraph({
-    ["Title"] = "Phát triển Monster",
-    ["Content"] = "Kỹ Năng: Del có"
+    ["Title"] = "Banana Hub Clack",
+    ["Content"] = "พ่อมึงตาย"
 })
 local v252 = nil
 if identifyexecutor then
@@ -2846,22 +2838,11 @@ elseif getexecutorname then
 end
 if v252 then
     vu3.Info:AddParagraph({
-        ["Title"] = "Client Đang Dùng",
+        ["Title"] = "ไคลเอนต์ที่กำลังใช้งาน",
         ["Content"] = v252
     })
 end
-vu3.Info:AddParagraph({
-    ["Title"] = "Cấp Nhắt",
-    ["Content"] = "Tôi sẽ Cấp nhắt nhiều tính năng hơn trong tương lai"
-})
-vu3.Info:AddParagraph({
-    ["Title"] = "Các Client Android và Ios Hợ Trỡ",
-    ["Content"] = "Tất Cả Client Android và Ios "
-})
-vu3.Info:AddParagraph({
-    ["Title"] = "Các Client Pc Hợ Trỡ",
-    ["Content"] = "Tất Cả Client Pc"
-})
+
 _G.FastAttackStrix_Mode = "Super Fast Attack"
 spawn(function()
     while wait() do
@@ -2875,7 +2856,7 @@ spawn(function()
     end
 end)
 local v253 = vu3.Main:AddDropdown("DropdownSelectWeapon", {
-    ["Title"] = "Vũ Khí",
+    ["Title"] = "อาวุธ",
     ["Description"] = "",
     ["Values"] = {
         "Melee",
@@ -2937,15 +2918,15 @@ task.spawn(function()
     end
 end)
 vu3.Main:AddToggle("ToggleLevel", {
-    ["Title"] = "Cày Cấp",
+    ["Title"] = "ฟาร์มเลเวล",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p267)
     _G.AutoLevel = p267
     if p267 == true then
         game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "✅ Auto Farm Level";
-            Text = "Đã bật! Bot sẽ tự động farm level";
+            Title = "ฟาร์มเลเวลอัตโนมัติ";
+            Text = "เปิดใช้งานแล้ว";
             Duration = 3;
         })
     else
@@ -2953,8 +2934,8 @@ vu3.Main:AddToggle("ToggleLevel", {
         Tween(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
         wait()
         game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "❌ Auto Farm Level";
-            Text = "Đã tắt!";
+            Title = "ปิดออโต้ฟาร์มเลเวล";
+            Text = "ปิดแล้ว!";
             Duration = 2;
         })
     end
@@ -2967,22 +2948,22 @@ spawn(function()
                 CheckLevel()
                 local QuestTitle = game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
                 
-                -- Kiểm tra xem đã có quest đúng chưa
+                -- ตรวจสอบว่ามีเควสที่ถูกต้องหรือยัง
                 if not string.find(QuestTitle, NameMon) then
                     bringmob = false
                     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
                 end
                 
-                -- Nếu chưa có quest hoặc quest sai, đi nhận quest
+                -- ถ้าไม่มีเควสหรือเควสไม่ถูกต้อง ให้ไปรับเควส
                 if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false then
                     bringmob = false
                     Tween(CFrameQ)
                     if (CFrameQ.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 5 then
                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuest, QuestLv)
                     end
-                -- Nếu đã có quest đúng
+                -- ถ้ามีเควสที่ถูกต้องแล้ว
                 elseif game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true and string.find(QuestTitle, NameMon) then
-                    -- Tìm quái trong Workspace.Enemies
+                    -- ค้นหามอนสเตอร์ใน Workspace.Enemies
                     if game:GetService("Workspace").Enemies:FindFirstChild(Ms) then
                         for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
                             if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 and v.Name == Ms then
@@ -3006,7 +2987,7 @@ spawn(function()
                             end
                         end
                     else
-                        -- Không có quái trong Workspace, bay đến vị trí spawn
+                        -- ไม่มีมอนสเตอร์ใน Workspace ให้บินไปยังจุดเกิด 
                         bringmob = false
                         Tween(CFrameMon)
                     end
@@ -3016,7 +2997,7 @@ spawn(function()
     end
 end)
 vu3.Main:AddToggle("ToggleMobAura", {
-    ["Title"] = "Đánh Quái Gần",
+    ["Title"] = "โจมตีมอนสเตอร์ที่อยู่ใกล้",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p276)
@@ -3063,8 +3044,8 @@ spawn(function()
     end
 end)
 vu3.Main:AddToggle("ToggleCastleRaid", {
-    ["Title"] = "Đánh Hải Tặc",
-    ["Description"] = "",
+    ["Title"] = "โจมตีโจรสลัด",
+    ["Description"] = "ตีมอนเกาะกลาง",
     ["Default"] = false
 }):OnChanged(function(p281)
     _G.CastleRaid = p281
@@ -3103,7 +3084,7 @@ spawn(function()
     end
 end)
 vu3.Main:AddToggle("ToggleHakiFortress", {
-    ["Title"] = "Bắt Haki Màu Pháo Đài",
+    ["Title"] = "ปลดล็อคสีฮาคิรุ้ง",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p287)
@@ -3154,7 +3135,7 @@ spawn(function()
     end
 end)
 vu3.Main:AddToggle("ToggleCollectChest", {
-    ["Title"] = "Làm Rương",
+    ["Title"] = "เปิดหีบสมบัติ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p296)
@@ -3187,7 +3168,7 @@ spawn(function()
     end
 end)
 vu3.Main:AddToggle("ToggleCollectBerry", {
-    ["Title"] = "Bay Đến Khu Vực Có Berry+Hop",
+    ["Title"] = "หาเบอรี่ + ย้ายเซิร์ฟ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p307)
@@ -3226,7 +3207,7 @@ spawn(function()
                 Tween2(v322)
                 vu1:Notify({
                     ["Title"] = "Strix",
-                    ["Content"] = "Tìm Thấy Berry: " .. tostring(v313),
+                    ["Content"] = "พบเบอรี่แล้ว: " .. tostring(v313),
                     ["Duration"] = 10
                 })
             else
@@ -3237,7 +3218,7 @@ spawn(function()
 end)
 vu3.Main:AddSection("Thông Thạo")
 local v323 = vu3.Main:AddDropdown("DropdownMastery", {
-    ["Title"] = "Chọn Loại",
+    ["Title"] = "เลือกประเภท",
     ["Description"] = "",
     ["Values"] = {
         "Level",
@@ -3255,7 +3236,7 @@ v323:OnChanged(function(p324)
     TypeMastery = p324
 end)
 vu3.Main:AddToggle("ToggleMasteryFruit", {
-    ["Title"] = "Cày Trái",
+    ["Title"] = "ฟาร์มมาสเตอรี่ผล",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p325)
@@ -3263,14 +3244,14 @@ vu3.Main:AddToggle("ToggleMasteryFruit", {
 end)
 vu4.ToggleMasteryFruit:SetValue(false)
 vu3.Main:AddToggle("ToggleMasteryGun", {
-    ["Title"] = "Cày Súng",
+    ["Title"] = "ฟาร์มมาสเตอรี่ปืน",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p326)
     AutoFarmMasGun = p326
 end)
 local v328 = vu3.Main:AddSlider("SliderHealt", {
-    ["Title"] = "Máu Quái",
+    ["Title"] = "เลือดมอนสเตอร์",
     ["Description"] = "",
     ["Default"] = 20,
     ["Min"] = 0,
@@ -4293,7 +4274,7 @@ end)
 if Sea3 then
     vu3.Main:AddSection("Xương")
     local vu426 = vu3.Main:AddParagraph({
-        ["Title"] = "Trạng Thái Xương",
+        ["Title"] = "จำนวนกระดูก",
         ["Content"] = ""
     })
     spawn(function()
@@ -4307,7 +4288,7 @@ if Sea3 then
         end)
     end)
     vu3.Main:AddToggle("ToggleBone", {
-        ["Title"] = "Cày Xương",
+        ["Title"] = "ฟาร์มกระดูก",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p428)
@@ -4417,7 +4398,7 @@ if Sea3 then
         end
     end)
     vu3.Main:AddButton({
-        ["Title"] = "Cầu Nguyện",
+        ["Title"] = "อธิษฐาน / สวดขอพร",
         ["Description"] = "",
         ["Callback"] = function()
             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack({
@@ -4427,7 +4408,7 @@ if Sea3 then
         end
     })
     vu3.Main:AddButton({
-        ["Title"] = "Thử Vận May",
+        ["Title"] = "ลองเสี่ยงโชค",
         ["Description"] = "",
         ["Callback"] = function()
             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack({
@@ -4437,7 +4418,7 @@ if Sea3 then
         end
     })
     vu3.Main:AddToggle("ToggleRandomBone", {
-        ["Title"] = "Random Xương",
+        ["Title"] = "สุ่มกระดูก",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p440)
@@ -4460,7 +4441,7 @@ end
 if Sea3 then
     vu3.Main:AddSection("Tư Lệnh Bánh")
     local vu441 = vu3.Main:AddParagraph({
-        ["Title"] = "Trạng Thái Nó Ra",
+        ["Title"] = "สถานะที่มันออกมา",
         ["Content"] = ""
     })
     spawn(function()
@@ -4637,7 +4618,7 @@ if Sea3 then
         end
     end)
     vu3.Main:AddToggle("ToggleSpawnCake", {
-        ["Title"] = "Triệu Hồi Tư Lệnh Bánh",
+        ["Title"] = "เสกบอสคาตาคุริ",
         ["Description"] = "",
         ["Default"] = true
     }):OnChanged(function(p463)
@@ -4661,7 +4642,7 @@ end)
 if Sea2 then
     vu3.Main:AddSection("Ectoplasm Farm")
     vu3.Main:AddToggle("ToggleVatChatKiDi", {
-        ["Title"] = "Auto Farm Ectoplasm",
+        ["Title"] = "ฟาร์ม Ectoplasm",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p464)
@@ -4934,7 +4915,7 @@ if Sea3 then
         end)
     end)
     vu3.Sea:AddToggle("ToggleTPKitsune", {
-        ["Title"] = "Bay V\195\180 Đảo Cáo",
+        ["Title"] = "บินไปเกาะ Kitsune",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p488)
@@ -4967,7 +4948,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddToggle("ToggleCollectAzure", {
-        ["Title"] = "Nh\225\186\183t Linh Hỗn",
+        ["Title"] = "เก็บวิญญาณไฟ",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p495)
@@ -4986,7 +4967,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddButton({
-        ["Title"] = "\239\191\189\225\187\149i Linh Hỗn",
+        ["Title"] = "อัพเกรดอะไรวะ",
         ["Description"] = "",
         ["Callback"] = function()
             game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RF/KitsuneStatuePray"):InvokeServer()
@@ -5201,7 +5182,7 @@ if Sea3 then
     v555("Tìm Đảo Bí \225\186\168n", "AutoFindMirage", v520.Mirage, "MysticIsland", "Đảo Bí \225\186\168n Tìm Thấy")
     v555("Tìm Đảo Leviathan", "AutoFindFrozen", v520.Frozen, "FrozenDimension", "\239\191\189ảo Leviathan Tìm Thấy")
     vu3.Sea:AddToggle("AutoComeTiki", {
-        ["Title"] = "Lái Thuyền Về Đảo Tiki",
+        ["Title"] = "ขับเรือไปเกาะ TIKI",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p556)
@@ -5247,7 +5228,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddToggle("AutoComeHydra", {
-        ["Title"] = "Lái Thuyền Về Đảo Hydra",
+        ["Title"] = "ขับเรือไปเกาะ Hydra",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p569)
@@ -5293,7 +5274,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddButton({
-        ["Title"] = "Bay Đến Khu Vực Săn",
+        ["Title"] = "ล่ามอนสเตอร์ทะเล",
         ["Description"] = "",
         ["Callback"] = function()
             Tween2(CFrame.new(- 16917.154296875, 7.757596015930176, 511.8203125))
@@ -5301,7 +5282,7 @@ if Sea3 then
     })
     local vu582 = {}
     local v583 = vu3.Sea:AddDropdown("DropdownBoat", {
-        ["Title"] = "Chọn Thuyền",
+        ["Title"] = "เลือกเรือ",
         ["Description"] = "",
         ["Values"] = {
             "Beast Hunter",
@@ -5378,7 +5359,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddButton({
-        ["Title"] = "Mua Thuyền",
+        ["Title"] = "ซื้อเรือ",
         ["Description"] = "",
         ["Callback"] = function()
 			-- upvalues: (ref) vu591
@@ -5386,15 +5367,15 @@ if Sea3 then
         end
     })
     vu3.Sea:AddButton({
-        ["Title"] = "Bay Đến Thuyền",
-        ["Description"] = "Duy Nhất Thuyền Bạn Mua \225\187\158 Chợ Chồn",
+        ["Title"] = "บินไปเรือ",
+        ["Description"] = "",
         ["Callback"] = function()
 			-- upvalues: (ref) vu596
             vu596()
         end
     })
     vu3.Sea:AddToggle("ToggleTerrorshark", {
-        ["Title"] = "Đánh Cá Mập",
+        ["Title"] = "โจมตีฉลาม",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p601)
@@ -5455,7 +5436,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddToggle("TogglePiranha", {
-        ["Title"] = "Đánh Piranha",
+        ["Title"] = "โจมตีปลาปิรันยา",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p607)
@@ -5495,7 +5476,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddToggle("ToggleShark", {
-        ["Title"] = "Đánh Cá Con",
+        ["Title"] = "โจมตีปลาปกติ",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p612)
@@ -5539,7 +5520,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddToggle("ToggleFishCrew", {
-        ["Title"] = "Đánh Tàu Cá",
+        ["Title"] = "ตกปลา",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p617)
@@ -5583,7 +5564,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddToggle("ToggleShip", {
-        ["Title"] = "Đánh Tàu",
+        ["Title"] = "โจมตีเรือ",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p622)
@@ -5632,7 +5613,7 @@ if Sea3 then
         end
     end)
     vu3.Sea:AddToggle("ToggleGhostShip", {
-        ["Title"] = "Đánh Tàu Ma",
+        ["Title"] = "โจมตีเรือผี",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p629)
@@ -5775,7 +5756,7 @@ if Sea3 then
     end)
     vu3.Main:AddSection("Elite")
     local vu652 = vu3.Main:AddParagraph({
-        ["Title"] = "Trạng Thái Elite",
+        ["Title"] = "สถานะอีลิท",
         ["Content"] = ""
     })
     spawn(function()
@@ -5792,7 +5773,7 @@ if Sea3 then
         end
     end)
     vu3.Main:AddToggle("ToggleElite", {
-        ["Title"] = "Đánh Elite",
+        ["Title"] = "โจมตีอีลิท",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p653)
@@ -5844,7 +5825,7 @@ end
 if Sea3 then
     vu3.Sea:AddSection("\239\191\189ảo Bí \225\186\168n")
     local vu658 = vu3.Sea:AddParagraph({
-        ["Title"] = "Trạng Thái",
+        ["Title"] = "สถานะ",
         ["Content"] = ""
     })
     task.spawn(function()
@@ -5888,7 +5869,7 @@ if Sea3 then
         end)
     end)
     vu3.Sea:AddButton({
-        ["Title"] = "Bay Đến Chợ Cao",
+        ["Title"] = "บินไปร้านค้า",
         ["Description"] = "",
         ["Callback"] = function()
             TweenToHighestPoint()
@@ -5918,7 +5899,7 @@ if Sea3 then
     end
 end
 vu3.Sea:AddToggle("ToggleTpAdvanced", {
-    ["Title"] = "Bay Đến Advanced Fruit Dealer",
+    ["Title"] = "บินไปหาร้านค้าเกาะลับ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p665)
@@ -5941,7 +5922,7 @@ spawn(function()
     end
 end)
 vu3.Sea:AddToggle("ToggleTweenGear", {
-    ["Title"] = "Bay Đến Bánh Răng",
+    ["Title"] = "หาเกียร์",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p668)
@@ -5968,7 +5949,7 @@ spawn(function()
     end)
 end)
 vu3.Sea:AddToggle("Togglelockmoon", {
-    ["Title"] = "Nhìn Trăng Và Dùng Tộc",
+    ["Title"] = "มองดวงจันทร์",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p673)
@@ -6164,7 +6145,7 @@ spawn(function()
     end
 end)
 vu3.Item:AddToggle("ToggleAutoSaw", {
-    ["Title"] = "Cưa Cá Mắp",
+    ["Title"] = "ตีบอส Saw",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p691)
@@ -6211,7 +6192,7 @@ spawn(function()
     end
 end)
 vu3.Item:AddToggle("ToggleAutoWarden", {
-    ["Title"] = "Kiếm Quản Ng\225\187\165c",
+    ["Title"] = "ตีบอสวาร์เด้น",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p697)
@@ -6259,7 +6240,7 @@ spawn(function()
 end)
 if Sea3 then
     vu3.Item:AddToggle("ToggleHallow", {
-        ["Title"] = "Lưởi Hái",
+        ["Title"] = "ตีบอสเคียว",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p703)
@@ -6394,7 +6375,7 @@ if Sea3 then
         end
     end)
     vu3.Item:AddToggle("ToggleHoly", {
-        ["Title"] = "\239\191\189ổt Đuổc",
+        ["Title"] = "โค้ดเพี้ยนโง่ๆ รอแก้",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p714)
@@ -6483,7 +6464,7 @@ spawn(function()
     end
 end)
 vu3.Item:AddToggle("ToggleAutoMusketeerHat", {
-    ["Title"] = "M\197\169 Lính Ngữ Lâm",
+    ["Title"] = "ออโต้ทำ MusketeerHat",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p721)
@@ -6580,7 +6561,7 @@ spawn(function()
     end)
 end)
 vu3.Item:AddToggle("ToggleAutoObservationV2", {
-    ["Title"] = "Haki Quan Sát V2",
+    ["Title"] = "ทำฮาคิสังเกต V2",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p730)
@@ -6633,7 +6614,7 @@ spawn(function()
     end
 end)
 vu3.Item:AddToggle("ToggleAutoRainbowHaki", {
-    ["Title"] = "Haki 7 Màu",
+    ["Title"] = "ทำฮาคิรุ้ง",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p735)
@@ -6912,7 +6893,7 @@ spawn(function()
     end
 end)
 vu3.Item:AddToggle("ToggleAutoBuddy", {
-    ["Title"] = "Kiếm Buddy",
+    ["Title"] = "หาดาบบิ๊กมัม",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p761)
@@ -6959,7 +6940,7 @@ spawn(function()
     end
 end)
 vu3.Item:AddToggle("ToggleAutoDualKatana", {
-    ["Title"] = "Song Kiếm",
+    ["Title"] = "ทำดาบคู่",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p767)
@@ -7513,7 +7494,7 @@ spawn(function()
 end)
 if Sea2 then
     vu3.Item:AddToggle("ToggleFactory", {
-        ["Title"] = "Đánh Nhà Máy",
+        ["Title"] = "ตีโรงงาน",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p817)
@@ -7580,7 +7561,7 @@ if Sea2 then
     end)
 end
 vu3.Item:AddToggle("ToggleAutoFarmSwan", {
-    ["Title"] = "Đánh Swan",
+    ["Title"] = "Auto Swan",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p822)
@@ -7673,7 +7654,7 @@ spawn(function()
 end)
 if Sea2 or Sea3 then
     vu3.Item:AddToggle("ToggleHakiColor", {
-        ["Title"] = "Mua Màu Haki",
+        ["Title"] = "ซื้อสีฮาคิ",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p832)
@@ -7693,7 +7674,7 @@ if Sea2 or Sea3 then
 end
 if Sea2 then
     vu3.Main:AddToggle("ToggleSwordLengend", {
-        ["Title"] = "Mua Kiếm Huyền Thoại",
+        ["Title"] = "ซื้อดาบหายาก",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p833)
@@ -7717,7 +7698,7 @@ if Sea2 then
 end
 if Sea2 then
     vu3.Main:AddToggle("ToggleEvoRace", {
-        ["Title"] = "Nâng Tộc V2",
+        ["Title"] = "ทำเผ่า V2",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p834)
@@ -7787,7 +7768,7 @@ if Sea2 then
     end)
 end
 vu3.Setting:AddToggle("ToggleAutoT", {
-    ["Title"] = "Bật Tộc V3",
+    ["Title"] = "ทำเผ่า V3",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p839)
@@ -7804,7 +7785,7 @@ spawn(function()
     end
 end)
 vu3.Setting:AddToggle("ToggleAutoY", {
-    ["Title"] = "Bật Tộc V4",
+    ["Title"] = "ทำเผ่า V4",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p840)
@@ -7823,7 +7804,7 @@ spawn(function()
     end
 end)
 vu3.Setting:AddToggle("ToggleAutoKen", {
-    ["Title"] = "Bật Haki Quan Sât",
+    ["Title"] = "เปิดฮาคิสังเกตอัตโนมัติ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p841)
@@ -7845,7 +7826,7 @@ spawn(function()
     end
 end)
 vu3.Setting:AddToggle("ToggleSaveSpawn", {
-    ["Title"] = "Lưu Điểm Hồi Sinh",
+    ["Title"] = "ตั้งจุดเกิดอัตโนมัติ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p842)
@@ -7974,7 +7955,7 @@ spawn(function()
     end
 end)
 vu3.Setting:AddToggle("ToggleRemoveNotify", {
-    ["Title"] = "Xóa Thông Báo",
+    ["Title"] = "ปิดการแจ้งเตือน",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p861)
@@ -7991,7 +7972,7 @@ spawn(function()
     end
 end)
 vu3.Setting:AddToggle("ToggleWhite", {
-    ["Title"] = "Màn Hình Trằng",
+    ["Title"] = "จอขาว",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p862)
@@ -8007,7 +7988,7 @@ end)
 vu4.ToggleWhite:SetValue(false)
 vu3.Setting:AddSection("Kỹ Năng Thông Thạo")
 vu3.Setting:AddToggle("ToggleZ", {
-    ["Title"] = "Kỹ Năng Z",
+    ["Title"] = "ปุ่ม Z",
     ["Description"] = "",
     ["Default"] = true
 }):OnChanged(function(p863)
@@ -8015,7 +7996,7 @@ vu3.Setting:AddToggle("ToggleZ", {
 end)
 vu4.ToggleZ:SetValue(true)
 vu3.Setting:AddToggle("ToggleX", {
-    ["Title"] = "Kỹ Năng X",
+    ["Title"] = "ปุ่ม X",
     ["Description"] = "",
     ["Default"] = true
 }):OnChanged(function(p864)
@@ -8023,7 +8004,7 @@ vu3.Setting:AddToggle("ToggleX", {
 end)
 vu4.ToggleX:SetValue(true)
 vu3.Setting:AddToggle("ToggleC", {
-    ["Title"] = "Kỹ Năng C",
+    ["Title"] = "ปุ่ม C",
     ["Description"] = "",
     ["Default"] = true
 }):OnChanged(function(p865)
@@ -8031,7 +8012,7 @@ vu3.Setting:AddToggle("ToggleC", {
 end)
 vu4.ToggleC:SetValue(true)
 vu3.Setting:AddToggle("ToggleV", {
-    ["Title"] = "Kỹ Năng V",
+    ["Title"] = "ปุ่ม V",
     ["Description"] = "",
     ["Default"] = true
 }):OnChanged(function(p866)
@@ -8039,7 +8020,7 @@ vu3.Setting:AddToggle("ToggleV", {
 end)
 vu4.ToggleV:SetValue(true)
 vu3.Setting:AddToggle("ToggleF", {
-    ["Title"] = "Kỹ Năng F",
+    ["Title"] = "ปุ่ม F",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p867)
@@ -8047,11 +8028,11 @@ vu3.Setting:AddToggle("ToggleF", {
 end)
 vu4.ToggleF:SetValue(true)
 vu3.Status:AddParagraph({
-    ["Title"] = "Thông Tin",
+    ["Title"] = "ข้อมูล",
     ["Content"] = "\239\191\189\239\191\189\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\n" .. "Tên : " .. game.Players.LocalPlayer.DisplayName .. " (@" .. game.Players.LocalPlayer.Name .. ")\n" .. "Cấp : " .. game:GetService("Players").LocalPlayer.Data.Level.Value .. "\n" .. "Tiền : " .. game:GetService("Players").LocalPlayer.Data.Beli.Value .. "\n" .. "\239\191\189iểm F : " .. game:GetService("Players").LocalPlayer.Data.Fragments.Value .. "\n" .. "Tiền Truy Nã : " .. game:GetService("Players").LocalPlayer.leaderstats["Bounty/Honor"].Value .. "\n" .. "Máu: " .. game.Players.LocalPlayer.Character.Humanoid.Health .. "/" .. game.Players.LocalPlayer.Character.Humanoid.MaxHealth .. "\n" .. "Năng Lưỡng : " .. game.Players.LocalPlayer.Character.Energy.Value .. "/" .. game.Players.LocalPlayer.Character.Energy.MaxValue .. "\n" .. "Tộc : " .. game:GetService("Players").LocalPlayer.Data.Race.Value .. "\n" .. "Trái : " .. game:GetService("Players").LocalPlayer.Data.DevilFruit.Value .. "\n\239\191\189\239\191\189\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129\226\148\129"
 })
 local vu868 = vu3.Status:AddParagraph({
-    ["Title"] = "Thời Gian",
+    ["Title"] = "เวลา",
     ["Content"] = ""
 })
 local function vu878()
@@ -8096,7 +8077,7 @@ spawn(function()
     end
 end)
 local vu885 = vu3.Status:AddParagraph({
-    ["Title"] = "Đảo Leviathan",
+    ["Title"] = "เกาะ Leviathan",
     ["Content"] = ""
 })
 spawn(function()
@@ -8115,7 +8096,7 @@ end)
 vu3.Status:AddInput("Input", {
     ["Title"] = "Job ID",
     ["Default"] = "",
-    ["Placeholder"] = "Dán Job ID Vào Đây",
+    ["Placeholder"] = "ใส่ JobID",
     ["Numeric"] = false,
     ["Finished"] = false,
     ["Callback"] = function(p886)
@@ -8123,21 +8104,21 @@ vu3.Status:AddInput("Input", {
     end
 })
 vu3.Status:AddButton({
-    ["Title"] = "Bằt Đầu Tham Gia Job ID",
+    ["Title"] = "เข้า JobID",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId, _G.Job, game.Players.LocalPlayer)
     end
 })
 vu3.Status:AddButton({
-    ["Title"] = "Sao Chép Job ID",
+    ["Title"] = "คัดลอก JobID",
     ["Description"] = "",
     ["Callback"] = function()
         setclipboard(tostring(game.JobId))
     end
 })
 vu3.Status:AddToggle("MyToggle", {
-    ["Title"] = "Spam Tham Gia Job ID",
+    ["Title"] = "เข้ารัวๆ",
     ["Default"] = false
 }):OnChanged(function(p887)
     _G.Join = p887
@@ -8150,7 +8131,7 @@ spawn(function()
     end
 end)
 vu3.Stats:AddToggle("ToggleMelee", {
-    ["Title"] = "Nâng Đấm",
+    ["Title"] = "อัพเกรดพลัง Melee",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p888)
@@ -8158,7 +8139,7 @@ vu3.Stats:AddToggle("ToggleMelee", {
 end)
 vu4.ToggleMelee:SetValue(false)
 vu3.Stats:AddToggle("ToggleDe", {
-    ["Title"] = "Nâng Máu",
+    ["Title"] = "อัพเกรดพลังเลือด",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p889)
@@ -8166,7 +8147,7 @@ vu3.Stats:AddToggle("ToggleDe", {
 end)
 vu4.ToggleDe:SetValue(false)
 vu3.Stats:AddToggle("ToggleSword", {
-    ["Title"] = "Nâng Kiếm",
+    ["Title"] = "อัพเกรดพลังดาบ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p890)
@@ -8174,7 +8155,7 @@ vu3.Stats:AddToggle("ToggleSword", {
 end)
 vu4.ToggleSword:SetValue(false)
 vu3.Stats:AddToggle("ToggleGun", {
-    ["Title"] = "Nâng Súng",
+    ["Title"] = "อัพเกรดพลังปืน",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p891)
@@ -8182,7 +8163,7 @@ vu3.Stats:AddToggle("ToggleGun", {
 end)
 vu4.ToggleGun:SetValue(false)
 vu3.Stats:AddToggle("ToggleFruit", {
-    ["Title"] = "Nâng Trái",
+    ["Title"] = "อัพเกรดพลังผลปีศาจ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p892)
@@ -8256,7 +8237,7 @@ while true do
     table.insert(vu897, v898.Name)
 end
 local v899 = vu3.Player:AddDropdown("SelectedPly", {
-    ["Title"] = "Chọn Người Chơi",
+    ["Title"] = "เลือกผู้เล่น",
     ["Description"] = "",
     ["Values"] = vu897,
     ["Multi"] = false,
@@ -8267,7 +8248,7 @@ v899:OnChanged(function(p900)
     _G.SelectPly = p900
 end)
 vu3.Player:AddButton({
-    ["Title"] = "Tải Lại Người Chơi",
+    ["Title"] = "รีเฟรชผู้เล่น",
     ["Description"] = "",
     ["Callback"] = function()
 		-- upvalues: (ref) vu897
@@ -8284,7 +8265,7 @@ vu3.Player:AddButton({
     end
 })
 vu3.Player:AddToggle("ToggleTeleport", {
-    ["Title"] = "Bay Đến Người Chơi",
+    ["Title"] = "บินไปหาผู้เล่น",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p905)
@@ -8309,7 +8290,7 @@ spawn(function()
     end
 end)
 vu3.Player:AddToggle("ToggleWalkonWater", {
-    ["Title"] = "Đi Trên Nư\225\187\155c",
+    ["Title"] = "เดินบนนํ้า",
     ["Description"] = "",
     ["Default"] = true
 }):OnChanged(function(p906)
@@ -8328,7 +8309,7 @@ spawn(function()
     end
 end)
 vu3.Player:AddToggle("ToggleSpeedRun", {
-    ["Title"] = "Chạy Nhanh",
+    ["Title"] = "วิ่งเร็ว",
     ["Description"] = "",
     ["Default"] = true
 }):OnChanged(function(p907)
@@ -8380,7 +8361,7 @@ function InfAb()
     end
 end
 vu3.Player:AddToggle("ToggleNoClip", {
-    ["Title"] = "Đi Xuyên Tường",
+    ["Title"] = "ทะลุกำแพง",
     ["Description"] = "",
     ["Default"] = true
 }):OnChanged(function(p910)
@@ -8407,7 +8388,7 @@ spawn(function()
     end)
 end)
 vu3.Player:AddToggle("ToggleEnablePvp", {
-    ["Title"] = "Bật PVP",
+    ["Title"] = "เปิด PVP",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p915)
@@ -8425,7 +8406,7 @@ spawn(function()
 end)
 local vu916 = vu3.Teleport:AddSection("Thế Gi\225\187\155i")
 vu3.Teleport:AddToggle("ToggleAutoSea2", {
-    ["Title"] = "Nhiệm V\225\187\165 Qua Biển 2",
+    ["Title"] = "ไปโลก 2 อัตโนมัติ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p917)
@@ -8498,7 +8479,7 @@ spawn(function()
     end
 end)
 vu3.Teleport:AddToggle("ToggleAutoSea3", {
-    ["Title"] = "Nhiệm V\225\187\165 Qua Biển 3",
+    ["Title"] = "ไปโลก 3 อัตโนมัติ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p923)
@@ -8552,21 +8533,21 @@ spawn(function()
     end
 end)
 vu3.Teleport:AddButton({
-    ["Title"] = "Biển 1",
+    ["Title"] = "โลก 1",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelMain")
     end
 })
 vu3.Teleport:AddButton({
-    ["Title"] = "Biển 2",
+    ["Title"] = "โลก 2",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelDressrosa")
     end
 })
 vu3.Teleport:AddButton({
-    ["Title"] = "Biển 3",
+    ["Title"] = "โลก 3",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelZou")
@@ -8846,7 +8827,7 @@ vu3.Teleport:AddButton({
     end
 })
 vu3.Visual:AddButton({
-    ["Title"] = "Giả",
+    ["Title"] = "ปลอม",
     ["Description"] = "",
     ["Callback"] = function()
         local v930 = game:GetService("Players").LocalPlayer
@@ -8889,9 +8870,9 @@ vu3.Visual:AddButton({
     end
 })
 vu3.Visual:AddInput("Input_Level", {
-    ["Title"] = "Cấp",
+    ["Title"] = "ใส่เลเวล",
     ["Default"] = "",
-    ["Placeholder"] = "Nhắp",
+    ["Placeholder"] = "คลิก",
     ["Numeric"] = false,
     ["Finished"] = false,
     ["Callback"] = function(p939)
@@ -8899,9 +8880,9 @@ vu3.Visual:AddInput("Input_Level", {
     end
 })
 vu3.Visual:AddInput("Input_EXP", {
-    ["Title"] = "Kinh Nghiậm",
+    ["Title"] = "ใส่ EXP",
     ["Default"] = "",
-    ["Placeholder"] = "Nhắp",
+    ["Placeholder"] = "คลิก",
     ["Numeric"] = false,
     ["Finished"] = false,
     ["Callback"] = function(p940)
@@ -8911,7 +8892,7 @@ vu3.Visual:AddInput("Input_EXP", {
 vu3.Visual:AddInput("Input_Beli", {
     ["Title"] = "Tiền",
     ["Default"] = "",
-    ["Placeholder"] = "Nhắp",
+    ["Placeholder"] = "คลิก",
     ["Numeric"] = false,
     ["Finished"] = false,
     ["Callback"] = function(p941)
@@ -8919,9 +8900,9 @@ vu3.Visual:AddInput("Input_Beli", {
     end
 })
 vu3.Visual:AddInput("Input_Fragments", {
-    ["Title"] = "\239\191\189iểm F",
+    ["Title"] = "ใส่แฟ็กเมนท์ส F",
     ["Default"] = "",
-    ["Placeholder"] = "Nhắp",
+    ["Placeholder"] = "คลิก",
     ["Numeric"] = false,
     ["Finished"] = false,
     ["Callback"] = function(p942)
@@ -8949,7 +8930,7 @@ _G.PermanentFruit = nil
 _G.AutoBuyFruitSniper = false
 _G.AutoSwitchPermanentFruit = false
 local v947 = vu3.Fruit:AddDropdown("DropdownFruit", {
-    ["Title"] = "Chọn Trái",
+    ["Title"] = "เลือกผลปีศาจ",
     ["Description"] = "",
     ["Values"] = Table_DevilFruitSniper,
     ["Multi"] = false,
@@ -8960,7 +8941,7 @@ v947:OnChanged(function(p948)
     _G.SelectFruit = p948
 end)
 vu3.Fruit:AddToggle("ToggleFruit", {
-    ["Title"] = "Mua Trái Chọn",
+    ["Title"] = "ซื้อผลที่เลือก",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p949)
@@ -8975,7 +8956,7 @@ vu3.Fruit:AddToggle("ToggleFruit", {
 end)
 vu4.ToggleFruit:SetValue(false)
 local v950 = vu3.Fruit:AddDropdown("DropdownPermanentFruit", {
-    ["Title"] = "Chọn Trái V\196\169nh Viễn",
+    ["Title"] = "เลือกผลถาวร",
     ["Description"] = "",
     ["Values"] = Table_DevilFruitSniper,
     ["Multi"] = false,
@@ -8986,7 +8967,7 @@ v950:OnChanged(function(p951)
     _G.PermanentFruit = p951
 end)
 vu3.Fruit:AddToggle("TogglePermanentFruit", {
-    ["Title"] = "\239\191\189\225\187\149i Trái V\196\169nh Viễn",
+    ["Title"] = "ซื้อผลถาวร",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p952)
@@ -9004,7 +8985,7 @@ vu3.Fruit:AddToggle("TogglePermanentFruit", {
 end)
 vu4.TogglePermanentFruit:SetValue(false)
 vu3.Fruit:AddToggle("ToggleStore", {
-    ["Title"] = "Lưu Trái",
+    ["Title"] = "เก็บผล",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p954)
@@ -9125,7 +9106,7 @@ spawn(function()
     end
 end)
 vu3.Fruit:AddToggle("ToggleRandomFruit", {
-    ["Title"] = "Random Trái",
+    ["Title"] = "สุ่มผล",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p955)
@@ -9142,7 +9123,7 @@ spawn(function()
     end)
 end)
 vu3.Fruit:AddToggle("ToggleCollectTP", {
-    ["Title"] = "Bay Đến Trái",
+    ["Title"] = "วาปหาผล",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p956)
@@ -9167,7 +9148,7 @@ spawn(function()
     end
 end)
 vu3.Fruit:AddToggle("ToggleCollect", {
-    ["Title"] = "D\225\187\139ch Chuyển Đến Trái",
+    ["Title"] = "บินไปหาผล",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p961)
@@ -9193,7 +9174,7 @@ spawn(function()
 end)
 vu3.Fruit:AddSection("\239\191\189\225\187\139nh V\225\187\139")
 vu3.Fruit:AddToggle("ToggleEspPlayer", {
-    ["Title"] = "Người Chơi",
+    ["Title"] = "มองผู้เล่น",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p966)
@@ -9202,7 +9183,7 @@ vu3.Fruit:AddToggle("ToggleEspPlayer", {
 end)
 vu4.ToggleEspPlayer:SetValue(false)
 vu3.Fruit:AddToggle("ToggleEspFruit", {
-    ["Title"] = "Trái",
+    ["Title"] = "มองผล",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p967)
@@ -9214,7 +9195,7 @@ vu3.Fruit:AddToggle("ToggleEspFruit", {
 end)
 vu4.ToggleEspFruit:SetValue(false)
 vu3.Fruit:AddToggle("ToggleEspIsland", {
-    ["Title"] = "Đảo",
+    ["Title"] = "มองเกาะ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p968)
@@ -9226,7 +9207,7 @@ vu3.Fruit:AddToggle("ToggleEspIsland", {
 end)
 vu4.ToggleEspIsland:SetValue(false)
 vu3.Fruit:AddToggle("ToggleEspFlower", {
-    ["Title"] = "Hoa",
+    ["Title"] = "มองดอกไม้",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p969)
@@ -9254,8 +9235,8 @@ spawn(function()
     end
 end)
 vu3.Fruit:AddToggle("ToggleEspRealFruit", {
-    ["Title"] = "Trái Dủa Kh\225\187\155m Táo",
-    ["Description"] = "",
+    ["Title"] = "มองผลจริง",
+    ["Description"] = "สัปรด , แอปเปิ้ล",
     ["Default"] = false
 }):OnChanged(function(p970)
     RealFruitEsp = p970
@@ -9371,7 +9352,7 @@ function UpdateRealFruitEsp()
     end
 end
 vu3.Fruit:AddToggle("ToggleIslandMirageEsp", {
-    ["Title"] = "Đảo Bí \225\186\168n",
+    ["Title"] = "มองเกาะลับ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p989)
@@ -9429,7 +9410,7 @@ function UpdateIslandMirageEsp()
     end
 end
 local v999 = vu3.Raid:AddDropdown("DropdownRaid", {
-    ["Title"] = "Chọn Chip",
+    ["Title"] = "เลือกชิป",
     ["Description"] = "",
     ["Values"] = {
         "Flame",
@@ -9453,7 +9434,7 @@ v999:OnChanged(function(p1000)
     SelectChip = p1000
 end)
 vu3.Raid:AddToggle("ToggleBuy", {
-    ["Title"] = "Mua Chip",
+    ["Title"] = "ซื้อชิป",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1001)
@@ -9475,7 +9456,7 @@ spawn(function()
     end
 end)
 vu3.Raid:AddToggle("ToggleStart", {
-    ["Title"] = "Bắt Đầu Raid",
+    ["Title"] = "เริ่มดันเจี้ยน",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1003)
@@ -9505,7 +9486,7 @@ spawn(function()
     end
 end)
 vu3.Raid:AddToggle("ToggleNextIsland", {
-    ["Title"] = "Đánh Quái Raid+Bay Đến Đảo",
+    ["Title"] = "ไปเกาะถัดไป",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1004)
@@ -9562,7 +9543,7 @@ spawn(function()
     end
 end)
 vu3.Raid:AddToggle("ToggleAwake", {
-    ["Title"] = "Thức Tỉnh",
+    ["Title"] = "อัพเกรดผลหลังจากลงดัน",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1009)
@@ -9579,8 +9560,8 @@ spawn(function()
     end
 end)
 vu3.Raid:AddToggle("ToggleGetFruit", {
-    ["Title"] = "Lấy Trái Dư\225\187\155i 1 Triệu",
-    ["Description"] = "",
+    ["Title"] = "เอาผลออกจากกระเป๋า",
+    ["Description"] = "ตํ่ากว่า 1M",
     ["Default"] = false
 }):OnChanged(function(p1010)
     _G.Autofruit = p1010
@@ -9663,7 +9644,7 @@ spawn(function()
 end)
 if Sea2 then
     vu3.Raid:AddButton({
-        ["Title"] = "Bay Đến Chợ Tắp Kích",
+        ["Title"] = "บินไปร้านค้าลับ",
         ["Description"] = "",
         ["Callback"] = function()
             Tween2(CFrame.new(- 6438.73535, 250.645355, - 4501.50684))
@@ -9671,7 +9652,7 @@ if Sea2 then
     })
 elseif Sea3 then
     vu3.Raid:AddButton({
-        ["Title"] = "Bay Đến Chợ Tắp Kích",
+        ["Title"] = "Raid",
         ["Description"] = "",
         ["Callback"] = function()
             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(- 5075.50927734375, 314.5155029296875, - 3150.0224609375))
@@ -9681,7 +9662,7 @@ elseif Sea3 then
 end
 vu3.Raid:AddSection("Tắp Kích Law")
 vu3.Raid:AddToggle("ToggleLaw", {
-    ["Title"] = "Mua Chip Và Đánh Law",
+    ["Title"] = "ซื้อชิปบอสลอว์",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1011)
@@ -9736,14 +9717,14 @@ spawn(function()
     end)
 end)
 vu3.Race:AddButton({
-    ["Title"] = "Đền Thời Gian",
+    ["Title"] = "บินไปนาฬิกา",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875))
     end
 })
 vu3.Race:AddButton({
-    ["Title"] = "Cần Gạt",
+    ["Title"] = "ดึงคันโยก",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875))
@@ -9751,7 +9732,7 @@ vu3.Race:AddButton({
     end
 })
 vu3.Race:AddButton({
-    ["Title"] = "Chợ Mua Gear",
+    ["Title"] = "เลือกเกียร์",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875))
@@ -9760,7 +9741,7 @@ vu3.Race:AddButton({
 })
 vu3.Race:AddSection("Tộc")
 vu3.Race:AddButton({
-    ["Title"] = "Cửa Tộc",
+    ["Title"] = "ประตูเผ่า",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875))
@@ -9790,7 +9771,7 @@ vu3.Race:AddButton({
     end
 })
 vu3.Race:AddToggle("ToggleHumanandghoul", {
-    ["Title"] = "Hoàn Thành \225\186\162i [Human/Ghoul]",
+    ["Title"] = "ทำเควสอัพเกรด [Human/Ghoul]",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1016)
@@ -9798,7 +9779,7 @@ vu3.Race:AddToggle("ToggleHumanandghoul", {
 end)
 vu4.ToggleHumanandghoul:SetValue(false)
 vu3.Race:AddToggle("ToggleAutotrial", {
-    ["Title"] = "Hoàn Thành \225\186\162i",
+    ["Title"] = "ออโต้ผ่านทำเผ่า",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1017)
@@ -9981,7 +9962,7 @@ spawn(function()
     end)
 end)
 vu3.Race:AddToggle("ToggleKillTrial", {
-    ["Title"] = "Đánh Người Chơi Trong Trial",
+    ["Title"] = "ฆ่าคนในที่ทำเผ่า",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1054)
@@ -10017,7 +9998,7 @@ spawn(function()
 end)
 vu3.Race:AddSection("Huấn Luyận")
 local v1059 = vu3.Race:AddToggle("ToggleFarmRace", {
-    ["Title"] = "Cày Luyện Tộc",
+    ["Title"] = "ทำเควสเผ่า",
     ["Description"] = "",
     ["Default"] = false
 })
@@ -10052,7 +10033,7 @@ spawn(function()
     end
 end)
 vu3.Race:AddToggle("ToggleUpgrade", {
-    ["Title"] = "Mua Gear",
+    ["Title"] = "ซื้อเกียร์",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1062)
@@ -10377,14 +10358,14 @@ vu3.Shop:AddButton({
     end
 })
 vu3.Misc:AddButton({
-    ["Title"] = "Tham Gia Máy Ch\225\187\167 Lại",
+    ["Title"] = "กลับหลัก",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
     end
 })
 vu3.Misc:AddButton({
-    ["Title"] = "Đ\225\187\149i Máy Ch\225\187\167",
+    ["Title"] = "เปลี่ยนตัวหลัก",
     ["Description"] = "",
     ["Callback"] = function()
         Hop()
@@ -10467,14 +10448,14 @@ function Hop()
 end
 vu3.Misc:AddSection("Đội")
 vu3.Misc:AddButton({
-    ["Title"] = "Hải Tặc",
+    ["Title"] = "โจรสลัด",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Pirates")
     end
 })
 vu3.Misc:AddButton({
-    ["Title"] = "Hải Quân",
+    ["Title"] = "ทหารเรือ",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Marines")
@@ -10527,7 +10508,7 @@ local vu1083 = {
     "SECRET_ADMIN"
 }
 vu3.Misc:AddButton({
-    ["Title"] = "Nhắp Hết",
+    ["Title"] = "Redeem All code",
     ["Description"] = "",
     ["Callback"] = function()
 		-- upvalues: (ref) vu1083
@@ -10547,7 +10528,7 @@ function RedeemCode(p1088)
 end
 vu3.Misc:AddSection("Danh Hiậu")
 vu3.Misc:AddButton({
-    ["Title"] = "Danh Hiệu",
+    ["Title"] = "ฉายา",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack({
@@ -10558,7 +10539,7 @@ vu3.Misc:AddButton({
 })
 vu3.Misc:AddSection("Thủc Tỉnh")
 vu3.Misc:AddButton({
-    ["Title"] = "Thức Tỉnh",
+    ["Title"] = "เลือกสกิลผลตื่น",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("Players").LocalPlayer.PlayerGui.Main.AwakeningToggler.Visible = true
@@ -10566,7 +10547,7 @@ vu3.Misc:AddButton({
 })
 vu3.Misc:AddSection("Khác")
 vu3.Misc:AddToggle("ToggleRejoin", {
-    ["Title"] = "Tham Gia Máy Ch\225\187\167 Lại",
+    ["Title"] = "Rejoin",
     ["Description"] = "",
     ["Default"] = true
 }):OnChanged(function(p1089)
@@ -10605,7 +10586,7 @@ local function vu1092()
     v1091.FogEnd = 100000
 end
 vu3.Misc:AddButton({
-    ["Title"] = "Xóa Sương Mù",
+    ["Title"] = "ลบหมอก",
     ["Description"] = "",
     ["Callback"] = function()
 		-- upvalues: (ref) vu1092
@@ -10613,7 +10594,7 @@ vu3.Misc:AddButton({
     end
 })
 vu3.Misc:AddToggle("ToggleAntiBand", {
-    ["Title"] = "Chống Band",
+    ["Title"] = "ป้องกันแบน",
     ["Description"] = "",
     ["Default"] = true
 }):OnChanged(function(p1093)
@@ -10644,14 +10625,14 @@ spawn(function()
 end)
 vu3.Sea:AddSection("Leviathan")
 vu3.Sea:AddButton({
-    ["Title"] = "Mua Chip Leviathan",
+    ["Title"] = "เสกเลเวียนทาน",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("InfoLeviathan", "2")
     end
 })
 local v1099 = vu3.Sea:AddToggle("ToggleTPFrozenDimension", {
-    ["Title"] = "Bay Đến Đảo Leviathan",
+    ["Title"] = "วาปไปเกาะเลเวียนทาน",
     ["Description"] = "",
     ["Default"] = false
 })
@@ -10673,7 +10654,7 @@ spawn(function()
 end)
 if Sea3 then
     local vu1102 = vu3.Sea:AddParagraph({
-        ["Title"] = "Trạng Thái Chip Leviathan",
+        ["Title"] = "สถานะเลเวียนทาน",
         ["Content"] = ""
     })
     spawn(function()
@@ -10695,7 +10676,7 @@ if Sea3 then
 end
 vu3.Sea:AddSection("Draco")
 vu3.Sea:AddToggle("ToggleBlazeEmber", {
-    ["Title"] = "Làm Lứa Đố",
+    ["Title"] = "ไขปริศนา",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1104)
@@ -10711,7 +10692,7 @@ spawn(function()
     end
 end)
 vu3.Sea:AddToggle("ToggleBlazeEmberFarm", {
-    ["Title"] = "Đánh Hydra Enforcer + Venomous Assailant",
+    ["Title"] = "โจมตี Hydra Enforcer + Venomous Assailant",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1105)
@@ -10756,8 +10737,8 @@ spawn(function()
     end
 end)
 vu3.Sea:AddToggle("ToggleReceiveQuest", {
-    ["Title"] = "Nhắn Nhiậm V\225\187\165 Lứa Đố",
-    ["Description"] = "Bắt Lên 1 Lần Là Nhắn 1 Nhắn Nửa Thì Tằt Bắt Lại",
+    ["Title"] = "เควสกลุ่ม",
+    ["Description"] = "กดครั้งเดียวคือส่ง 1 ครั้ง ถ้ากดครึ่งเดียวให้ปิด แล้วเริ่มกดใหม่",
     ["Default"] = false
 }):OnChanged(function(p1111)
     _G.AutoReceiveQuest = p1111
@@ -10783,7 +10764,7 @@ vu3.Sea:AddToggle("ToggleReceiveQuest", {
     end
 end)
 local vu1112 = vu3.Sea:AddParagraph({
-    ["Title"] = "Trạng Thái Nhiệm V\225\187\165 Lứa Đố",
+    ["Title"] = "สถานะเควสกลุ่ม",
     ["Content"] = ""
 })
 spawn(function()
@@ -10817,7 +10798,7 @@ spawn(function()
     end)
 end)
 vu3.Sea:AddToggle("ToggleHydraTree", {
-    ["Title"] = "Phá Cây \225\187\158 Đảo Hydra",
+    ["Title"] = "ทำลายต้นไม้ที่เกาะ Hydra",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1118)
@@ -10897,7 +10878,7 @@ spawn(function()
     end
 end)
 vu3.Sea:AddButton({
-    ["Title"] = "Bay Đến Khu Vữc Dragon Dojo",
+    ["Title"] = "บินไป Dragon Dojo",
     ["Description"] = "",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(5661.5322265625, 1013.0907592773438, - 334.9649963378906))
@@ -10905,8 +10886,8 @@ vu3.Sea:AddButton({
     end
 })
 vu3.Sea:AddButton({
-    ["Title"] = "Chế Tạo Volcanic Magnet",
-    ["Description"] = "Cần 15 Lứa Đố+10 Sằt",
+    ["Title"] = "คราฟต์ Volcanic Magnet",
+    ["Description"] = "ต้องการ 15 เควสกลุ่ม + 10 เหล็ก",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack({
             "CraftItem",
@@ -10916,8 +10897,8 @@ vu3.Sea:AddButton({
     end
 })
 vu3.Sea:AddButton({
-    ["Title"] = "Chế Tạo Dino Hood",
-    ["Description"] = "Cần 25 Xương Kh\225\187\167ng Long + 10 Sừng Tê Giác",
+    ["Title"] = "คราฟต์ Dino Hood",
+    ["Description"] = "ต้องการ 25 กระดูกไดโนเสาร์ + 10 เขาแรด",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack({
             "CraftItem",
@@ -10927,8 +10908,8 @@ vu3.Sea:AddButton({
     end
 })
 vu3.Sea:AddButton({
-    ["Title"] = "Chế Tạo T-Rex Skull",
-    ["Description"] = "Cần 8 Xương Kh\225\187\167ng Long + 5 Vảy Rỗng",
+    ["Title"] = "คราฟต์ T-Rex Skull",
+    ["Description"] = "ต้องการ 8 กระดูกไดโนเสาร์ + 5 เกล็ดกลวง",
     ["Callback"] = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack({
             "CraftItem",
@@ -10938,7 +10919,7 @@ vu3.Sea:AddButton({
     end
 })
 vu3.Sea:AddToggle("ToggleCollectFireFlowers", {
-    ["Title"] = "Làm Hoa Đố",
+    ["Title"] = "เก็บดอกไม้ไฟ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1140)
@@ -10970,7 +10951,7 @@ spawn(function()
     end
 end)
 vu3.Sea:AddToggle("ToggleWhiteBelt", {
-    ["Title"] = "Cày Đai Trằng",
+    ["Title"] = "WhiteBelt",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1147)
@@ -11000,7 +10981,7 @@ vu3.Sea:AddParagraph({
     ["Content"] = ""
 })
 vu3.Sea:AddToggle("ToggleTrialTeleport", {
-    ["Title"] = "Bay Đến Cứa Trial Tộc Draco",
+    ["Title"] = "บินไปดราโก้",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1148)
@@ -11021,7 +11002,7 @@ spawn(function()
 end)
 vu3.Sea:AddSection("Đảo Dung Nham")
 local vu1150 = vu3.Sea:AddParagraph({
-    ["Title"] = "Trạng Thái Đảo Dung Nham",
+    ["Title"] = "สถานะของเกาะลาวา",
     ["Content"] = ""
 })
 spawn(function()
@@ -11038,7 +11019,7 @@ spawn(function()
     end)
 end)
 vu3.Sea:AddToggle("ToggleTPVolcano", {
-    ["Title"] = "Bay Đến Đảo Dung Nham",
+    ["Title"] = "วาปไปเกาะลาวา",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1151)
@@ -11069,28 +11050,28 @@ spawn(function()
     end
 end)
 vu3.Sea:AddToggle("ToggleDefendVolcano", {
-    ["Title"] = "Ph\195\178ng Th\225\187\167",
+    ["Title"] = "ป้องกันลาวา",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1155)
     _G.AutoDefendVolcano = p1155
 end)
 vu3.Sea:AddToggle("ToggleMelee", {
-    ["Title"] = "Dùng Melee",
+    ["Title"] = "ใช้หมัด",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1156)
     _G.UseMelee = p1156
 end)
 vu3.Sea:AddToggle("ToggleSword", {
-    ["Title"] = "Dùng Sword",
+    ["Title"] = "ใช้ดาบ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1157)
     _G.UseSword = p1157
 end)
 vu3.Sea:AddToggle("ToggleGun", {
-    ["Title"] = "Dùng Gun",
+    ["Title"] = "ใช้ปืน",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1158)
@@ -11236,7 +11217,7 @@ spawn(function()
     end
 end)
 vu3.Sea:AddToggle("ToggleKillAura", {
-    ["Title"] = "Đánh Golems Aura",
+    ["Title"] = "ฆ่าแบบออร่า",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1200)
@@ -11268,7 +11249,7 @@ spawn(function()
     end
 end)
 vu3.Sea:AddToggle("ToggleCollectBone", {
-    ["Title"] = "Làm Xương",
+    ["Title"] = "ฟาร์มกระดูก",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1205)
@@ -11292,7 +11273,7 @@ spawn(function()
     end
 end)
 vu3.Sea:AddToggle("ToggleCollectEgg", {
-    ["Title"] = "Làm Trứng",
+    ["Title"] = "ฟาร์มไข่",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p1210)
