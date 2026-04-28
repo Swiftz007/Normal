@@ -32,7 +32,7 @@ if not loadSuccess or not vu1 then
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, 0, 0, 40)
     title.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
-    title.Text = "Reaper Hub - Blox Fruit"
+    title.Text = "Reaper Hub"
     title.TextColor3 = Color3.fromRGB(0, 0, 0)
     title.Font = Enum.Font.GothamBold
     title.TextSize = 16
@@ -74,8 +74,8 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 })
 
 local v2 = vu1:CreateWindow({
-    ["Title"] = "Reaper Hub - Blox Fruit",
-    ["SubTitle"] = "Fuck",
+    ["Title"] = "Reaper Hub",
+    ["SubTitle"] = "BloxFruits",
     ["TabWidth"] = 160,
     ["Theme"] = "Darker",
     ["Acrylic"] = false,
@@ -217,7 +217,7 @@ local vu3 = {
         ["Title"] = "ข้อมูล"
     }),
     ["Main"] = v2:AddTab({
-        ["Title"] = "กุลืม"
+        ["Title"] = "หน้าหลัก"
     }),
     ["Sea"] = v2:AddTab({
         ["Title"] = "อีเว้น"
@@ -241,13 +241,13 @@ local vu3 = {
         ["Title"] = "เทเลพอร์ต"
     }),
     ["Visual"] = v2:AddTab({
-        ["Title"] = "Visual"
+        ["Title"] = "ปลอม"
     }),
     ["Fruit"] = v2:AddTab({
-        ["Title"] = "ผลปีศาจ"
+        ["Title"] = "เครื่องมือ"
     }),
     ["Raid"] = v2:AddTab({
-        ["Title"] = "Raid"
+        ["Title"] = "ลงดัน"
     }),
     ["Race"] = v2:AddTab({
         ["Title"] = "เผ่า"
