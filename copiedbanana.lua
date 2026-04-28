@@ -31,7 +31,7 @@ if not loadSuccess or not vu1 then
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, 0, 0, 40)
     title.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
-    title.Text = "🍌 Banana Cat Hub - Blox Fruit"
+    title.Text = "Reaper Hub - Blox Fruit"
     title.TextColor3 = Color3.fromRGB(0, 0, 0)
     title.Font = Enum.Font.GothamBold
     title.TextSize = 16
