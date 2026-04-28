@@ -1,4 +1,5 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/lib1.lua"))()
+loadstring(game:HttpGet("https://github.com/Swiftz007/Libwtf/blob/main/lib2.lua"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
 local vu1
 local loadSuccess = false
