@@ -1,5 +1,4 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/lib1.lua"))()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
 local vu1
 local loadSuccess = false
@@ -76,7 +75,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.5",
+    SubTitle = "lib beta 5.8",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -207,12 +206,12 @@ spawn(function()
     end
     
     if not MenuToggled then
-        warn("ไม่สามารถตั้งค่า Toggle Menu ได้หลังจาก…" .. maxRetries .. " ลองทดสอบ!")
+        warn("ไม่สามารถตั้งค่า Toggle Menu ได้หลังจาก…" .. maxRetries .. " lần thử!")
         warn("ใช้ปุ่ม END เพื่อซ่อน/แสดงเมนู")
     end
 end)
 
-local Reaper = {
+local vu3 = {
     Info = v2:AddTab({ Title = "ข้อมูล", Icon = "info" }),
     Main = v2:AddTab({ Title = "หน้าหลัก", Icon = "home" }),
     Sea = v2:AddTab({ Title = "อีเว้นท์", Icon = "moon" }),
