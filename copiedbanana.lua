@@ -1,4 +1,4 @@
--- #2
+-- #3
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
@@ -218,6 +218,7 @@ local vu3 = {
     }),
     ["Main"] = v2:AddTab({
         ["Title"] = "หน้าหลัก"
+	    ["icon"] = home
     }),
     ["Sea"] = v2:AddTab({
         ["Title"] = "อีเว้น"
