@@ -1,3 +1,4 @@
+-- #2
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
@@ -65,7 +66,7 @@ if not loadSuccess or not vu1 then
     return
 end
 
--- Nếu load thành công, tiếp tục tạo window
+-- ถ้าโหลดสำเร็จ ให้สร้างหน้าต่างต่อไป
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Reaper Hub โหลดสำเร็จ";
     Text = "กดปุ่ม END เพื่อเปิด/ปิดเมนู | สคริปต์พร้อมใช้งานแล้ว!";
@@ -104,7 +105,7 @@ spawn(function()
         local mainContainer = nil
         for _, child in pairs(fluentUI:GetDescendants()) do
             if child:IsA("Frame") or child:IsA("CanvasGroup") then
-                -- Tìm frame chính có kích thước lớn
+                -- ค้นหาเฟรมหลักที่มีขนาดใหญ่
                 if child.Name == "Main" or child.Name == "Container" then
                     mainContainer = child
                     break
