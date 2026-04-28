@@ -2,7 +2,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/ref
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
 local vu1
-local loadSuccess = falseloadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
+local loadSuccess = false
 
 -- Load Fluent
 local success1 = pcall(function()
