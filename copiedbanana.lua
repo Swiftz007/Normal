@@ -73,7 +73,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 })
 
 local v2 = vu1:CreateWindow({
-    ["Title"] = Reaper Hub - Blox Fruit",
+    ["Title"] = "Reaper Hub - Blox Fruit",
     ["SubTitle"] = "Fuck",
     ["TabWidth"] = 160,
     ["Theme"] = "Darker",
