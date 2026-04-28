@@ -6,145 +6,19 @@ local success1 = pcall(function()
     loadSuccess = true
 end)
 
-local Window = Fluent:CreateWindow({
+local Reaper = Reaper:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.0",
+    SubTitle = "lib beta 5.1",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.End
 })
 
--- FIX TOGGLE MENU
-local MenuVisible = true --สถานะเมนู (ค่าเริ่มต้นคือแสดงอยู่)
-local MenuToggled = false -- ตั้งค่าเสร็จหรือยัง?
-
 spawn(function()
-    wait(2) -- รอให้ UI โหลดเสร็จทั้งหมดก่อน
+    wait(1) -- รอให้ UI โหลดเสร็จทั้งหมดก่อน
     
-    local function SetupMenuToggle()
-        local CoreGui = game:GetService("CoreGui")
-        local UserInputService = game:GetService("UserInputService")
-        
-        -- ค้นหา Fluent UI
-        local fluentUI = CoreGui:FindFirstChild("Fluent") or CoreGui:FindFirstChild("FluentUI")
-        if not fluentUI then
-            warn("ไม่พบ Fluent UI!")
-            return false
-        end
-        
-        -- ค้นหา Main Container (ส่วนที่ต้องซ่อน/แสดง)
-        local mainContainer = nil
-        for _, child in pairs(fluentUI:GetDescendants()) do
-            if child:IsA("Frame") or child:IsA("CanvasGroup") then
-                -- ค้นหาเฟรมหลักที่มีขนาดใหญ่
-                if child.Name == "Main" or child.Name == "Container" then
-                    mainContainer = child
-                    break
-                end
-            end
-        end
-        
-        -- ถ้าไม่พบด้วยชื่อ ให้ค้นหา Frame ที่ใหญ่ที่สุด
-        if not mainContainer then
-            local maxSize = 0
-            for _, child in pairs(fluentUI:GetDescendants()) do
-                if child:IsA("Frame") and child.Visible then
-                    local size = child.AbsoluteSize.X * child.AbsoluteSize.Y
-                    if size > maxSize and size > 10000 then -- Frame phải đủ lớn
-                        maxSize = size
-                        mainContainer = child
-                    end
-                end
-            end
-        end
-        
-        if not mainContainer then
-            warn("ไม่พบ Main Container")
-            return false
-        end
-        
-        print("พบ Main Container แล้ว:" .. mainContainer:GetFullName())
-        
-        -- ฟังก์ชัน toggle พร้อมระบบจัดการสถานะ (state management)
-        local function ToggleMenu()
-            MenuVisible = not MenuVisible
-            mainContainer.Visible = MenuVisible
-            
-            -- การแจ้งเตือน
-            local status = MenuVisible and "SHOW" or "HIDE"
-            print("เปิดเมนูแลัว" .. status)
-            
-            pcall(function()
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "Reaper Hub";
-                    Text = "เปิดเมนูแล้ว " .. status .. "| กด END เพื่อสลับ";
-                    Duration = 2;
-                })
-            end)
-        end
-        
-        -- และเชื่อมต่อปุ่ม/ไอคอนย่อ (minimize) แล้ว
-        local buttonConnected = false
-        for _, desc in pairs(fluentUI:GetDescendants()) do
-            if desc:IsA("ImageButton") then
-                -- เชื่อมต่ออีเวนต์การคลิก (Click Event)
-                desc.MouseButton1Click:Connect(function()
-                    ToggleMenu()
-                end)
-                buttonConnected = true
-                print("เชื่อมต่อ ImageButton แล้ว: " .. desc:GetFullName())
-            elseif desc:IsA("TextButton") and desc.Name:lower():find("minim") then
-                desc.MouseButton1Click:Connect(function()
-                    ToggleMenu()
-                end)
-                buttonConnected = true
-                print("เชื่อมต่อ TextButton แล้ว: " .. desc:GetFullName())
-            end
-        end
-        
-        if buttonConnected then
-            print("ปุ่ม Toggle เชื่อมต่อแล้ว!")
-        else
-            warn("ไม่พบปุ่มย่อ (minimize) ให้ใช้ปุ่ม END เท่านั้น")
-        end
-        
-        --  สำรอง: ปุ่ม END ใช้งานได้เสมอ
-        UserInputService.InputBegan:Connect(function(input, gameProcessed)
-            if not gameProcessed and input.KeyCode == Enum.KeyCode.End then
-                ToggleMenu()
-            end
-        end)
-        
-        print("ตั้งค่า Toggle Menu สำเร็จแล้ว!")
-        return true
-    end
-    
-    -- รันการตั้งค่าพร้อมลองใหม่ (retry)
-    local maxRetries = 3
-    local retryCount = 0
-    
-    while retryCount < maxRetries and not MenuToggled do
-        local success = pcall(function()
-            MenuToggled = SetupMenuToggle()
-        end)
-        
-        if not success or not MenuToggled then
-            retryCount = retryCount + 1
-            warn("ลองตั้งค่า Toggle Menu ใหม่อีกครั้ง... (" .. retryCount .. "/" .. maxRetries .. ")")
-            wait(1)
-        else
-            break
-        end
-    end
-    
-    if not MenuToggled then
-        warn("ไม่สามารถตั้งค่า Toggle Menu ได้หลังจาก…" .. maxRetries .. " lần thử!")
-        warn("ใช้ปุ่ม END เพื่อซ่อน/แสดงเมนู")
-    end
-end)
-
-local vu3 = {
+local Reaper = {
     Info = v2:AddTab({ Title = "ข้อมูล", Icon = "info" }),
     Main = v2:AddTab({ Title = "หน้าหลัก", Icon = "home" }),
     Sea = v2:AddTab({ Title = "อีเว้นท์", Icon = "moon" }),
