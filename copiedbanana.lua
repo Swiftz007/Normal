@@ -1,9 +1,3 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
--- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
-local vu1
-local loadSuccess = false
-
 -- Load Fluent
 local success1 = pcall(function()
     vu1 = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -12,69 +6,7 @@ local success1 = pcall(function()
     loadSuccess = true
 end)
 
--- ถ้าโหลดไม่ได้ ให้สร้าง UI พื้นฐาน
-if not loadSuccess or not vu1 then
-    warn("ไม่สามารถโหลด Fluent UI ได้! กำลังสร้าง UI สำรอง...")
-    
-    local sg = Instance.new("ScreenGui")
-    sg.Name = "BananaCatBackup"
-    sg.Parent = game:GetService("CoreGui")
-    
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 400, 0, 250)
-    frame.Position = UDim2.new(0.5, -200, 0.5, -125)
-    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    frame.BorderSizePixel = 2
-    frame.BorderColor3 = Color3.fromRGB(255, 170, 0)
-    frame.Parent = sg
-    frame.Active = true
-    frame.Draggable = true
-    
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 40)
-    title.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
-    title.Text = "Reaper Hub"
-    title.TextColor3 = Color3.fromRGB(0, 0, 0)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 16
-    title.Parent = frame
-    
-    local msg = Instance.new("TextLabel")
-    msg.Size = UDim2.new(1, -20, 1, -50)
-    msg.Position = UDim2.new(0, 10, 0, 45)
-    msg.BackgroundTransparency = 1
-    msg.Text = "fuck"
-    msg.Font = Enum.Font.Gotham
-    msg.TextSize = 13
-    msg.TextWrapped = true
-    msg.TextYAlignment = Enum.TextYAlignment.Top
-    msg.Parent = frame
-    
-    local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 30, 0, 30)
-    closeBtn.Position = UDim2.new(1, -35, 0, 5)
-    closeBtn.Text = "X"
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeBtn.Font = Enum.Font.GothamBold
-    closeBtn.TextSize = 18
-    closeBtn.Parent = frame
-    closeBtn.MouseButton1Click:Connect(function()
-        sg:Destroy()
-    end)
-    
-    error("สคริปต์ไม่สามารถทำงานได้ เพราะ Fluent UI โหลดไม่สำเร็จ!")
-    return
-end
-
--- ถ้าโหลดสำเร็จ ให้สร้างหน้าต่างต่อไป
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Reaper Hub โหลดสำเร็จ";
-    Text = "กดปุ่ม END เพื่อเปิด/ปิดเมนู | สคริปต์พร้อมใช้งานแล้ว!";
-    Duration = 5;
-})
-
-local v2 = vu1:CreateWindow({
+local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
     SubTitle = "lib beta 5.0",
     TabWidth = 160,
