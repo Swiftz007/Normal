@@ -1,5 +1,5 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/lib1.lua"))()
-loadstring(game:HttpGet("https://github.com/Swiftz007/Libwtf/blob/main/lib2.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/lib2.lua"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
 local vu1
 local loadSuccess = false
@@ -76,7 +76,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.8",
+    SubTitle = "lib beta 5.9",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
