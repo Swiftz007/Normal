@@ -1,4 +1,4 @@
--- #5
+-- #6
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
@@ -213,53 +213,23 @@ spawn(function()
 end)
 
 local vu3 = {
-    ["Info"] = v2:AddTab({
-        ["Title"] = "ข้อมูล"
-    }),
-    ["Main"] = v2:AddTab({
-        ["Title"] = "หน้าหลัก",
-	    ["icon"] = "home"
-    }),
-    ["Sea"] = v2:AddTab({
-        ["Title"] = "อีเว้น"
-    }),
-    ["Item"] = v2:AddTab({
-        ["Title"] = "ไอเท็ม"
-    }),
-    ["Setting"] = v2:AddTab({
-        ["Title"] = "ตั้งค่า"
-    }),
-    ["Status"] = v2:AddTab({
-        ["Title"] = "เว็บฮุก"
-    }),
-    ["Stats"] = v2:AddTab({
-        ["Title"] = "สถานะ"
-    }),
-    ["Player"] = v2:AddTab({
-        ["Title"] = "ผู้เล่น"
-    }),
-    ["Teleport"] = v2:AddTab({
-        ["Title"] = "เทเลพอร์ต"
-    }),
-    ["Visual"] = v2:AddTab({
-        ["Title"] = "ปลอม"
-    }),
-    ["Fruit"] = v2:AddTab({
-        ["Title"] = "เครื่องมือ"
-    }),
-    ["Raid"] = v2:AddTab({
-        ["Title"] = "ลงดัน"
-    }),
-    ["Race"] = v2:AddTab({
-        ["Title"] = "เผ่า"
-    }),
-    ["Shop"] = v2:AddTab({
-        ["Title"] = "ร้านค้า"
-    }),
-    ["Misc"] = v2:AddTab({
-        ["Title"] = "อื่นๆ"
-    })
+    Info = v2:AddTab({ Title = "ข้อมูล", Icon = "info" }),
+    Main = v2:AddTab({ Title = "หน้าหลัก", Icon = "home" }),
+    Sea = v2:AddTab({ Title = "อีเว้นท์", Icon = "moon" }),
+    Item = v2:AddTab({ Title = "ไอเท็ม", Icon = "box" }),
+    Setting = v2:AddTab({ Title = "ตั้งค่า", Icon = "settings" }),
+    Status = v2:AddTab({ Title = "เว็บฮุก", Icon = "link" }),
+    Stats = v2:AddTab({ Title = "สถานะ", Icon = "bar-chart" }),
+    Player = v2:AddTab({ Title = "ผู้เล่น", Icon = "user" }),
+    Teleport = v2:AddTab({ Title = "เทเลพอร์ต", Icon = "map-pin" }),
+    Visual = v2:AddTab({ Title = "ปลอม", Icon = "eye" }),
+    Fruit = v2:AddTab({ Title = "เครื่องมือ", Icon = "wrench" }),
+    Raid = v2:AddTab({ Title = "ลงดัน", Icon = "sword" }),
+    Race = v2:AddTab({ Title = "เผ่า", Icon = "award" }),
+    Shop = v2:AddTab({ Title = "ร้านค้า", Icon = "shopping-cart" }),
+    Misc = v2:AddTab({ Title = "อื่นๆ", Icon = "more-horizontal" })
 }
+
 local vu4 = vu1.Options
 local v5 = game.PlaceId
 
