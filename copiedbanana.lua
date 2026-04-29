@@ -26,18 +26,25 @@ local Tabs = {
     Settings = Reaper:AddTab({ Title = "ตั้งค่า", Icon = "settings" })
 }
     
+-- Settings Tab
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
+
 SaveManager:IgnoreThemeSettings()
+
 SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+InterfaceManager:SetFolder("ReaperHub")
+SaveManager:SetFolder("ReaperHub/specific-game")
+
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
+
 Window:SelectTab(1)
+
 Fluent:Notify({
-    Title = "Reaper Hub",
-    Content = "Wellcome to Reaper.",
+    Title = "Reaper",
+    Content = "Wellcome to Reaper Hub",
     Duration = 8
 })
 
