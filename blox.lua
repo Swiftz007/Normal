@@ -4,7 +4,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 
 local Window = Reaper:CreateWindow({
   Title = "Reaper Hub",
-  SubTitle = "BloxFruits - 01",
+  SubTitle = "BloxFruits - 02",
   TabWidth = 160,
   Size = UDim2.fromOffset(450, 330),
   Acrylic = true,
