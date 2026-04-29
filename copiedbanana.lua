@@ -16,7 +16,6 @@ local Tabs = {
     Main = Reaper:AddTab({ Title = "หน้าหลัก", Icon = "home" }),
     Sea = Reaper:AddTab({ Title = "อีเว้นท์", Icon = "moon" }),
     Item = Reaper:AddTab({ Title = "ไอเท็ม", Icon = "box" }),
-    Setting = Reaper:AddTab({ Title = "ตั้งค่า", Icon = "settings" }),
     Stats = Reaper:AddTab({ Title = "ค่าพลัง", Icon = "bar-chart" }),
     Player = Reaper:AddTab({ Title = "ผู้เล่น", Icon = "user" }),
     Teleport = Reaper:AddTab({ Title = "เทเลพอร์ต", Icon = "map-pin" }),
@@ -24,7 +23,7 @@ local Tabs = {
     Raid = Reaper:AddTab({ Title = "ลงดัน", Icon = "sword" }),
     Race = Reaper:AddTab({ Title = "เผ่า", Icon = "award" }),
     Shop = Reaper:AddTab({ Title = "ร้านค้า", Icon = "shopping-cart" }),
-    Settings = Reaper:AddTab({ Title = "Settings", Icon = "settings" })
+    Settings = Reaper:AddTab({ Title = "ตั้งค่า", Icon = "settings" })
 }
     
 SaveManager:SetLibrary(Fluent)
