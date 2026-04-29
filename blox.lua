@@ -1,4 +1,4 @@
-do   			--#5
+do   			--#6
   ply = game.Players
   plr = ply.LocalPlayer
   Root = plr.Character.HumanoidRootPart
@@ -75,7 +75,7 @@ hookfunction(error, function()end)
 hookfunction(warn, function()end)
 local Rock = workspace:FindFirstChild("Rocks")
 if Rock then Rock:Destroy()end
-  local gay = (function()
+  gay = (function()
   local lighting = game:GetService("Lighting")
   local lightingLayers = lighting:FindFirstChild("LightingLayers")
   if lightingLayers and game:GetService("Lighting") and game:GetService("Lighting") then
