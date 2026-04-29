@@ -34,7 +34,6 @@ repeat local start = plr.PlayerGui:WaitForChild("Main"):WaitForChild("Loading") 
 World1 = game.PlaceId == 2753915549
 World2 = game.PlaceId == 79091703265657
 World3 = game.PlaceId == 100117331123089
-Sea = World1 or World2 or World3 or plr:Kick("❌ Error : A[12]Blox Fruits ❌")
 Marines = function() replicated.Remotes.CommF_:InvokeServer("SetTeam","Marines") end
 Pirates = function() replicated.Remotes.CommF_:InvokeServer("SetTeam","Pirates") end
 if World1 then Boss = {"The Gorilla King","Bobby","The Saw","Yeti","Mob Leader","Vice Admiral","Saber Expert","Warden","Chief Warden","Swan","Magma Admiral","Fishman Lord","Wysper","Thunder God","Cyborg","Ice Admiral","Greybeard"}
