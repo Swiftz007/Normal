@@ -4,7 +4,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 
 local Window = Reaper:CreateWindow({
   Title = "Reaper Hub",
-  SubTitle = "BloxFruits - 02",
+  SubTitle = "BloxFruits - 04"
   TabWidth = 160,
   Size = UDim2.fromOffset(450, 330),
   Acrylic = true,
@@ -26,30 +26,30 @@ local Misc = Window:AddTab({ Title = "Misc", Icon = "arrow-down-circle" })
 local r5_0 = r0_0.Options
 local r6_0 = {}
 repeat
-  wait()
+  task.wait(.1)
 until game.Players
 repeat
-  wait()
+  task.wait(.1)
 until game.Players.LocalPlayer
 repeat
-  wait()
+  task.wait(.1)
 until game.ReplicatedStorage
 repeat
-  wait()
+  task.wait(.1)
 until game.ReplicatedStorage:FindFirstChild("Remotes")
 repeat
-  wait()
+  task.wait(.1)
 until game.Players.LocalPlayer:FindFirstChild("PlayerGui")
 repeat
-  wait()
+  task.wait(.1)
 until game.Players.LocalPlayer.PlayerGui:FindFirstChild("Main")
 repeat
-  wait()
+  task.wait(.1)
 until game:GetService("Players")
 repeat
-  wait()
+  task.wait(.1)
 until game:GetService("Players").LocalPlayer.Character:FindFirstChild("Energy")
-wait(0.1)
+task.wait(.1)
 if not game:IsLoaded() then
   repeat
     game.Loaded:Wait()
@@ -2635,11 +2635,11 @@ end
 local r12_0 = 0
 local r13_0 = 30
 local r14_0 = 15
-r4_0.Main:AddParagraph({
+Tabs.Main:AddParagraph({
   Title = "Farming",
   Content = "Auto Farm",
 })
-local r15_0 = r4_0.Main:AddDropdown("DropdownSelectWeapon", {
+local r15_0 = Tabs.Main:AddDropdown("DropdownSelectWeapon", {
   Title = "Select Weapon",
   Values = {
     "Melee",
@@ -2693,7 +2693,7 @@ task.spawn(function()
 end)
 r18_0 = "AddToggle"
 r18_0 = "ToggleAutoFarmLevel"
-local r16_0 = r4_0.Main:[r18_0](r18_0, {
+local r16_0 = Tabs.Main:[r18_0](r18_0, {
   Title = "Auto Farm Level",
   Default = false,
 })
@@ -2886,7 +2886,7 @@ r20_0 = {
     FPSBooster()
   end,
 }
-r4_0.Main:[r20_0](r20_0)
+Tabs.Main:[r20_0](r20_0)
 function FPSBooster()
   -- line: [0, 0] id: 127
   local r0_127 = true
@@ -2928,11 +2928,11 @@ function FPSBooster()
     end
   end
 end
-r4_0.Main:AddParagraph({
+Tabs.Main:AddParagraph({
   Title = "Mastery Farm",
   Content = "Auto farm your mastery",
 })
-r18_0 = r4_0.Main:AddDropdown("DropdownMastery", {
+r18_0 = Tabs.Main:AddDropdown("DropdownMastery", {
   Title = "Farm Mode",
   Values = {
     "Level",
