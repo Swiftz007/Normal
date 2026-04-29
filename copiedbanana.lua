@@ -27,15 +27,15 @@ local Tabs = {
 }
     
 -- Settings Tab
-SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
+SaveManager:SetLibrary(Fluent)
+
 InterfaceManager:SetFolder("ReaperHub")
-SaveManager:SetFolder("ReaperHub/specific-game")
+SaveManager:SetFolder("ReaperHub/configs")
+
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
-Window:SelectTab(1)
+
 SaveManager:LoadAutoloadConfig()
 
 --=========================
