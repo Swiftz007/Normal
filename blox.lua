@@ -1,4 +1,4 @@
-do   		--#1
+do   		--#3
   ply = game.Players
   plr = ply.LocalPlayer
   Root = plr.Character.HumanoidRootPart
