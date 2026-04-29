@@ -1,61 +1,28 @@
--- filename: 
--- version: lua51
--- line: [0, 0] id: 0
-local r0_0 = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local r1_0 = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local r2_0 = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-local r3_0 = r0_0:CreateWindow({
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Reaper:CreateWindow({
   Title = "Reaper Hub",
   SubTitle = "BloxFruits - 01",
   TabWidth = 160,
   Size = UDim2.fromOffset(450, 330),
   Acrylic = true,
-  Theme = "Light",
-  MinimizeKey = Enum.KeyCode.RightControl,
+  Theme = "Dark",
+  MinimizeKey = Enum.KeyCode.RightControl
 })
-local r4_0 = {
-  Main = r3_0:AddTab({
-    Title = "Main",
-    Icon = "home",
-  }),
-  Setting = r3_0:AddTab({
-    Title = "Setting",
-    Icon = "settings-2",
-  }),
-  Stats = r3_0:AddTab({
-    Title = "Stats",
-    Icon = "plus-circle",
-  }),
-  Player = r3_0:AddTab({
-    Title = "Player",
-    Icon = "baby",
-  }),
-  Teleport = r3_0:AddTab({
-    Title = "Teleport",
-    Icon = "palmtree",
-  }),
-  Fruit = r3_0:AddTab({
-    Title = "Devil Fruit",
-    Icon = "cherry",
-  }),
-  Raid = r3_0:AddTab({
-    Title = "Dungeon",
-    Icon = "swords",
-  }),
-  Race = r3_0:AddTab({
-    Title = "Race V4",
-    Icon = "chevrons-right",
-  }),
-  Shop = r3_0:AddTab({
-    Title = "Shop",
-    Icon = "shopping-cart",
-  }),
-  Misc = r3_0:AddTab({
-    Title = "Misc",
-    Icon = "arrow-down-circle",
-  }),
-}
-r3_0:SelectTab(1)
+-- Tabs
+local Main = Window:AddTab({ Title = "Main", Icon = "home" })
+local Setting = Window:AddTab({ Title = "Setting", Icon = "settings-2" })
+local Stats = Window:AddTab({ Title = "Stats", Icon = "plus-circle" })
+local Player = Window:AddTab({ Title = "Player", Icon = "baby" })
+local Teleport = Window:AddTab({ Title = "Teleport", Icon = "palmtree" })
+local Fruit = Window:AddTab({ Title = "Devil Fruit", Icon = "cherry" })
+local Raid = Window:AddTab({ Title = "Dungeon", Icon = "swords" })
+local Race = Window:AddTab({ Title = "Race V4", Icon = "chevrons-right" })
+local Shop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" })
+local Misc = Window:AddTab({ Title = "Misc", Icon = "arrow-down-circle" })
+
 local r5_0 = r0_0.Options
 local r6_0 = {}
 repeat
@@ -7792,5 +7759,5 @@ function r63_0()
   game:GetService("VirtualInputManager"):SendKeyEvent(true, 305, false, game)
   game:GetService("VirtualInputManager"):SendKeyEvent(false, 305, false, game)
 end
-r59_0.MouseButton1Down:[r63_0](r63_0)
-loadstring(game:HttpGet("https://unfoldedunrulylanguage.phamducan.repl.co/"))()
+
+Window:SelectTab(1)
