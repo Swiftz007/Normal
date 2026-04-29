@@ -87,7 +87,7 @@ end)()
 local Attack = {}
 Attack.__index = Attack
 Attack.Alive = function(model) if not model then return end local Humanoid = model:FindFirstChild("Humanoid") return Humanoid and Humanoid.Health > 0 end
-Attack.Pos = function(model,dist) return (Root.Position - mode.Position).Magnitude <= dist end
+Attack.Pos = function(model,dist) return (Root.Position - model.Position).Magnitude <= dist end
 Attack.Dist = function(model,dist) return (Root.Position - model:FindFirstChild("HumanoidRootPart").Position).Magnitude <= dist end
 Attack.DistH = function(model,dist) return (Root.Position - model:FindFirstChild("HumanoidRootPart").Position).Magnitude > dist end
 Attack.Kill = function(model,Succes)
@@ -331,11 +331,11 @@ end
 CheckBoat = function()
   for i, v in pairs(workspace.Boats:GetChildren()) do
     if tostring(v.Owner.Value) == tostring(plr.Name) then
-      return v    
-end;
-  end;
+      return v
+    end
+  end
   return false
-end;
+end
 CheckEnemiesBoat = function()
   for _,v in pairs(workspace.Enemies:GetChildren()) do
     if (v.Name == "FishBoat") and v:FindFirstChild("Health").Value > 0 then
@@ -435,7 +435,11 @@ DropFruits = function()
     if string.find(v3.Name, "Fruit") then
       EquipWeapon(v3.Name)
 			wait(.1)
-      if plr.PlayerGui.Main.Dialogue.Visible == true then plr.PlayerGui.Main.Dialogue.Visible = false end EquipWeapon(v3.Name) plr.Character:FindFirstChild(v3.Name).EatRemote:InvokeServer("Drop")
+      if plr.PlayerGui.Main.Dialogue.Visible == true then 
+  plr.PlayerGui.Main.Dialogue.Visible = false 
+end
+EquipWeapon(v3.Name)
+plr.Character:FindFirstChild(v3.Name).EatRemote:InvokeServer("Drop")
     end
   end
   for a,b2 in pairs(plr.Character:GetChildren()) do
@@ -719,7 +723,9 @@ spawn(function()
 			    end
 			  end
 		    end
-		  else _tp(QuestNeta()[4])if replicated:FindFirstChild(QuestNeta()[1]) then _tp(replicated:FindFirstChild(QuestNeta()[1]).HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))end end
+		  else 
+  _tp(QuestNeta()[4])
+  if replicated:FindFirstChild(QuestNeta()[1]) then _tp(replicated:FindFirstChild(QuestNeta()[1]).HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))end end
 		end
 	  end)
 	end
@@ -776,7 +782,8 @@ spawn(function()
                   Check = 2
                   repeat wait()replicated.Remotes.CommF_:InvokeServer("F_","TravelZou")until Check == 1                   
                 else
-                  replicated.Remotes.CommF_:InvokeServer("F_","ZQuestProgress","Check") wait(.1)
+                  replicated.Remotes.CommF_:InvokeServer("F_","ZQuestProgress","Check")
+				wait(.1)
                   replicated.Remotes.CommF_:InvokeServer("F_","ZQuestProgress","Begin")
                 end
               elseif replicated.Remotes["CommF_"]:InvokeServer("ZQuestProgress", "Check") == 1 then
