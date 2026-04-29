@@ -12,15 +12,15 @@ local Window = Reaper:CreateWindow({
   MinimizeKey = Enum.KeyCode.RightControl
 })
 -- Tabs
-local Main = Window:AddTab({ Title = "Main", Icon = "home" })
-local Setting = Window:AddTab({ Title = "Setting", Icon = "settings-2" })
-local Stats = Window:AddTab({ Title = "Stats", Icon = "plus-circle" })
-local Player = Window:AddTab({ Title = "Player", Icon = "baby" })
-local Teleport = Window:AddTab({ Title = "Teleport", Icon = "palmtree" })
-local Fruit = Window:AddTab({ Title = "Devil Fruit", Icon = "cherry" })
-local Raid = Window:AddTab({ Title = "Dungeon", Icon = "swords" })
-local Race = Window:AddTab({ Title = "Race V4", Icon = "chevrons-right" })
-local Shop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" })
+local Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+local Setting = Window:AddTab({ Title = "Setting", Icon = "settings-2" }),
+local Stats = Window:AddTab({ Title = "Stats", Icon = "plus-circle" }),
+local Player = Window:AddTab({ Title = "Player", Icon = "baby" }),
+local Teleport = Window:AddTab({ Title = "Teleport", Icon = "palmtree" }),
+local Fruit = Window:AddTab({ Title = "Devil Fruit", Icon = "cherry" }),
+local Raid = Window:AddTab({ Title = "Dungeon", Icon = "swords" }),
+local Race = Window:AddTab({ Title = "Race V4", Icon = "chevrons-right" }),
+local Shop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
 local Misc = Window:AddTab({ Title = "Misc", Icon = "arrow-down-circle" })
 
 local r5_0 = r0_0.Options
