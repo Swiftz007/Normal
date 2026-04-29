@@ -5148,9 +5148,9 @@ if Sea3 then
             end
         end)
     end
-    v555("AutoFindPrehistoric", v520.Prehistoric, "PrehistoricIsland")
-    v555("AutoFindMirage", v520.Mirage, "MysticIsland")
-    v555("AutoFindFrozen", v520.Frozen, "FrozenDimension"")
+    v555("AutoFindPrehistoric","PrehistoricIsland")
+    v555("AutoFindMirage","MysticIsland")
+    v555("AutoFindFrozen","FrozenDimension")
     vu3.Sea:AddToggle("AutoComeTiki", {
         ["Title"] = "ขับเรือไปเกาะ TIKI",
         ["Description"] = "",
