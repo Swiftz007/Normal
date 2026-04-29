@@ -433,7 +433,8 @@ end
 DropFruits = function()
   for _,v3 in next, plr.Backpack:GetChildren() do
     if string.find(v3.Name, "Fruit") then
-      EquipWeapon(v3.Name) wait(.1)
+      EquipWeapon(v3.Name)
+			wait(.1)
       if plr.PlayerGui.Main.Dialogue.Visible == true then plr.PlayerGui.Main.Dialogue.Visible = false end EquipWeapon(v3.Name) plr.Character:FindFirstChild(v3.Name).EatRemote:InvokeServer("Drop")
     end
   end
@@ -676,20 +677,20 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local Window = Fluent:CreateWindow({Title = "Astral hub [Freemium] ",SubTitle = "by xxxxx",TabWidth = 155,Size = UDim2.fromOffset(555, 320),Acrylic = false,Theme = "Dark",MinimizeKey = Enum.KeyCode.End})
 
 local Tabs = {
-  Main = Window:AddTab({Title = "Farm", Icon = ""}),
-  Settings = Window:AddTab({Title = "Config", Icon = ""}),
-  Melee = Window:AddTab({Title = "Fighting Style", Icon = ""}),
-  Quests = Window:AddTab({Title = "Items Farm", Icon = ""}),
-  SeaEvent = Window:AddTab({Title = "Sea Events", Icon = ""}),
-  Mirage = Window:AddTab({Title = "Mirage + RaceV4", Icon = ""}),
-  Drago = Window:AddTab({Title = "Drago Dojo", Icon = ""}),
-  Prehistoric = Window:AddTab({Title = "Prehistoric", Icon = ""}),
-  Raids = Window:AddTab({Title = "Raid", Icon = ""}),
-  Combat = Window:AddTab({Title = "Combat PVP", Icon = ""}),
-  Travel = Window:AddTab({Title = "Teleport", Icon = ""}),
-  Fruit = Window:AddTab({Title = "Fruits", Icon = ""}),
-  Shop = Window:AddTab({Title = "Shop", Icon = ""}),
-  Misc = Window:AddTab({Title = "Misc", Icon = ""})
+  Main = Window:AddTab({Title = "Farm", Icon = "home"}),
+  Settings = Window:AddTab({Title = "Config", Icon = "minimize"}),
+  Melee = Window:AddTab({Title = "Fighting Style", Icon = "zap"}),
+  Quests = Window:AddTab({Title = "Items Farm", Icon = "box"}),
+  SeaEvent = Window:AddTab({Title = "Sea Events", Icon = "tag"}),
+  Mirage = Window:AddTab({Title = "Mirage + RaceV4", Icon = "star"}),
+  Drago = Window:AddTab({Title = "Drago Dojo", Icon = "hexagon"}),
+  Prehistoric = Window:AddTab({Title = "Prehistoric", Icon = "codesandbox"}),
+  Raids = Window:AddTab({Title = "Raid", Icon = "codepen"}),
+  Combat = Window:AddTab({Title = "Combat PVP", Icon = "moon"}),
+  Travel = Window:AddTab({Title = "Teleport", Icon = "map-pin"}),
+  Fruit = Window:AddTab({Title = "Fruits", Icon = "code"}),
+  Shop = Window:AddTab({Title = "Shop", Icon = "shopping-cart"}),
+  Misc = Window:AddTab({Title = "Misc", Icon = "more-horizontal"})
 }
  
 local FarmLevel = Tabs.Main:AddToggle("FarmLevel", {Title = "Auto Farm Level", Description = "", Default = false})
