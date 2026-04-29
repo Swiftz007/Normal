@@ -75,16 +75,17 @@ hookfunction(error, function()end)
 hookfunction(warn, function()end)
 local Rock = workspace:FindFirstChild("Rocks")
 if Rock then Rock:Destroy()end
-gay = (function()
+  local gay = (function()
   local lighting = game:GetService("Lighting")
   local lightingLayers = lighting:FindFirstChild("LightingLayers")
   if lightingLayers and game:GetService("Lighting") and game:GetService("Lighting") then
     local darkFog = lightingLayers:FindFirstChild("DarkFog")
     if darkFog then darkFog:Destroy() end
   end
-  local Water = workspace._WorldOrigin["Foam;"]
-  if Water and workspace._WorldOrigin["Foam;"] then Water:Destroy() end        
-end)()
+  local Water = workspace._WorldOrigin:FindFirstChild("Foam;")
+if Water then 
+    Water:Destroy() 
+end
 local Attack = {}
 Attack.__index = Attack
 Attack.Alive = function(model) if not model then return end local Humanoid = model:FindFirstChild("Humanoid") return Humanoid and Humanoid.Health > 0 end
