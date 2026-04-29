@@ -29,25 +29,13 @@ local Tabs = {
 -- Settings Tab
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
-
 SaveManager:IgnoreThemeSettings()
-
 SaveManager:SetIgnoreIndexes({})
-
 InterfaceManager:SetFolder("ReaperHub")
 SaveManager:SetFolder("ReaperHub/specific-game")
-
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
-
 Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "Reaper",
-    Content = "Wellcome to Reaper Hub",
-    Duration = 8
-})
-
 SaveManager:LoadAutoloadConfig()
 
 --=========================
