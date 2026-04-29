@@ -76,7 +76,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 6.1",
+    SubTitle = "lib beta 6.2",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -3056,7 +3056,7 @@ spawn(function()
     end
 end)
 vu3.Main:AddToggle("ToggleHakiFortress", {
-    ["Title"] = "ปลดล็อคสีฮาคิรุ้ง",
+    ["Title"] = "รออัพเดต",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p287)
@@ -3107,7 +3107,7 @@ spawn(function()
     end
 end)
 vu3.Main:AddToggle("ToggleCollectChest", {
-    ["Title"] = "เปิดหีบสมบัติ",
+    ["Title"] = "ฟาร์มกล่องสมบัติ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p296)
@@ -3188,7 +3188,7 @@ spawn(function()
         end
     end
 end)
-vu3.Main:AddSection("Thông Thạo")
+vu3.Main:AddSection("Farm Mastery")
 local v323 = vu3.Main:AddDropdown("DropdownMastery", {
     ["Title"] = "เลือกประเภท",
     ["Description"] = "",
@@ -4438,7 +4438,7 @@ if Sea3 then
         end
     end)
     vu3.Main:AddToggle("ToggleCake", {
-        ["Title"] = "Cày Tư Lệnh Bánh",
+        ["Title"] = "ผู้บัญชาการเค้ก",
         ["Description"] = "",
         ["Default"] = false
     }):OnChanged(function(p442)
@@ -4663,7 +4663,7 @@ if Sea2 then
         end
     end)
 end
-vu3.Main:AddSection("Trùm")
+vu3.Main:AddSection("Farm Boss")
 if Sea1 then
     tableBoss = {
         "The Gorilla King",
@@ -4708,7 +4708,7 @@ elseif Sea3 then
     }
 end
 local v469 = vu3.Main:AddDropdown("DropdownBoss", {
-    ["Title"] = "Chọn Trùm",
+    ["Title"] = "เลือกบอส",
     ["Description"] = "",
     ["Values"] = tableBoss,
     ["Multi"] = false,
@@ -4719,7 +4719,7 @@ v469:OnChanged(function(p470)
     _G.SelectBoss = p470
 end)
 vu3.Main:AddToggle("ToggleAutoFarmBoss", {
-    ["Title"] = "Đánh Trùm",
+    ["Title"] = "ฟาร์มบอส",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p471)
@@ -4759,7 +4759,7 @@ spawn(function()
         end
     end
 end)
-vu3.Main:AddSection("Nguyên Liậu")
+vu3.Main:AddSection("Farm Material")
 if Sea1 then
     MaterialList = {
         "Scrap Metal",
@@ -4792,7 +4792,7 @@ elseif Sea3 then
     }
 end
 local v476 = vu3.Main:AddDropdown("DropdownMaterial", {
-    ["Title"] = "Chọn Nguyên Liệu",
+    ["Title"] = "เลือกวัตถุดิบ",
     ["Description"] = "",
     ["Values"] = MaterialList,
     ["Multi"] = false,
@@ -4803,7 +4803,7 @@ v476:OnChanged(function(p477)
     SelectMaterial = p477
 end)
 vu3.Main:AddToggle("ToggleMaterial", {
-    ["Title"] = "Cày Nguyên Liệu",
+    ["Title"] = "ฟาร์มวัตถุดิบ",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p478)
@@ -4866,17 +4866,17 @@ spawn(function()
     end
 end)
 if Sea3 then
-    vu3.Sea:AddSection("\239\191\189ảo Cáo")
+    vu3.Sea:AddSection("Notfity")
     local vu487 = vu3.Sea:AddParagraph({
-        ["Title"] = "Trạng Thái Đảo Cáo",
+        ["Title"] = "สถานะเกาะจิ้งจอก",
         ["Content"] = ""
     })
     function UpdateKitsune()
 		-- upvalues: (ref) vu487
         if game.Workspace._WorldOrigin.Locations:FindFirstChild("Kitsune Island") then
-            vu487:SetDesc("\239\191\189ảo Cáo : \226\156\133\239\184\143")
+            vu487:SetDesc("พ่อมึงตาย")
         else
-            vu487:SetDesc("\239\191\189ảo Cáo : \226\157\140\239\184\143")
+            vu487:SetDesc("แม่มึงตาย")
         end
     end
     spawn(function()
@@ -4945,7 +4945,7 @@ if Sea3 then
             game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RF/KitsuneStatuePray"):InvokeServer()
         end
     })
-    vu3.Sea:AddSection("Biển")
+    vu3.Sea:AddSection("Sea")
     local vu496 = game:GetService("Players")
     local vu497 = game:GetService("RunService")
     local vu498 = game:GetService("VirtualInputManager")
@@ -5150,9 +5150,9 @@ if Sea3 then
             end
         end)
     end
-    v555("Tìm Đảo Dung Nham", "AutoFindPrehistoric", v520.Prehistoric, "PrehistoricIsland", "\239\191\189ảo Dung Nham Tìm Thấy")
-    v555("Tìm Đảo Bí \225\186\168n", "AutoFindMirage", v520.Mirage, "MysticIsland", "Đảo Bí \225\186\168n Tìm Thấy")
-    v555("Tìm Đảo Leviathan", "AutoFindFrozen", v520.Frozen, "FrozenDimension", "\239\191\189ảo Leviathan Tìm Thấy")
+    v555("AutoFindPrehistoric", v520.Prehistoric, "PrehistoricIsland")
+    v555("AutoFindMirage", v520.Mirage, "MysticIsland")
+    v555("AutoFindFrozen", v520.Frozen, "FrozenDimension"")
     vu3.Sea:AddToggle("AutoComeTiki", {
         ["Title"] = "ขับเรือไปเกาะ TIKI",
         ["Description"] = "",
@@ -5737,9 +5737,9 @@ if Sea3 then
             pcall(function()
 				-- upvalues: (ref) vu652
                 if game:GetService("ReplicatedStorage"):FindFirstChild("Diablo") or (game:GetService("ReplicatedStorage"):FindFirstChild("Deandre") or (game:GetService("ReplicatedStorage"):FindFirstChild("Urban") or (game:GetService("Workspace").Enemies:FindFirstChild("Diablo") or (game:GetService("Workspace").Enemies:FindFirstChild("Deandre") or game:GetService("Workspace").Enemies:FindFirstChild("Urban"))))) then
-                    vu652:SetDesc("Elite Boss: \226\156\133\239\184\143 | Killed:  " .. game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter", "Progress"))
+                    vu652:SetDesc("Elite Boss | Killed:  " .. game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter", "Progress"))
                 else
-                    vu652:SetDesc("Elite Boss: \226\157\140\239\184\143 | Killed: " .. game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter", "Progress"))
+                    vu652:SetDesc("Elite Boss | Killed: " .. game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter", "Progress"))
                 end
             end)
         end
@@ -5795,7 +5795,7 @@ if Sea3 then
     end)
 end
 if Sea3 then
-    vu3.Sea:AddSection("\239\191\189ảo Bí \225\186\168n")
+    vu3.Sea:AddSection("Mirage")
     local vu658 = vu3.Sea:AddParagraph({
         ["Title"] = "สถานะ",
         ["Content"] = ""
@@ -5949,7 +5949,7 @@ spawn(function()
     end
 end)
 vu3.Item:AddToggle("ToggleAutoSaber", {
-    ["Title"] = "Saber",
+    ["Title"] = "เซเบอร์",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p676)
@@ -6070,7 +6070,7 @@ spawn(function()
     end
 end)
 vu3.Item:AddToggle("ToggleAutoPoleV1", {
-    ["Title"] = "Pole V1",
+    ["Title"] = "โพล์ V1",
     ["Description"] = "",
     ["Default"] = false
 }):OnChanged(function(p685)
