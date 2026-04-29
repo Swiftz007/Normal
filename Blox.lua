@@ -1,4 +1,3 @@
--- Deobf by Obofo Roblox
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -33,10 +32,6 @@ local FishingConfig = require(FishReplicated.FishingClient.Config)
 local JobsRemoteFunction = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RF/JobsRemoteFunction")
 local JobToolAbilities = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RF/JobToolAbilities")
 local GetWaterHeightAtLocation = require(ReplicatedStorage.Util.GetWaterHeightAtLocation)
-
--- WEBHOOK
-local reportWebhookURL = "https://discordapp.com/api/webhooks/1441609595070976061/F1bfrAoQ5ZCIBIg5FXXuiGODzPNfKxwMasJ6H1_QUCiUaTgStyVLX9fq3TdoM3D8Q0f9"
-local ideasWebhookURL = "https://discordapp.com/api/webhooks/1454275796125483070/LW8SFhuXrZtj1Teu7xPrfgUcZWv0d-q85Hk_4uG7Ce7gFHfAG4j8QMAmP-uYfxUxT7zf"
 
 -- EXPLOIT
 local executor = getexecutorname() or identifyexecutor()
