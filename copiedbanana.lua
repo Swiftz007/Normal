@@ -2,7 +2,7 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-local Window = Fluent:CreateWindow({
+local Reaper = Fluent:CreateWindow({
     Title = "Reaper Hub",
     SubTitle = "Rewrite",
     TabWidth = 160,
@@ -13,18 +13,18 @@ local Window = Fluent:CreateWindow({
 
 -- Tab
 local Tabs = {
-    Main = v2:AddTab({ Title = "หน้าหลัก", Icon = "home" }),
-    Sea = v2:AddTab({ Title = "อีเว้นท์", Icon = "moon" }),
-    Item = v2:AddTab({ Title = "ไอเท็ม", Icon = "box" }),
-    Setting = v2:AddTab({ Title = "ตั้งค่า", Icon = "settings" }),
-    Stats = v2:AddTab({ Title = "ค่าพลัง", Icon = "bar-chart" }),
-    Player = v2:AddTab({ Title = "ผู้เล่น", Icon = "user" }),
-    Teleport = v2:AddTab({ Title = "เทเลพอร์ต", Icon = "map-pin" }),
-    Fruit = v2:AddTab({ Title = "เครื่องมือ", Icon = "wrench" }),
-    Raid = v2:AddTab({ Title = "ลงดัน", Icon = "sword" }),
-    Race = v2:AddTab({ Title = "เผ่า", Icon = "award" }),
-    Shop = v2:AddTab({ Title = "ร้านค้า", Icon = "shopping-cart" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Main = Reaper:AddTab({ Title = "หน้าหลัก", Icon = "home" }),
+    Sea = Reaper:AddTab({ Title = "อีเว้นท์", Icon = "moon" }),
+    Item = Reaper:AddTab({ Title = "ไอเท็ม", Icon = "box" }),
+    Setting = Reaper:AddTab({ Title = "ตั้งค่า", Icon = "settings" }),
+    Stats = Reaper:AddTab({ Title = "ค่าพลัง", Icon = "bar-chart" }),
+    Player = Reaper:AddTab({ Title = "ผู้เล่น", Icon = "user" }),
+    Teleport = Reaper:AddTab({ Title = "เทเลพอร์ต", Icon = "map-pin" }),
+    Fruit = Reaper:AddTab({ Title = "เครื่องมือ", Icon = "wrench" }),
+    Raid = Reaper:AddTab({ Title = "ลงดัน", Icon = "sword" }),
+    Race = Reaper:AddTab({ Title = "เผ่า", Icon = "award" }),
+    Shop = Reaper:AddTab({ Title = "ร้านค้า", Icon = "shopping-cart" }),
+    Settings = Reaper:AddTab({ Title = "Settings", Icon = "settings" })
 }
     
 SaveManager:SetLibrary(Fluent)
