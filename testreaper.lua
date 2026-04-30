@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 8.3",
+SubTitle = "lib Beta 8.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -330,7 +330,7 @@ Callback = function(v) State.NC = v end
 })
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
---================ SPIN PLAYER ==================--
+--================ SPIN PLAYER FIX =================--
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -341,28 +341,28 @@ local spinning = false
 local spinSpeed = 20
 local spinConnection
 
--- ดึง HumanoidRootPart
+-- ดึง HRP แบบชัวร์
 local function getHRP()
-    local char = LocalPlayer.Character
-    if not char then return nil end
-    return char:FindFirstChild("HumanoidRootPart")
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
 end
 
--- เริ่มหมุน
+-- เริ่มหมุน (ใช้ dt กันเฟรมเรท)
 local function startSpin()
     if spinConnection then
         spinConnection:Disconnect()
     end
 
-    spinConnection = RunService.RenderStepped:Connect(function()
+    spinConnection = RunService.RenderStepped:Connect(function(dt)
         local hrp = getHRP()
         if not hrp then return end
 
-        hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed), 0)
+        -- ใช้ dt ทำให้ลื่นขึ้น
+        hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed * dt * 60), 0)
     end)
 end
 
--- หยุดหมุน
+-- หยุด
 local function stopSpin()
     if spinConnection then
         spinConnection:Disconnect()
@@ -370,16 +370,15 @@ local function stopSpin()
     end
 end
 
--- กันรีตัวแล้วหาย
+-- รีตัวไม่พัง
 LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(1)
-
     if spinning then
+        task.wait(1)
         startSpin()
     end
 end)
 
--- Toggle เปิด/ปิด
+-- Toggle
 Tabs.Player:AddToggle("SpinPlayer", {
     Title = "Spin Player",
     Default = false,
@@ -394,7 +393,7 @@ Tabs.Player:AddToggle("SpinPlayer", {
     end
 })
 
--- Slider ความเร็ว
+-- Slider
 Tabs.Player:AddSlider("SpinSpeed", {
     Title = "Spin Speed",
     Min = 0,
