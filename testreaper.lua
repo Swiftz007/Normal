@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 8.0",
+SubTitle = "lib Beta 8.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1063,6 +1063,143 @@ Tabs.Settings:AddToggle("FPSBoost", {
     applyOptimize(v)
 end)
 
+-- Console
+--// SERVICES
+local LogService = game:GetService("LogService")
+
+--// STATE
+local consoleEnabled = false
+local MAX_LOGS = 60
+local logCount = 0
+
+--// GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "ReaperConsole"
+gui.Parent = game.CoreGui
+
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 420, 0, 260)
+main.Position = UDim2.new(0.5, -210, 0.5, -130)
+main.BackgroundColor3 = Color3.fromRGB(20,20,25)
+main.Visible = false
+main.Active = true
+main.Draggable = true
+
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
+
+local stroke = Instance.new("UIStroke", main)
+stroke.Transparency = 0.8
+
+--// HEADER
+local header = Instance.new("Frame", main)
+header.Size = UDim2.new(1,0,0,30)
+header.BackgroundColor3 = Color3.fromRGB(30,30,35)
+
+Instance.new("UICorner", header).CornerRadius = UDim.new(0,10)
+
+local title = Instance.new("TextLabel", header)
+title.Size = UDim2.new(1,0,1,0)
+title.BackgroundTransparency = 1
+title.Text = "Reaper Console"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 14
+title.TextColor3 = Color3.new(1,1,1)
+
+--// SCROLL
+local scroll = Instance.new("ScrollingFrame", main)
+scroll.Position = UDim2.new(0,0,0,32)
+scroll.Size = UDim2.new(1,0,1,-65)
+scroll.BackgroundTransparency = 1
+scroll.ScrollBarThickness = 4
+scroll.CanvasSize = UDim2.new(0,0,0,0)
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local padding = Instance.new("UIPadding", scroll)
+padding.PaddingLeft = UDim.new(0,6)
+padding.PaddingTop = UDim.new(0,4)
+
+--// BOTTOM
+local bottom = Instance.new("Frame", main)
+bottom.Size = UDim2.new(1,0,0,30)
+bottom.Position = UDim2.new(0,0,1,-30)
+bottom.BackgroundColor3 = Color3.fromRGB(25,25,30)
+
+--// CLEAR BUTTON
+local clear = Instance.new("TextButton", bottom)
+clear.Size = UDim2.new(0,70,0,22)
+clear.Position = UDim2.new(1,-75,0.5,-11)
+clear.Text = "Clear"
+clear.Font = Enum.Font.Gotham
+clear.TextSize = 13
+clear.BackgroundColor3 = Color3.fromRGB(40,40,50)
+clear.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner", clear)
+
+clear.MouseButton1Click:Connect(function()
+	for _, v in ipairs(scroll:GetChildren()) do
+		if v:IsA("TextLabel") then
+			v:Destroy()
+		end
+	end
+	logCount = 0
+	scroll.CanvasSize = UDim2.new(0,0,0,0)
+end)
+
+--// ADD LOG
+local function addLog(text, msgType)
+	if not consoleEnabled then return end
+
+	logCount += 1
+
+	-- limit
+	if logCount > MAX_LOGS then
+		local first = scroll:FindFirstChild("log_1")
+		if first then first:Destroy() end
+	end
+
+	local label = Instance.new("TextLabel")
+	label.Name = "log_" .. tostring(logCount)
+	label.Size = UDim2.new(1, -8, 0, 18)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.Code
+	label.TextSize = 13
+	label.TextXAlignment = Enum.TextXAlignment.Left
+
+	local prefix = "[INFO]"
+	local color = Color3.fromRGB(200,200,200)
+
+	if msgType == Enum.MessageType.MessageError then
+		prefix = "[ERROR]"
+		color = Color3.fromRGB(255,80,80)
+	elseif msgType == Enum.MessageType.MessageWarning then
+		prefix = "[WARN]"
+		color = Color3.fromRGB(255,200,0)
+	end
+
+	label.Text = prefix .. " " .. text
+	label.TextColor3 = color
+	label.Parent = scroll
+
+	scroll.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 5)
+end
+
+--// LOG LISTENER
+LogService.MessageOut:Connect(function(message, messageType)
+	addLog(message, messageType)
+end)
+
+--// FLUENT TOGGLE
+Tabs.Settings:AddToggle("Console", {
+	Title = "Console",
+	Default = false,
+	Callback = function(v)
+		consoleEnabled = v
+		main.Visible = v
+	end
+})
 
 --=========================
 -- ⚙ SETTINGS TAB
