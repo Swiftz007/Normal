@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 8.2",
+SubTitle = "lib Beta 8.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -327,6 +327,82 @@ Tabs.Player:AddToggle("NC", {
 Title = "Noclip",
 Default = false,
 Callback = function(v) State.NC = v end
+})
+
+-- มึงอย่ามาล้อเล่นกับเดอะหมุน
+--================ SPIN PLAYER ==================--
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local spinning = false
+local spinSpeed = 20
+local spinConnection
+
+-- ดึง HumanoidRootPart
+local function getHRP()
+    local char = LocalPlayer.Character
+    if not char then return nil end
+    return char:FindFirstChild("HumanoidRootPart")
+end
+
+-- เริ่มหมุน
+local function startSpin()
+    if spinConnection then
+        spinConnection:Disconnect()
+    end
+
+    spinConnection = RunService.RenderStepped:Connect(function()
+        local hrp = getHRP()
+        if not hrp then return end
+
+        hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed), 0)
+    end)
+end
+
+-- หยุดหมุน
+local function stopSpin()
+    if spinConnection then
+        spinConnection:Disconnect()
+        spinConnection = nil
+    end
+end
+
+-- กันรีตัวแล้วหาย
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(1)
+
+    if spinning then
+        startSpin()
+    end
+end)
+
+-- Toggle เปิด/ปิด
+Tabs.Player:AddToggle("SpinPlayer", {
+    Title = "Spin Player",
+    Default = false,
+    Callback = function(v)
+        spinning = v
+
+        if v then
+            startSpin()
+        else
+            stopSpin()
+        end
+    end
+})
+
+-- Slider ความเร็ว
+Tabs.Player:AddSlider("SpinSpeed", {
+    Title = "Spin Speed",
+    Min = 0,
+    Max = 100,
+    Default = 20,
+    Callback = function(v)
+        spinSpeed = v
+    end
 })
 
 -- Anti AFK
