@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 8.1",
+SubTitle = "lib Beta 8.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1070,7 +1070,7 @@ local LogService = game:GetService("LogService")
 --// STATE
 local consoleEnabled = false
 local MAX_LOGS = 60
-local logCount = 0
+local logItems = {}
 
 --// GUI
 local gui = Instance.new("ScreenGui")
@@ -1078,9 +1078,9 @@ gui.Name = "ReaperConsole"
 gui.Parent = game.CoreGui
 
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 420, 0, 260)
-main.Position = UDim2.new(0.5, -210, 0.5, -130)
-main.BackgroundColor3 = Color3.fromRGB(20,20,25)
+main.Size = UDim2.new(0, 420, 0, 270)
+main.Position = UDim2.new(0.5, -210, 0.5, -135)
+main.BackgroundColor3 = Color3.fromRGB(18,18,22)
 main.Visible = false
 main.Active = true
 main.Draggable = true
@@ -1088,12 +1088,12 @@ main.Draggable = true
 Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
 
 local stroke = Instance.new("UIStroke", main)
-stroke.Transparency = 0.8
+stroke.Transparency = 0.85
 
 --// HEADER
 local header = Instance.new("Frame", main)
-header.Size = UDim2.new(1,0,0,30)
-header.BackgroundColor3 = Color3.fromRGB(30,30,35)
+header.Size = UDim2.new(1,0,0,32)
+header.BackgroundColor3 = Color3.fromRGB(28,28,34)
 
 Instance.new("UICorner", header).CornerRadius = UDim.new(0,10)
 
@@ -1107,29 +1107,29 @@ title.TextColor3 = Color3.new(1,1,1)
 
 --// SCROLL
 local scroll = Instance.new("ScrollingFrame", main)
-scroll.Position = UDim2.new(0,0,0,32)
-scroll.Size = UDim2.new(1,0,1,-65)
+scroll.Position = UDim2.new(0,0,0,34)
+scroll.Size = UDim2.new(1,0,1,-70)
 scroll.BackgroundTransparency = 1
 scroll.ScrollBarThickness = 4
-scroll.CanvasSize = UDim2.new(0,0,0,0)
 
 local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0,4)
 layout.SortOrder = Enum.SortOrder.LayoutOrder
 
 local padding = Instance.new("UIPadding", scroll)
 padding.PaddingLeft = UDim.new(0,6)
-padding.PaddingTop = UDim.new(0,4)
+padding.PaddingTop = UDim.new(0,6)
 
 --// BOTTOM
 local bottom = Instance.new("Frame", main)
-bottom.Size = UDim2.new(1,0,0,30)
-bottom.Position = UDim2.new(0,0,1,-30)
-bottom.BackgroundColor3 = Color3.fromRGB(25,25,30)
+bottom.Size = UDim2.new(1,0,0,32)
+bottom.Position = UDim2.new(0,0,1,-32)
+bottom.BackgroundColor3 = Color3.fromRGB(24,24,30)
 
---// CLEAR BUTTON
+-- CLEAR
 local clear = Instance.new("TextButton", bottom)
-clear.Size = UDim2.new(0,70,0,22)
-clear.Position = UDim2.new(1,-75,0.5,-11)
+clear.Size = UDim2.new(0,70,0,24)
+clear.Position = UDim2.new(1,-80,0.5,-12)
 clear.Text = "Clear"
 clear.Font = Enum.Font.Gotham
 clear.TextSize = 13
@@ -1138,55 +1138,89 @@ clear.TextColor3 = Color3.new(1,1,1)
 
 Instance.new("UICorner", clear)
 
+-- CLEAR FUNCTION
 clear.MouseButton1Click:Connect(function()
-	for _, v in ipairs(scroll:GetChildren()) do
-		if v:IsA("TextLabel") then
-			v:Destroy()
-		end
+	for _, v in ipairs(logItems) do
+		if v then v:Destroy() end
 	end
-	logCount = 0
+	logItems = {}
 	scroll.CanvasSize = UDim2.new(0,0,0,0)
 end)
+
+--// CREATE LOG UI
+local function createLog(text, msgType)
+
+	local container = Instance.new("Frame")
+	container.Size = UDim2.new(1, -6, 0, 0)
+	container.AutomaticSize = Enum.AutomaticSize.Y
+
+	local prefix = "[INFO]"
+	local color = Color3.fromRGB(200,200,200)
+	local bg = Color3.fromRGB(30,30,35)
+
+	if msgType == Enum.MessageType.MessageError then
+		prefix = "[ERROR]"
+		color = Color3.fromRGB(255,80,80)
+		bg = Color3.fromRGB(55,25,25)
+	elseif msgType == Enum.MessageType.MessageWarning then
+		prefix = "[WARN]"
+		color = Color3.fromRGB(255,200,0)
+		bg = Color3.fromRGB(55,50,20)
+	end
+
+	container.BackgroundColor3 = bg
+	Instance.new("UICorner", container).CornerRadius = UDim.new(0,6)
+
+	local pad = Instance.new("UIPadding", container)
+	pad.PaddingLeft = UDim.new(0,6)
+	pad.PaddingTop = UDim.new(0,4)
+	pad.PaddingBottom = UDim.new(0,4)
+
+	local time = os.date("%H:%M:%S")
+
+	local label = Instance.new("TextLabel", container)
+	label.Size = UDim2.new(1,0,0,0)
+	label.AutomaticSize = Enum.AutomaticSize.Y
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.Code
+	label.TextSize = 13
+	label.TextWrapped = true
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.TextYAlignment = Enum.TextYAlignment.Top
+
+	label.Text = "["..time.."] "..prefix.."  "..text
+	label.TextColor3 = color
+
+	-- hover effect
+	container.MouseEnter:Connect(function()
+		container.BackgroundColor3 = bg:lerp(Color3.new(1,1,1), 0.05)
+	end)
+	container.MouseLeave:Connect(function()
+		container.BackgroundColor3 = bg
+	end)
+
+	return container
+end
 
 --// ADD LOG
 local function addLog(text, msgType)
 	if not consoleEnabled then return end
 
-	logCount += 1
+	local item = createLog(text, msgType)
+	item.Parent = scroll
 
-	-- limit
-	if logCount > MAX_LOGS then
-		local first = scroll:FindFirstChild("log_1")
-		if first then first:Destroy() end
+	table.insert(logItems, item)
+
+	-- limit logs
+	if #logItems > MAX_LOGS then
+		logItems[1]:Destroy()
+		table.remove(logItems, 1)
 	end
 
-	local label = Instance.new("TextLabel")
-	label.Name = "log_" .. tostring(logCount)
-	label.Size = UDim2.new(1, -8, 0, 18)
-	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.Code
-	label.TextSize = 13
-	label.TextXAlignment = Enum.TextXAlignment.Left
-
-	local prefix = "[INFO]"
-	local color = Color3.fromRGB(200,200,200)
-
-	if msgType == Enum.MessageType.MessageError then
-		prefix = "[ERROR]"
-		color = Color3.fromRGB(255,80,80)
-	elseif msgType == Enum.MessageType.MessageWarning then
-		prefix = "[WARN]"
-		color = Color3.fromRGB(255,200,0)
-	end
-
-	label.Text = prefix .. " " .. text
-	label.TextColor3 = color
-	label.Parent = scroll
-
-	scroll.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 5)
+	scroll.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 6)
 end
 
---// LOG LISTENER
+--// LISTEN
 LogService.MessageOut:Connect(function(message, messageType)
 	addLog(message, messageType)
 end)
