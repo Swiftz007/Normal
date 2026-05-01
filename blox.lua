@@ -1,5 +1,3 @@
--- This file was deobfuscated using Scene Deobfuscator discord.gg/deobfuscate :D
-
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function()
     -- empty block
 end)
