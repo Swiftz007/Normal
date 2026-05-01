@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 8.8",
+SubTitle = "lib Beta 8.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -53,7 +53,7 @@ local DefaultJP = 50
 
 local initialized = false
 
---================ WALK TP (REAL FIX) =================--
+--================ WALK TP (DASH REAL) =================--
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -61,55 +61,52 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 local enabled = false
-local boosted = false
-local lastBoost = 0
+local canDash = true
 
-local BOOST_SPEED = 100
-local NORMAL_SPEED = 16
-local BOOST_TIME = 0.25
+local DASH_POWER = 120 -- แรงพุ่ง
+local COOLDOWN = 0.6   -- กัน spam
 
 local connection
 
-local function getHumanoid()
-    local char = LocalPlayer.Character
-    if not char then return end
-    return char:FindFirstChildOfClass("Humanoid")
+local function getChar()
+    return LocalPlayer.Character
 end
 
 local function getHRP()
-    local char = LocalPlayer.Character
+    local char = getChar()
     if not char then return end
     return char:FindFirstChild("HumanoidRootPart")
+end
+
+local function getHumanoid()
+    local char = getChar()
+    if not char then return end
+    return char:FindFirstChildOfClass("Humanoid")
 end
 
 local function start()
     if connection then connection:Disconnect() end
 
     connection = RunService.RenderStepped:Connect(function()
-        if not enabled then return end
+        if not enabled or not canDash then return end
 
         local humanoid = getHumanoid()
         local hrp = getHRP()
         if not humanoid or not hrp then return end
 
-        -- ใช้ความเร็วจริงแทน MoveDirection
-        local speed = hrp.Velocity.Magnitude
+        local moveDir = humanoid.MoveDirection
 
-        -- ถ้ากำลังเดิน
-        if speed > 1 then
-            if not boosted and tick() - lastBoost > 0.4 then
-                boosted = true
-                lastBoost = tick()
+        -- ถ้ามีการกดเดิน
+        if moveDir.Magnitude > 0 then
+            canDash = false
 
-                humanoid.WalkSpeed = BOOST_SPEED
+            -- 🔥 พุ่งไปตามทิศที่กด
+            hrp.Velocity = moveDir.Unit * DASH_POWER + Vector3.new(0, hrp.Velocity.Y, 0)
 
-                task.delay(BOOST_TIME, function()
-                    if humanoid then
-                        humanoid.WalkSpeed = NORMAL_SPEED
-                    end
-                    boosted = false
-                end)
-            end
+            -- cooldown
+            task.delay(COOLDOWN, function()
+                canDash = true
+            end)
         end
     end)
 end
@@ -118,11 +115,6 @@ local function stop()
     if connection then
         connection:Disconnect()
         connection = nil
-    end
-
-    local humanoid = getHumanoid()
-    if humanoid then
-        humanoid.WalkSpeed = NORMAL_SPEED
     end
 end
 
@@ -136,7 +128,7 @@ end)
 
 -- UI
 Tabs.Player:AddToggle("WalkTP", {
-    Title = "Walk TP",
+    Title = "WalkTP",
     Default = false,
     Callback = function(v)
         enabled = v
