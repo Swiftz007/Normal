@@ -11269,200 +11269,120 @@ spawn(function()
         end
     end
 end)
--- ===============================================================
--- NÚT TOGGLE MENU - FIX HOÀN TOÀN MỚI
--- ===============================================================
 
-local ToggleButton = Instance.new("ScreenGui")
-local ButtonFrame = Instance.new("ImageButton")
-local ButtonCorner = Instance.new("UICorner")
-local ParticleEffect = Instance.new("ParticleEmitter")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
+--=========================
+-- 🔥 TOGGLE
+--=========================
 
--- Biến quản lý trạng thái
-local MenuVisible = true
-local MainContainer = nil
-
--- Setup GUI
-ToggleButton.Name = "BananaCatToggle"
--- ===============================================================
--- TOGGLE BUTTON - CLEAN CIRCULAR DESIGN
--- ===============================================================
-
-task.wait(2)
-
-local TweenService = game:GetService("TweenService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 local CoreGui = game:GetService("CoreGui")
+local UIS = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
--- Create ScreenGui
-local ToggleGui = Instance.new("ScreenGui")
-ToggleGui.Name = "BananaCatToggle"
-ToggleGui.Parent = CoreGui
-ToggleGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ToggleGui.ResetOnSpawn = false
-ToggleGui.DisplayOrder = 999999
+-- ลบของเก่า
+for _, v in pairs({"ToggleUI","BananaCatToggle"}) do
+    local old = CoreGui:FindFirstChild(v)
+    if old then old:Destroy() end
+end
 
--- Create Button (NO BLACK BORDER)
-local ToggleButton = Instance.new("ImageButton")
-ToggleButton.Name = "ToggleButton"
-ToggleButton.Parent = ToggleGui
-ToggleButton.AnchorPoint = Vector2.new(0, 0.5)
-ToggleButton.BackgroundTransparency = 1
-ToggleButton.BorderSizePixel = 0
-ToggleButton.Position = UDim2.new(0.01, 0, 0.5, 0)
-ToggleButton.Size = UDim2.new(0, 45, 0, 45)
-ToggleButton.Image = "rbxassetid://123613996022560"
-ToggleButton.ScaleType = Enum.ScaleType.Fit
-ToggleButton.Active = true
-ToggleButton.Draggable = true
-ToggleButton.AutoButtonColor = false
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "ToggleUI"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 999999
+gui.Parent = CoreGui
 
--- Rounded
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(1, 0)
-Corner.Parent = ToggleButton
+-- BORDER
+local border = Instance.new("Frame")
+border.Parent = gui
+border.Size = UDim2.new(0,56,0,56)
+border.BackgroundColor3 = Color3.fromRGB(0,0,0)
+border.AnchorPoint = Vector2.new(0,0.5)
 
--- Stroke
-local Stroke = Instance.new("UIStroke")
-Stroke.Parent = ToggleButton
-Stroke.Color = Color3.fromRGB(255, 170, 0)
-Stroke.Thickness = 2
-Stroke.Transparency = 0.3
-Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Instance.new("UICorner", border).CornerRadius = UDim.new(0,14)
 
--- Shadow
-local Shadow = Instance.new("ImageLabel")
-Shadow.Name = "Shadow"
-Shadow.Parent = ToggleButton
-Shadow.BackgroundTransparency = 1
-Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-Shadow.Size = UDim2.new(1.4, 0, 1.4, 0)
-Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-Shadow.Image = "rbxassetid://1316045217"
-Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-Shadow.ImageTransparency = 0.6
-Shadow.ZIndex = -1
+-- BUTTON
+local button = Instance.new("TextButton")
+button.Parent = gui
+button.Size = UDim2.new(0,50,0,50)
+button.Position = UDim2.new(0,20,0.5,0)
+button.AnchorPoint = Vector2.new(0,0.5)
+button.Text = ""
+button.BackgroundColor3 = Color3.fromRGB(0,255,0)
 
--- Particles
-local Particles = Instance.new("ParticleEmitter")
-Particles.Parent = ToggleButton
-Particles.Enabled = false
-Particles.Lifetime = NumberRange.new(0.3, 0.6)
-Particles.Rate = 30
-Particles.Speed = NumberRange.new(3, 6)
-Particles.SpreadAngle = Vector2.new(360, 360)
-Particles.Transparency = NumberSequence.new({
-    NumberSequenceKeypoint.new(0, 0),
-    NumberSequenceKeypoint.new(1, 1)
-})
-Particles.Size = NumberSequence.new({
-    NumberSequenceKeypoint.new(0, 0.3),
-    NumberSequenceKeypoint.new(1, 0)
-})
-Particles.Color = ColorSequence.new(Color3.fromRGB(255, 170, 0))
-Particles.LightEmission = 1
+Instance.new("UICorner", button).CornerRadius = UDim.new(0,12)
 
--- Anti-spam
-local IsAnimating = false
-local LastClick = 0
+-- ALIGN
+local function UpdateBorder()
+    local offset = (border.Size.X.Offset - button.Size.X.Offset) / 2
 
--- Simulate END key
-local function PressEnd()
+    border.Position = UDim2.new(
+        button.Position.X.Scale,
+        button.Position.X.Offset - offset,
+        button.Position.Y.Scale,
+        button.Position.Y.Offset
+    )
+end
+
+UpdateBorder()
+
+-- DRAG
+local dragging = false
+local dragStart, startPos
+
+button.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = button.Position
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging then
+        local delta = input.Position - dragStart
+
+        button.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+
+        UpdateBorder()
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+--=========================
+-- 🔥 TOGGLE (ใช้ END KEY)
+--=========================
+local isOpen = true
+local lastClick = 0
+
+button.MouseButton1Click:Connect(function()
     local now = tick()
-    if now - LastClick < 0.5 then return end
-    LastClick = now
-    IsAnimating = true
-    
-    -- Animation (NO ROTATION)
-    Particles.Enabled = true
-    
-    local grow = TweenService:Create(ToggleButton,
-        TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-        {Size = UDim2.new(0, 52, 0, 52)}
-    )
-    
-    local glow = TweenService:Create(Stroke,
-        TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-        {Thickness = 3, Transparency = 0}
-    )
-    
-    grow:Play()
-    glow:Play()
-    
-    grow.Completed:Connect(function()
-        local shrink = TweenService:Create(ToggleButton,
-            TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-            {Size = UDim2.new(0, 45, 0, 45)}
-        )
-        
-        local dim = TweenService:Create(Stroke,
-            TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-            {Thickness = 2, Transparency = 0.3}
-        )
-        
-        shrink:Play()
-        dim:Play()
-        
-        shrink.Completed:Connect(function()
-            Particles.Enabled = false
-            IsAnimating = false
-        end)
-    end)
-    
-    -- Send END key
+    if now - lastClick < 0.4 then return end -- กัน spam
+    lastClick = now
+
+    isOpen = not isOpen
+
+    -- เปลี่ยนสี
+    button.BackgroundColor3 = isOpen
+        and Color3.fromRGB(0,255,0)
+        or Color3.fromRGB(255,0,0)
+
+    -- 🔥 ใช้ logic เดิม (End Key)
     pcall(function()
         VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.End, false, game)
         task.wait(0.05)
         VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.End, false, game)
     end)
-end
-
--- Click event
-ToggleButton.MouseButton1Click:Connect(PressEnd)
-
--- Hover effects
-ToggleButton.MouseEnter:Connect(function()
-    if not IsAnimating then
-        TweenService:Create(ToggleButton, TweenInfo.new(0.2), {
-            Size = UDim2.new(0, 50, 0, 50)
-        }):Play()
-        
-        TweenService:Create(Stroke, TweenInfo.new(0.2), {
-            Thickness = 2.5,
-            Transparency = 0
-        }):Play()
-        
-        TweenService:Create(Shadow, TweenInfo.new(0.2), {
-            ImageTransparency = 0.4
-        }):Play()
-    end
 end)
-
-ToggleButton.MouseLeave:Connect(function()
-    if not IsAnimating then
-        TweenService:Create(ToggleButton, TweenInfo.new(0.2), {
-            Size = UDim2.new(0, 45, 0, 45)
-        }):Play()
-        
-        TweenService:Create(Stroke, TweenInfo.new(0.2), {
-            Thickness = 2,
-            Transparency = 0.3
-        }):Play()
-        
-        TweenService:Create(Shadow, TweenInfo.new(0.2), {
-            ImageTransparency = 0.6
-        }):Play()
-    end
-end)
-
-pcall(function()
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Toggle Button Ready";
-        Text = "Click button to toggle menu";
-        Duration = 4;
-    })
-end)
-
-print("Toggle button created successfully")
