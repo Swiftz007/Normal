@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 8.7",
+SubTitle = "lib Beta 8.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -53,7 +53,7 @@ local DefaultJP = 50
 
 local initialized = false
 
---================ WALK TP (BURST) =================--
+--================ WALK TP (REAL FIX) =================--
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -62,18 +62,24 @@ local LocalPlayer = Players.LocalPlayer
 
 local enabled = false
 local boosted = false
-local lastMoveTime = 0
+local lastBoost = 0
 
 local BOOST_SPEED = 100
 local NORMAL_SPEED = 16
-local BOOST_TIME = 0.25 -- ระยะเวลาพุ่ง
+local BOOST_TIME = 0.25
 
 local connection
 
 local function getHumanoid()
     local char = LocalPlayer.Character
-    if not char then return nil end
+    if not char then return end
     return char:FindFirstChildOfClass("Humanoid")
+end
+
+local function getHRP()
+    local char = LocalPlayer.Character
+    if not char then return end
+    return char:FindFirstChild("HumanoidRootPart")
 end
 
 local function start()
@@ -83,16 +89,17 @@ local function start()
         if not enabled then return end
 
         local humanoid = getHumanoid()
-        if not humanoid then return end
+        local hrp = getHRP()
+        if not humanoid or not hrp then return end
 
-        local moveDir = humanoid.MoveDirection.Magnitude
+        -- ใช้ความเร็วจริงแทน MoveDirection
+        local speed = hrp.Velocity.Magnitude
 
-        -- ถ้าเริ่มเดิน
-        if moveDir > 0 then
-            -- กันไม่ให้ spam
-            if not boosted and tick() - lastMoveTime > 0.3 then
+        -- ถ้ากำลังเดิน
+        if speed > 1 then
+            if not boosted and tick() - lastBoost > 0.4 then
                 boosted = true
-                lastMoveTime = tick()
+                lastBoost = tick()
 
                 humanoid.WalkSpeed = BOOST_SPEED
 
