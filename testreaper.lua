@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 8.6",
+SubTitle = "lib Beta 8.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -53,85 +53,91 @@ local DefaultJP = 50
 
 local initialized = false
 
---================ WALK TP RANDOM =================--
+--================ WALK TP (BURST) =================--
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
 
-local walkingTP = false
-local walkSpeed = 50
-local targetPos = nil
+local enabled = false
+local boosted = false
+local lastMoveTime = 0
+
+local BOOST_SPEED = 100
+local NORMAL_SPEED = 16
+local BOOST_TIME = 0.25 -- ระยะเวลาพุ่ง
+
 local connection
 
--- หา HRP
-local function getHRP()
+local function getHumanoid()
     local char = LocalPlayer.Character
     if not char then return nil end
-    return char:FindFirstChild("HumanoidRootPart")
+    return char:FindFirstChildOfClass("Humanoid")
 end
 
--- สุ่มสปีด
-local function getRandomSpeed()
-    return math.random(40, 90) -- ปรับช่วงได้
-end
-
--- หาเป้า (สุ่ม player)
-local function getRandomPlayerPos()
-    local list = {}
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            table.insert(list, p.Character.HumanoidRootPart.Position)
-        end
-    end
-
-    if #list == 0 then return nil end
-    return list[math.random(1, #list)]
-end
-
--- เริ่มเดิน
-local function startWalkTP()
+local function start()
     if connection then connection:Disconnect() end
 
-    walkSpeed = getRandomSpeed() -- 🔥 สุ่มตรงนี้
+    connection = RunService.RenderStepped:Connect(function()
+        if not enabled then return end
 
-    connection = RunService.RenderStepped:Connect(function(dt)
-        if not walkingTP then return end
+        local humanoid = getHumanoid()
+        if not humanoid then return end
 
-        local hrp = getHRP()
-        if not hrp or not targetPos then return end
+        local moveDir = humanoid.MoveDirection.Magnitude
 
-        local direction = (targetPos - hrp.Position)
-        local distance = direction.Magnitude
+        -- ถ้าเริ่มเดิน
+        if moveDir > 0 then
+            -- กันไม่ให้ spam
+            if not boosted and tick() - lastMoveTime > 0.3 then
+                boosted = true
+                lastMoveTime = tick()
 
-        if distance < 2 then
-            walkingTP = false
-            return
+                humanoid.WalkSpeed = BOOST_SPEED
+
+                task.delay(BOOST_TIME, function()
+                    if humanoid then
+                        humanoid.WalkSpeed = NORMAL_SPEED
+                    end
+                    boosted = false
+                end)
+            end
         end
-
-        local move = direction.Unit * walkSpeed * dt
-        hrp.CFrame = hrp.CFrame + move
     end)
 end
 
--- หยุด
-local function stopWalkTP()
-    walkingTP = false
+local function stop()
+    if connection then
+        connection:Disconnect()
+        connection = nil
+    end
+
+    local humanoid = getHumanoid()
+    if humanoid then
+        humanoid.WalkSpeed = NORMAL_SPEED
+    end
 end
 
--- Toggle
+-- รีตัว
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(0.5)
+    if enabled then
+        start()
+    end
+end)
+
+-- UI
 Tabs.Player:AddToggle("WalkTP", {
     Title = "Walk TP",
     Default = false,
     Callback = function(v)
-        walkingTP = v
+        enabled = v
 
         if v then
-            targetPos = getRandomPlayerPos()
-            startWalkTP()
+            start()
         else
-            stopWalkTP()
+            stop()
         end
     end
 })
