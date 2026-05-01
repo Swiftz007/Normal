@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 8.9",
+SubTitle = "lib Beta 9.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -63,8 +63,8 @@ local LocalPlayer = Players.LocalPlayer
 local enabled = false
 local canDash = true
 
-local DASH_POWER = 120 -- แรงพุ่ง
-local COOLDOWN = 0.6   -- กัน spam
+local DASH_POWER = 600 -- แรงพุ่ง
+local COOLDOWN = 2   -- กัน spam
 
 local connection
 
