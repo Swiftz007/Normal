@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 8.5",
+SubTitle = "lib Beta 8.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -52,6 +52,89 @@ local DefaultWS = 16
 local DefaultJP = 50
 
 local initialized = false
+
+--================ WALK TP RANDOM =================--
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local walkingTP = false
+local walkSpeed = 50
+local targetPos = nil
+local connection
+
+-- หา HRP
+local function getHRP()
+    local char = LocalPlayer.Character
+    if not char then return nil end
+    return char:FindFirstChild("HumanoidRootPart")
+end
+
+-- สุ่มสปีด
+local function getRandomSpeed()
+    return math.random(40, 90) -- ปรับช่วงได้
+end
+
+-- หาเป้า (สุ่ม player)
+local function getRandomPlayerPos()
+    local list = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            table.insert(list, p.Character.HumanoidRootPart.Position)
+        end
+    end
+
+    if #list == 0 then return nil end
+    return list[math.random(1, #list)]
+end
+
+-- เริ่มเดิน
+local function startWalkTP()
+    if connection then connection:Disconnect() end
+
+    walkSpeed = getRandomSpeed() -- 🔥 สุ่มตรงนี้
+
+    connection = RunService.RenderStepped:Connect(function(dt)
+        if not walkingTP then return end
+
+        local hrp = getHRP()
+        if not hrp or not targetPos then return end
+
+        local direction = (targetPos - hrp.Position)
+        local distance = direction.Magnitude
+
+        if distance < 2 then
+            walkingTP = false
+            return
+        end
+
+        local move = direction.Unit * walkSpeed * dt
+        hrp.CFrame = hrp.CFrame + move
+    end)
+end
+
+-- หยุด
+local function stopWalkTP()
+    walkingTP = false
+end
+
+-- Toggle
+Tabs.Player:AddToggle("WalkTP", {
+    Title = "Walk TP",
+    Default = false,
+    Callback = function(v)
+        walkingTP = v
+
+        if v then
+            targetPos = getRandomPlayerPos()
+            startWalkTP()
+        else
+            stopWalkTP()
+        end
+    end
+})
 
 --=========================
 -- 🔥 CHARACTER HOOK
