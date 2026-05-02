@@ -76,7 +76,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.4",
+    SubTitle = "lib beta 5.5",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -231,7 +231,7 @@ local vu3 = {
 }
 
 -- เทส PlaceID หลอน
-— PlaceID หลอนๆ
+-- PlaceID หลอนๆ
 local vu4 = vu1.Options
 local v5 = game.PlaceId
 
