@@ -12,15 +12,6 @@ local success1 = pcall(function()
     loadSuccess = true
 end)
 
-local v2 = vu1:CreateWindow({
-Title = "Reaper Hub",
-    SubTitle = "lib beta 5.7",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.End
-})
-
 -- ถ้าโหลดไม่ได้ ให้สร้าง UI พื้นฐาน
 if not loadSuccess or not vu1 then
     warn("ไม่สามารถโหลด Fluent UI ได้! กำลังสร้าง UI สำรอง...")
@@ -81,6 +72,15 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Reaper Hub โหลดสำเร็จ";
     Text = "กดปุ่ม END เพื่อเปิด/ปิดเมนู | สคริปต์พร้อมใช้งานแล้ว!";
     Duration = 5;
+})
+
+local v2 = vu1:CreateWindow({
+Title = "Reaper Hub",
+    SubTitle = "lib beta 5.7",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.End
 })
 
 -- FIX TOGGLE MENU
@@ -229,7 +229,30 @@ local vu3 = {
     Shop = v2:AddTab({ Title = "ร้านค้า", Icon = "shopping-cart" }),
     Misc = v2:AddTab({ Title = "อื่นๆ", Icon = "more-horizontal" })
 }
--- Tab PlaceId
+
+local vu4 = vu1.Options
+local v5 = game.PlaceId
+
+-- ตรวจสอบโลก
+if v5 == 2753915549 then
+    Sea1 = true
+    print("โลกแรก")
+elseif v5 == 4442272183 then
+    Sea2 = true
+    print("โลกสอง")
+elseif v5 == 7449423635 then
+    Sea3 = true
+    print("โลกสาม")
+else
+    warn("ไม่ใช่เกม Blox Fruits!")
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "fuck";
+        Text = "สคริปต์นี้ใช้งานได้เฉพาะใน Blox Fruits เท่านั้น!";
+        Duration = 5;
+    })
+    wait(3)
+    game:Shutdown()
+end
 -- Anti AFK
 game:GetService("Players").LocalPlayer.Idled:connect(function()
     game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
