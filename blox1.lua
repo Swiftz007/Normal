@@ -76,7 +76,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.7",
+    SubTitle = "lib beta 5.8",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -231,27 +231,19 @@ local vu3 = {
 }
 
 local vu4 = vu1.Options
-local v5 = game.PlaceId
+local TablePlace = game.PlaceId
 
 -- ตรวจสอบโลก
-if v5 == 2753915549 then
+local placeId = game.PlaceId
+
+if placeId == 2753915549 then
     Sea1 = true
-    print("โลกแรก")
-elseif v5 == 4442272183 then
+elseif placeId == 4442272183 then
     Sea2 = true
-    print("โลกสอง")
-elseif v5 == 7449423635 then
+elseif placeId == 7449423635 then
     Sea3 = true
-    print("โลกสาม")
 else
-    warn("ไม่ใช่เกม Blox Fruits!")
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "fuck";
-        Text = "สคริปต์นี้ใช้งานได้เฉพาะใน Blox Fruits เท่านั้น!";
-        Duration = 5;
-    })
-    wait(3)
-    game:Shutdown()
+    warn("ไม่ใช่ Blox Fruits!")
 end
 -- Anti AFK
 game:GetService("Players").LocalPlayer.Idled:connect(function()
