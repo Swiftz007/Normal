@@ -14,7 +14,7 @@ end)
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.6",
+    SubTitle = "lib beta 5.7",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -236,17 +236,17 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
     wait()
     game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
 end)
---Sea1 = false
---Sea2 = false
---Sea3 = false
---local v6 = game.PlaceId
---if v6 == 2753915549 then
---    Sea1 = true
---elseif v6 == 4442272183 then
---    Sea2 = true
---elseif v6 == 7449423635 then
---    Sea3 = true
---end
+Sea1 = false
+Sea2 = false
+Sea3 = false
+local v6 = game.PlaceId
+if v6 == 2753915549 then
+	Sea1 = true
+elseif v6 == 4442272183 then
+    Sea2 = true
+elseif v6 == 7449423635 then
+    Sea3 = true
+end
 function CheckLevel()
     local v7 = game:GetService("Players").LocalPlayer.Data.Level.Value
     if Sea1 then
