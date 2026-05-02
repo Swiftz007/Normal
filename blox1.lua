@@ -1,4 +1,4 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/lib1.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/lib3.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/lib2.lua"))()
 -- แก้ไขสำหรับ KRN - ทดลองหลายวิธีในการโหลด
 local vu1
@@ -76,7 +76,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.2",
+    SubTitle = "lib beta 5.3",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -230,29 +230,7 @@ local vu3 = {
     Misc = v2:AddTab({ Title = "อื่นๆ", Icon = "more-horizontal" })
 }
 
-local vu4 = vu1.Options
-local v5 = game.PlaceId
-
--- ตรวจสอบโลก
-if v5 == 2753915549 then
-    Sea1 = true
-    print("โลกแรก")
-elseif v5 == 4442272183 then
-    Sea2 = true
-    print("โลกสอง")
-elseif v5 == 7449423635 then
-    Sea3 = true
-    print("โลกสาม")
-else
-    warn("ไม่ใช่เกม Blox Fruits!")
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "fuck";
-        Text = "สคริปต์นี้ใช้งานได้เฉพาะใน Blox Fruits เท่านั้น!";
-        Duration = 5;
-    })
-    wait(3)
-    game:Shutdown()
-end
+-- เทส PlaceID หลอน
 	
 -- Anti AFK
 game:GetService("Players").LocalPlayer.Idled:connect(function()
