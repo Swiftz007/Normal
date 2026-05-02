@@ -245,7 +245,6 @@ elseif v5 == 4442272183 then
 elseif v5 == 7449423635 then
     Sea3 = true
     print("โลกสาม")
-else
 
 -- Anti AFK
 game:GetService("Players").LocalPlayer.Idled:connect(function()
