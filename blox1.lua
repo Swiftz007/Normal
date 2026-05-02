@@ -76,7 +76,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.1",
+    SubTitle = "lib beta 5.2",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -243,7 +243,17 @@ elseif v5 == 4442272183 then
 elseif v5 == 7449423635 then
     Sea3 = true
     print("โลกสาม")
-
+else
+    warn("ไม่ใช่เกม Blox Fruits!")
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "fuck";
+        Text = "สคริปต์นี้ใช้งานได้เฉพาะใน Blox Fruits เท่านั้น!";
+        Duration = 5;
+    })
+    wait(3)
+    game:Shutdown()
+end
+	
 -- Anti AFK
 game:GetService("Players").LocalPlayer.Idled:connect(function()
     game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
