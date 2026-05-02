@@ -76,7 +76,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local v2 = vu1:CreateWindow({
 Title = "Reaper Hub",
-    SubTitle = "lib beta 5.3",
+    SubTitle = "lib beta 5.4",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -231,7 +231,22 @@ local vu3 = {
 }
 
 -- เทส PlaceID หลอน
-	
+— PlaceID หลอนๆ
+local vu4 = vu1.Options
+local v5 = game.PlaceId
+
+-- ตรวจสอบโลก
+if v5 == 2753915549 then
+    Sea1 = true
+    print("โลกแรก")
+elseif v5 == 4442272183 then
+    Sea2 = true
+    print("โลกสอง")
+elseif v5 == 7449423635 then
+    Sea3 = true
+    print("โลกสาม")
+else
+
 -- Anti AFK
 game:GetService("Players").LocalPlayer.Idled:connect(function()
     game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
