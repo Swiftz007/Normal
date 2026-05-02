@@ -12,6 +12,15 @@ local success1 = pcall(function()
     loadSuccess = true
 end)
 
+local v2 = vu1:CreateWindow({
+Title = "Reaper Hub",
+    SubTitle = "lib beta 5.6",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.End
+})
+
 -- ถ้าโหลดไม่ได้ ให้สร้าง UI พื้นฐาน
 if not loadSuccess or not vu1 then
     warn("ไม่สามารถโหลด Fluent UI ได้! กำลังสร้าง UI สำรอง...")
@@ -72,15 +81,6 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Reaper Hub โหลดสำเร็จ";
     Text = "กดปุ่ม END เพื่อเปิด/ปิดเมนู | สคริปต์พร้อมใช้งานแล้ว!";
     Duration = 5;
-})
-
-local v2 = vu1:CreateWindow({
-Title = "Reaper Hub",
-    SubTitle = "lib beta 5.5",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.End
 })
 
 -- FIX TOGGLE MENU
@@ -229,40 +229,24 @@ local vu3 = {
     Shop = v2:AddTab({ Title = "ร้านค้า", Icon = "shopping-cart" }),
     Misc = v2:AddTab({ Title = "อื่นๆ", Icon = "more-horizontal" })
 }
-
--- เทส PlaceID หลอน
--- PlaceID หลอนๆ
-local vu4 = vu1.Options
-local v5 = game.PlaceId
-
--- ตรวจสอบโลก
-if v5 == 2753915549 then
-    Sea1 = true
-    print("โลกแรก")
-elseif v5 == 4442272183 then
-    Sea2 = true
-    print("โลกสอง")
-elseif v5 == 7449423635 then
-    Sea3 = true
-    print("โลกสาม")
-
+-- Tab PlaceId
 -- Anti AFK
 game:GetService("Players").LocalPlayer.Idled:connect(function()
     game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
     wait()
     game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
 end)
-Sea1 = false
-Sea2 = false
-Sea3 = false
-local v6 = game.PlaceId
-if v6 == 2753915549 then
-    Sea1 = true
-elseif v6 == 4442272183 then
-    Sea2 = true
-elseif v6 == 7449423635 then
-    Sea3 = true
-end
+--Sea1 = false
+--Sea2 = false
+--Sea3 = false
+--local v6 = game.PlaceId
+--if v6 == 2753915549 then
+--    Sea1 = true
+--elseif v6 == 4442272183 then
+--    Sea2 = true
+--elseif v6 == 7449423635 then
+--    Sea3 = true
+--end
 function CheckLevel()
     local v7 = game:GetService("Players").LocalPlayer.Data.Level.Value
     if Sea1 then
