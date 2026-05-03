@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 10.7",
+SubTitle = "lib Beta 10.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -35,7 +35,7 @@ if not GUI then
 end
 
 -- =========================
--- FIND TITLE (Reaper Hub)
+-- FIND TITLE
 -- =========================
 local Title
 
@@ -46,7 +46,6 @@ for i = 1, 30 do
             break
         end
     end
-
     if Title then break end
     task.wait(0.1)
 end
@@ -56,7 +55,7 @@ if not Title then
 end
 
 -- =========================
--- GET TOPBAR FROM TITLE
+-- GET TOPBAR
 -- =========================
 local TopBar = Title.Parent
 if not TopBar then
@@ -64,32 +63,42 @@ if not TopBar then
 end
 
 -- =========================
--- ADD PADDING TO TITLE
+-- CREATE OVERLAY (กัน Layout)
 -- =========================
-local Padding = Instance.new("UIPadding")
-Padding.PaddingLeft = UDim.new(0, 32) -- ปรับได้ตามขนาดโลโก้
-Padding.Parent = Title
+local Overlay = Instance.new("Frame")
+Overlay.Name = "LogoLayer"
+Overlay.Parent = TopBar
+
+Overlay.BackgroundTransparency = 1
+Overlay.Size = UDim2.new(1, 0, 1, 0)
+Overlay.ZIndex = 999
 
 -- =========================
 -- CREATE LOGO
 -- =========================
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "ReaperLogo"
-Logo.Parent = TopBar
+Logo.Parent = Overlay
 
 Logo.Image = "rbxassetid://86279908104891"
 Logo.BackgroundTransparency = 1
 
 Logo.Size = UDim2.new(0, 24, 0, 24)
 Logo.AnchorPoint = Vector2.new(0, 0.5)
-Logo.Position = UDim2.new(0, 6, 0.5, -12)
-
 Logo.ScaleType = Enum.ScaleType.Fit
 
 -- =========================
--- FORCE LEFT (IMPORTANT)
+-- ALIGN LOGO กับ TITLE (เป๊ะ)
 -- =========================
-Logo.LayoutOrder = -1
+task.wait()
+
+local centerY = Title.AbsolutePosition.Y + (Title.AbsoluteSize.Y / 2)
+local topY = TopBar.AbsolutePosition.Y
+
+Logo.Position = UDim2.new(
+    0, 6,
+    0, (centerY - topY) - (Logo.AbsoluteSize.Y / 2)
+)
 
 -- =========================
 -- OPTIONAL STYLE
