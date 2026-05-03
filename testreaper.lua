@@ -1414,6 +1414,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
+-- toggle
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 
@@ -1446,7 +1447,6 @@ button.Position = UDim2.new(0, 20, 0.5, 0)
 button.AnchorPoint = Vector2.new(0, 0.5)
 
 button.BackgroundColor3 = Color3.fromRGB(30,30,30)
-button.BackgroundTransparency = 0
 button.AutoButtonColor = false
 button.Active = true
 button.ZIndex = 10
@@ -1460,28 +1460,22 @@ corner.CornerRadius = UDim.new(0, 14)
 corner.Parent = button
 
 --=========================
--- IMAGE CHECK (DEBUG IMPORTANT)
+-- DEBUG IMAGE
 --=========================
-button:GetPropertyChangedSignal("Image"):Connect(function()
-    print("Image changed:", button.Image)
-end)
-
 task.delay(2, function()
-    if button.Image == "" or not button.Image then
-        warn("❌ IMAGE NOT SET")
-    else
-        print("🟢 Image loaded:", button.Image)
-    end
+    print("IMAGE USED:", button.Image)
+    print("NOTE: If image is blank -> asset is invalid for UI")
 end)
 
 --=========================
--- DRAG SYSTEM (FIXED)
+-- DRAG (FIXED 100%)
 --=========================
 local dragging = false
-local dragStart, startPos
+local dragStart
+local startPos
 
 button.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 
+    if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
 
         dragging = true
@@ -1491,7 +1485,11 @@ button.InputBegan:Connect(function(input)
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+    if not dragging then return end
+
+    if input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch then
+
         local delta = input.Position - dragStart
 
         button.Position = UDim2.new(
@@ -1504,23 +1502,21 @@ UIS.InputChanged:Connect(function(input)
 end)
 
 UIS.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 
+    if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
     end
 end)
 
 --=========================
--- TOGGLE TEST
+-- TOGGLE (TEST)
 --=========================
 local isOpen = true
 
 button.MouseButton1Click:Connect(function()
     isOpen = not isOpen
+    print("Toggle:", isOpen)
 
-    print("Toggle =", isOpen)
-
-    -- debug visual
     button.BackgroundColor3 = isOpen
         and Color3.fromRGB(30,30,30)
         or Color3.fromRGB(80,0,0)
