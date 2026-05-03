@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 10.0",
+SubTitle = "lib Beta 10.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1449,7 +1449,7 @@ borderCorner.Parent = border
 --=========================
 local button = Instance.new("ImageButton")
 button.Parent = gui
-button.Size = UDim2.new(0,50,0,50)
+button.Size = UDim2.new(0,70,0,70)
 button.Position = UDim2.new(0,20,0.5,0)
 button.AnchorPoint = Vector2.new(0,0)
 
