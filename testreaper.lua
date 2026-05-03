@@ -24,26 +24,111 @@ Theme = "Dark",
 MinimizeKey = Enum.KeyCode.RightControl
 })
 -- Left icon ui
-task.wait(0.2)
+-- Wait for GUI to exist safely
 
-local Gui = Fluent.GUI
-local Main = Gui:FindFirstChild("Main")
-local Topbar = Main and Main:FindFirstChild("TopBar")
+task.wait(1)
 
-if Topbar then
-    local Icon = Instance.new("ImageLabel")
-    Icon.Name = "HubIcon"
-    Icon.Size = UDim2.fromOffset(22, 22)
-    Icon.Position = UDim2.new(0, 12, 0.5, -11)
-    Icon.BackgroundTransparency = 1
-    Icon.Image = "rbxassetid://86279908104891"
-    Icon.ScaleType = Enum.ScaleType.Fit
-    Icon.Parent = Topbar
+-- Check GUI
 
-    local Title = Topbar:FindFirstChild("Title")
-    if Title then
-        Title.Position = UDim2.new(0, 42, Title.Position.Y.Scale, Title.Position.Y.Offset)
-    end
+local GUI = Fluent.GUI
+
+if not GUI then
+
+    return warn("Fluent GUI not found")
+
+end
+
+-- Wait for Main
+
+local Main = GUI:FindFirstChild("Main")
+
+if not Main then
+
+    return warn("Main not found")
+
+end
+
+-- Wait for TopBar (retry loop กันโหลดช้า)
+
+local TopBar
+
+for i = 1, 20 do
+
+    TopBar = Main:FindFirstChild("TopBar")
+
+    if TopBar then break end
+
+    task.wait(0.1)
+
+end
+
+if not TopBar then
+
+    return warn("TopBar not found")
+
+end
+
+-- =========================
+
+-- CREATE LOGO
+
+-- =========================
+
+local Logo = Instance.new("ImageLabel")
+
+Logo.Name = "ReaperLogo"
+
+Logo.Parent = TopBar
+
+Logo.Image = "rbxassetid://86279908104891"
+
+Logo.BackgroundTransparency = 1
+
+-- ขนาด + ตำแหน่ง
+
+Logo.Size = UDim2.new(0, 24, 0, 24)
+
+Logo.Position = UDim2.new(0, 8, 0.5, -12)
+
+Logo.ScaleType = Enum.ScaleType.Fit
+
+-- =========================
+
+-- MOVE TITLE
+
+-- =========================
+
+local Title = TopBar:FindFirstChild("Title")
+
+if Title and Title:IsA("TextLabel") then
+
+    -- ขยับไปทางขวา กันชนโลโก้
+
+    Title.Position = UDim2.new(0, 40, Title.Position.Y.Scale, Title.Position.Y.Offset)
+
+end
+
+-- =========================
+
+-- EXTRA (OPTIONAL BRAND FEEL)
+
+-- =========================
+
+-- เพิ่ม UIStroke ให้โลโก้ดูเด่นขึ้น
+
+local Stroke = Instance.new("UIStroke")
+
+Stroke.Thickness = 1
+
+Stroke.Transparency = 0.3
+
+Stroke.Parent = Logo
+
+-- ทำให้ TopBar ดูเข้มขึ้นเล็กน้อย
+
+if TopBar:IsA("Frame") then
+
+    TopBar.BackgroundTransparency = 0.1
 end
 
 -- Tab
