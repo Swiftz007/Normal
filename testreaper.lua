@@ -17,14 +17,16 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 10.6",
+SubTitle = "lib Beta 10.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
 MinimizeKey = Enum.KeyCode.RightControl
 })
 -- Left icon ui
--- รอ GUI โหลด
+-- =========================
+-- WAIT GUI
+-- =========================
 task.wait(1)
 
 local GUI = Fluent.GUI
@@ -33,7 +35,7 @@ if not GUI then
 end
 
 -- =========================
--- หา Title ก่อน (สำคัญสุด)
+-- FIND TITLE (Reaper Hub)
 -- =========================
 local Title
 
@@ -54,13 +56,19 @@ if not Title then
 end
 
 -- =========================
--- หา TopBar จาก Parent
+-- GET TOPBAR FROM TITLE
 -- =========================
 local TopBar = Title.Parent
-
 if not TopBar then
-    return warn("TopBar (parent of title) not found")
+    return warn("TopBar not found")
 end
+
+-- =========================
+-- ADD PADDING TO TITLE
+-- =========================
+local Padding = Instance.new("UIPadding")
+Padding.PaddingLeft = UDim.new(0, 32) -- ปรับได้ตามขนาดโลโก้
+Padding.Parent = Title
 
 -- =========================
 -- CREATE LOGO
@@ -71,17 +79,20 @@ Logo.Parent = TopBar
 
 Logo.Image = "rbxassetid://86279908104891"
 Logo.BackgroundTransparency = 1
+
 Logo.Size = UDim2.new(0, 24, 0, 24)
-Logo.Position = UDim2.new(0, 8, 0.5, -12)
+Logo.AnchorPoint = Vector2.new(0, 0.5)
+Logo.Position = UDim2.new(0, 6, 0.5, -12)
+
 Logo.ScaleType = Enum.ScaleType.Fit
 
 -- =========================
--- MOVE TITLE
+-- FORCE LEFT (IMPORTANT)
 -- =========================
-Title.Position = UDim2.new(0, 40, Title.Position.Y.Scale, Title.Position.Y.Offset)
+Logo.LayoutOrder = -1
 
 -- =========================
--- STYLE
+-- OPTIONAL STYLE
 -- =========================
 local Stroke = Instance.new("UIStroke")
 Stroke.Thickness = 1
