@@ -17,13 +17,26 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 10.2",
+SubTitle = "lib Beta 10.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
-MinimizeKey = Enum.KeyCode.RightControl,
-Icon = "rbxassetid://86279908104891"
+MinimizeKey = Enum.KeyCode.RightControl
 })
+-- Left icon ui
+task.wait()
+
+local Main = Window.Frame
+local Topbar = Main.Topbar
+
+local Icon = Instance.new("ImageLabel")
+Icon.Name = "HubIcon"
+Icon.Size = UDim2.fromOffset(22, 22)
+Icon.Position = UDim2.new(0, 10, 0.5, -11)
+Icon.BackgroundTransparency = 1
+Icon.Image = "rbxassetid://86279908104891"
+Icon.ScaleType = Enum.ScaleType.Fit
+Icon.Parent = Topbar
 
 local Tabs = {
 Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
