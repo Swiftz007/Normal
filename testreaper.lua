@@ -17,11 +17,12 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 10.1",
+SubTitle = "lib Beta 10.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
-MinimizeKey = Enum.KeyCode.RightControl
+MinimizeKey = Enum.KeyCode.RightControl,
+Icon = "rbxassetid://86279908104891"
 })
 
 local Tabs = {
