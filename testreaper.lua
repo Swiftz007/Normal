@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 9.8",
+SubTitle = "lib Beta 9.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1415,8 +1415,9 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
 --=========================
--- 🔥 TOGGLE BUTTON (PERFECT - IMAGE ONLY CHANGE)
+-- 🔥 TOGGLE BUTTON (CLEAN VERSION - NO BORDER)
 --=========================
+
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
 end
@@ -1431,54 +1432,41 @@ gui.DisplayOrder = 999999
 gui.Parent = game.CoreGui
 
 --=========================
--- 🔘 BUTTON (เปลี่ยนจาก TextButton → ImageButton)
+-- 🔘 BUTTON (IMAGE TOGGLE)
 --=========================
 local button = Instance.new("ImageButton")
 button.Parent = gui
-button.Size = UDim2.new(0,60,0,60)
-button.Position = UDim2.new(0,20,0.5,0)
-button.AnchorPoint = Vector2.new(0,0)
+
+button.Size = UDim2.new(0, 65, 0, 65)
+button.Position = UDim2.new(0, 20, 0.5, 0)
+button.AnchorPoint = Vector2.new(0, 0.5)
 
 button.BackgroundTransparency = 1
-button.ZIndex = 999999
+button.Active = true
 button.AutoButtonColor = false
-
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0,12)
-corner.Parent = button
+button.ZIndex = 999999
 
 -- 🔥 รูป ON / OFF
 local imgOn = "rbxassetid://86279908104891"
-local imgOff = "rbxassetid://86279908104891" -- ถ้ามีรูปปิดค่อยเปลี่ยน
+local imgOff = "rbxassetid://86279908104891"
 
 button.Image = imgOn
 button.ScaleType = Enum.ScaleType.Fit
 
---=========================
--- 🔥 AUTO ALIGN (เหมือนเดิม)
---=========================
-local function UpdateBorder()
-    local offset = (border.Size.X.Offset - button.Size.X.Offset) / 2
-
-    border.Position = UDim2.new(
-        button.Position.X.Scale,
-        button.Position.X.Offset - offset,
-        button.Position.Y.Scale,
-        button.Position.Y.Offset - offset
-    )
-end
-
-UpdateBorder()
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 14)
+corner.Parent = button
 
 --=========================
--- 🔥 DRAG SYSTEM (เหมือนเดิม)
+-- 🔥 DRAG SYSTEM (FIXED & SAFE)
 --=========================
 local dragging = false
 local dragStart, startPos
 
 button.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 
+    if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
+
         dragging = true
         dragStart = input.Position
         startPos = button.Position
@@ -1486,7 +1474,7 @@ button.InputBegan:Connect(function(input)
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging then
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
 
         button.Position = UDim2.new(
@@ -1495,30 +1483,31 @@ UIS.InputChanged:Connect(function(input)
             startPos.Y.Scale,
             startPos.Y.Offset + delta.Y
         )
-
-        UpdateBorder()
     end
 end)
 
 UIS.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 
+    if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
     end
 end)
 
 --=========================
--- 🔥 TOGGLE (เหมือนเดิม + เปลี่ยนแค่รูป)
+-- 🔥 TOGGLE (FLUENT HOOK SAFE)
 --=========================
 local isOpen = true
 
 button.MouseButton1Click:Connect(function()
+    if dragging then return end
+
     isOpen = not isOpen
 
+    -- 🔥 Fluent UI hook (ถ้ามี Window จริง)
     if Window then
         Window:Minimize(not isOpen)
     end
 
-    -- 🔥 เปลี่ยนจากสี → รูป
+    -- 🔥 เปลี่ยนรูป
     button.Image = isOpen and imgOn or imgOff
 end)
