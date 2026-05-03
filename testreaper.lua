@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 9.5",
+SubTitle = "lib Beta 9.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1416,7 +1416,7 @@ SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
 -- toggle
 --=========================
--- 🔥 TOGGLE BUTTON (FIXED FULL VERSION)
+-- 🔥 TOGGLE BUTTON (FLUENT FIXED)
 --=========================
 
 if game.CoreGui:FindFirstChild("ToggleUI") then
@@ -1433,38 +1433,19 @@ gui.DisplayOrder = 999999
 gui.Parent = game.CoreGui
 
 --=========================
--- 🔥 MAIN UI (อันนี้คือของที่ toggle จริง)
---=========================
-local main = Instance.new("Frame")
-main.Parent = gui
-main.Size = UDim2.new(0, 220, 0, 130)
-main.Position = UDim2.new(0, 100, 0.5, 0)
-main.AnchorPoint = Vector2.new(0, 0.5)
-
-main.BackgroundColor3 = Color3.fromRGB(30,30,30)
-
-local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0, 12)
-mainCorner.Parent = main
-
---=========================
--- 🔘 BUTTON (ใหญ่ขึ้นนิดนึง)
+-- 🔘 BUTTON (IMAGE)
 --=========================
 local button = Instance.new("ImageButton")
 button.Parent = gui
-
--- 🔥 55 → 65 (ตามที่ขอ)
-button.Size = UDim2.new(0, 65, 0, 65)
-
+button.Size = UDim2.new(0, 65, 0, 65) -- ใหญ่ขึ้นนิดตามที่ขอ
 button.Position = UDim2.new(0, 20, 0.5, 0)
 button.AnchorPoint = Vector2.new(0, 0.5)
 
 button.BackgroundTransparency = 1
 button.Active = true
 button.AutoButtonColor = false
-button.ZIndex = 10
+button.ZIndex = 999999
 
--- 🔥 รูป ON/OFF
 local imgOn = "rbxassetid://86279908104891"
 local imgOff = "rbxassetid://86279908104891"
 
@@ -1476,10 +1457,11 @@ corner.CornerRadius = UDim.new(0, 14)
 corner.Parent = button
 
 --=========================
--- 🔥 DRAG SYSTEM (STABLE)
+-- 🔥 DRAG FIX (สำคัญ)
 --=========================
 local dragging = false
-local dragStart, startPos
+local dragStart
+local startPos
 
 button.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
@@ -1492,7 +1474,9 @@ button.InputBegan:Connect(function(input)
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch) then
+
         local delta = input.Position - dragStart
 
         button.Position = UDim2.new(
@@ -1505,20 +1489,26 @@ UIS.InputChanged:Connect(function(input)
 end)
 
 UIS.InputEnded:Connect(function(input)
-    dragging = false
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
 end)
 
 --=========================
--- 🔥 TOGGLE (FIXED จริง)
+-- 🔥 TOGGLE (FLUENT HOOK)
 --=========================
 local isOpen = true
 
 button.MouseButton1Click:Connect(function()
+    if dragging then return end -- กันลากแล้วหลุดกด
+
     isOpen = not isOpen
 
-    -- 🔥 เปิด/ปิด UI จริง
-    main.Visible = isOpen
+    -- 🔥 ใช้ Fluent Window ของนาย (ต้องมีจริง)
+    if Window then
+        Window:Minimize(not isOpen)
+    end
 
-    -- 🔥 เปลี่ยนรูปตาม state
     button.Image = isOpen and imgOn or imgOff
 end)
