@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 11.0",
+SubTitle = "lib Beta 11.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -35,7 +35,7 @@ if not GUI then
 end
 
 -- =========================
--- FIND TITLE (Reaper Hub)
+-- FIND TITLE
 -- =========================
 local Title
 
@@ -55,62 +55,42 @@ if not Title then
 end
 
 -- =========================
--- GET SCREEN GUI (root)
+-- GET TOPBAR
 -- =========================
-local ScreenGui = GUI
-while ScreenGui and not ScreenGui:IsA("ScreenGui") do
-    ScreenGui = ScreenGui.Parent
-end
-
-if not ScreenGui then
-    return warn("ScreenGui not found")
+local TopBar = Title.Parent
+if not TopBar then
+    return warn("TopBar not found")
 end
 
 -- =========================
--- CREATE LOGO (นอก Layout 100%)
+-- CREATE LOGO (เข้า Layout)
 -- =========================
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "ReaperLogo"
-Logo.Parent = ScreenGui
+Logo.Parent = TopBar
 
 Logo.Image = "rbxassetid://86279908104891"
 Logo.BackgroundTransparency = 1
 Logo.Size = UDim2.new(0, 24, 0, 24)
-Logo.AnchorPoint = Vector2.new(0, 0.5)
 Logo.ScaleType = Enum.ScaleType.Fit
-Logo.ZIndex = 999
+
+-- 🔥 สำคัญมาก
+Logo.LayoutOrder = -1 -- ซ้ายสุด
 
 -- =========================
--- UPDATE FUNCTION
+-- FIX SPACING (ไม่ให้ห่างเกิน)
 -- =========================
-local function updateLogo()
-    if not Title or not Title.Parent then return end
-
-    local pos = Title.AbsolutePosition
-    local size = Title.AbsoluteSize
-
-    -- ซ้ายของข้อความ + จัดกึ่งกลางแนวตั้ง
-    Logo.Position = UDim2.new(
-        0, pos.X - 30,
-        0, pos.Y + (size.Y / 2)
-    )
+for _, v in pairs(TopBar:GetChildren()) do
+    if v:IsA("UIListLayout") then
+        v.Padding = UDim.new(0, 6) -- ระยะระหว่างโลโก้กับข้อความ
+    end
 end
 
--- เรียกครั้งแรก
-task.wait()
-updateLogo()
-
 -- =========================
--- EVENT-BASED UPDATE (ไม่หน่วง)
+-- ALIGN ให้กลาง
 -- =========================
-Title:GetPropertyChangedSignal("AbsolutePosition"):Connect(updateLogo)
-Title:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLogo)
-
--- กัน Fluent rebuild
-Title.AncestryChanged:Connect(function()
-    task.wait(0.1)
-    updateLogo()
-end)
+Logo.AnchorPoint = Vector2.new(0, 0.5)
+Logo.Position = UDim2.new(0, 0, 0.5, 0)
 
 -- =========================
 -- OPTIONAL STYLE
