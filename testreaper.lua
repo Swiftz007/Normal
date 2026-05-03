@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 10.8",
+SubTitle = "lib Beta 10.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -55,58 +55,46 @@ if not Title then
 end
 
 -- =========================
--- GET TOPBAR
+-- GET ROOT GUI (ScreenGui)
 -- =========================
-local TopBar = Title.Parent
-if not TopBar then
-    return warn("TopBar not found")
+local ScreenGui = GUI
+while ScreenGui and not ScreenGui:IsA("ScreenGui") do
+    ScreenGui = ScreenGui.Parent
+end
+
+if not ScreenGui then
+    return warn("ScreenGui not found")
 end
 
 -- =========================
--- CREATE OVERLAY (กัน Layout)
--- =========================
-local Overlay = Instance.new("Frame")
-Overlay.Name = "LogoLayer"
-Overlay.Parent = TopBar
-
-Overlay.BackgroundTransparency = 1
-Overlay.Size = UDim2.new(1, 0, 1, 0)
-Overlay.ZIndex = 999
-
--- =========================
--- CREATE LOGO
+-- CREATE LOGO (นอก Layout 100%)
 -- =========================
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "ReaperLogo"
-Logo.Parent = Overlay
+Logo.Parent = ScreenGui
 
 Logo.Image = "rbxassetid://86279908104891"
 Logo.BackgroundTransparency = 1
-
 Logo.Size = UDim2.new(0, 24, 0, 24)
 Logo.AnchorPoint = Vector2.new(0, 0.5)
 Logo.ScaleType = Enum.ScaleType.Fit
+Logo.ZIndex = 999
 
 -- =========================
--- ALIGN LOGO กับ TITLE (เป๊ะ)
+-- ALIGN ตำแหน่งกับ Title
 -- =========================
 task.wait()
 
-local centerY = Title.AbsolutePosition.Y + (Title.AbsoluteSize.Y / 2)
-local topY = TopBar.AbsolutePosition.Y
+local titlePos = Title.AbsolutePosition
+local titleSize = Title.AbsoluteSize
 
 Logo.Position = UDim2.new(
-    0, 6,
-    0, (centerY - topY) - (Logo.AbsoluteSize.Y / 2)
+    0, titlePos.X - 30, -- ซ้ายของข้อความ
+    0, titlePos.Y + (titleSize.Y / 2)
 )
 
--- =========================
--- OPTIONAL STYLE
--- =========================
-local Stroke = Instance.new("UIStroke")
-Stroke.Thickness = 1
-Stroke.Transparency = 0.3
-Stroke.Parent = Logo
+-- ปรับ anchor ให้ตรงกลาง
+Logo.AnchorPoint = Vector2.new(0, 0.5)
 
 -- Tab
 local Tabs = {
