@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 10.5",
+SubTitle = "lib Beta 10.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -25,115 +25,67 @@ MinimizeKey = Enum.KeyCode.RightControl
 })
 -- Left icon ui
 -- รอ GUI โหลด
-
 task.wait(1)
 
 local GUI = Fluent.GUI
-
 if not GUI then
-
     return warn("Fluent GUI not found")
-
 end
 
 -- =========================
-
--- หา TopBar แบบไม่พึ่ง Main
-
+-- หา Title ก่อน (สำคัญสุด)
 -- =========================
-
-local TopBar
+local Title
 
 for i = 1, 30 do
-
     for _, v in pairs(GUI:GetDescendants()) do
-
-        if v.Name == "TopBar" and v:IsA("Frame") then
-
-            TopBar = v
-
+        if v:IsA("TextLabel") and string.find(string.lower(v.Text), "reaper") then
+            Title = v
             break
-
         end
-
     end
 
-    if TopBar then break end
-
+    if Title then break end
     task.wait(0.1)
-
 end
+
+if not Title then
+    return warn("Title not found")
+end
+
+-- =========================
+-- หา TopBar จาก Parent
+-- =========================
+local TopBar = Title.Parent
 
 if not TopBar then
-
-    return warn("TopBar not found (Fluent structure may changed)")
-
+    return warn("TopBar (parent of title) not found")
 end
 
 -- =========================
-
 -- CREATE LOGO
-
 -- =========================
-
 local Logo = Instance.new("ImageLabel")
-
 Logo.Name = "ReaperLogo"
-
 Logo.Parent = TopBar
 
 Logo.Image = "rbxassetid://86279908104891"
-
 Logo.BackgroundTransparency = 1
-
 Logo.Size = UDim2.new(0, 24, 0, 24)
-
 Logo.Position = UDim2.new(0, 8, 0.5, -12)
-
 Logo.ScaleType = Enum.ScaleType.Fit
 
 -- =========================
-
 -- MOVE TITLE
+-- =========================
+Title.Position = UDim2.new(0, 40, Title.Position.Y.Scale, Title.Position.Y.Offset)
 
 -- =========================
-
-local Title
-
-for _, v in pairs(TopBar:GetChildren()) do
-
-    if v:IsA("TextLabel") and string.find(string.lower(v.Text), "reaper") then
-
-        Title = v
-
-        break
-
-    end
-
-end
-
-if Title then
-
-    Title.Position = UDim2.new(0, 40, Title.Position.Y.Scale, Title.Position.Y.Offset)
-
-else
-
-    warn("Title not found")
-
-end
-
+-- STYLE
 -- =========================
-
--- OPTIONAL STYLE
-
--- =========================
-
 local Stroke = Instance.new("UIStroke")
-
 Stroke.Thickness = 1
-
 Stroke.Transparency = 0.3
-
 Stroke.Parent = Logo
 
 -- Tab
