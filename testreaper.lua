@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 9.1",
+SubTitle = "lib Beta 9.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1415,35 +1415,75 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
 --=========================
--- 🔥 SIMPLE TOGGLE BUTTON (SINGLE IMAGE)
+-- 🔥 COMPLETE TOGGLE UI (SAFE + WINDOW SUPPORT)
 --=========================
-if game.CoreGui:FindFirstChild("ToggleUI") then
-    game.CoreGui.ToggleUI:Destroy()
-end
 
+local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- ลบของเก่า
+local old = playerGui:FindFirstChild("ToggleUI")
+if old then
+    old:Destroy()
+end
+
+--=========================
+-- 🖥 MAIN GUI
+--=========================
 local gui = Instance.new("ScreenGui")
 gui.Name = "ToggleUI"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999999
-gui.Parent = game.CoreGui
+gui.Parent = playerGui
 
 --=========================
--- 🔘 IMAGE BUTTON (NO BORDER / NO EFFECT)
+-- 🪟 FAKE WINDOW (กัน error + ใช้จริงได้)
+--=========================
+local Window = {}
+Window.visible = true
+
+function Window:Minimize(state)
+    self.visible = not state
+
+    local main = gui:FindFirstChild("MainFrame")
+    if main then
+        main.Visible = self.visible
+    end
+end
+
+--=========================
+-- 📦 MAIN FRAME (UI หลักตัวอย่าง)
+--=========================
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Parent = gui
+mainFrame.Size = UDim2.new(0, 200, 0, 120)
+mainFrame.Position = UDim2.new(0, 100, 0.5, 0)
+mainFrame.AnchorPoint = Vector2.new(0, 0.5)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+
+local cornerMain = Instance.new("UICorner")
+cornerMain.CornerRadius = UDim.new(0, 12)
+cornerMain.Parent = mainFrame
+
+--=========================
+-- 🔘 TOGGLE BUTTON
 --=========================
 local button = Instance.new("ImageButton")
 button.Parent = gui
 button.Size = UDim2.new(0, 52, 0, 52)
 button.Position = UDim2.new(0, 20, 0.5, 0)
+button.AnchorPoint = Vector2.new(0, 0.5)
 button.BackgroundTransparency = 1
 button.Image = "rbxassetid://85106530641186"
 button.ZIndex = 999999
-button.AnchorPoint = Vector2.new(0, 0)
 
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
+corner.CornerRadius = UDim.new(0, 14)
 corner.Parent = button
 
 --=========================
@@ -1482,7 +1522,7 @@ UIS.InputEnded:Connect(function(input)
 end)
 
 --=========================
--- 🔥 TOGGLE ONLY (NO COLOR CHANGE)
+-- 🔥 TOGGLE FUNCTION (FULL WORKING)
 --=========================
 local isOpen = true
 
