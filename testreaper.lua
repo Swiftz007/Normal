@@ -24,20 +24,29 @@ Theme = "Dark",
 MinimizeKey = Enum.KeyCode.RightControl
 })
 -- Left icon ui
-task.wait()
+task.wait(0.2)
 
-local Main = Window.Frame
-local Topbar = Main.Topbar
+local Gui = Fluent.GUI
+local Main = Gui:FindFirstChild("Main")
+local Topbar = Main and Main:FindFirstChild("TopBar")
 
-local Icon = Instance.new("ImageLabel")
-Icon.Name = "HubIcon"
-Icon.Size = UDim2.fromOffset(22, 22)
-Icon.Position = UDim2.new(0, 10, 0.5, -11)
-Icon.BackgroundTransparency = 1
-Icon.Image = "rbxassetid://86279908104891"
-Icon.ScaleType = Enum.ScaleType.Fit
-Icon.Parent = Topbar
+if Topbar then
+    local Icon = Instance.new("ImageLabel")
+    Icon.Name = "HubIcon"
+    Icon.Size = UDim2.fromOffset(22, 22)
+    Icon.Position = UDim2.new(0, 12, 0.5, -11)
+    Icon.BackgroundTransparency = 1
+    Icon.Image = "rbxassetid://86279908104891"
+    Icon.ScaleType = Enum.ScaleType.Fit
+    Icon.Parent = Topbar
 
+    local Title = Topbar:FindFirstChild("Title")
+    if Title then
+        Title.Position = UDim2.new(0, 42, Title.Position.Y.Scale, Title.Position.Y.Offset)
+    end
+end
+
+-- Tab
 local Tabs = {
 Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
 Main = Window:AddTab({ Title = "Main", Icon = "home" }),
