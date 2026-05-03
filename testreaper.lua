@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 9.7",
+SubTitle = "lib Beta 9.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1431,25 +1431,11 @@ gui.DisplayOrder = 999999
 gui.Parent = game.CoreGui
 
 --=========================
--- 🔳 BORDER (เหมือนเดิม)
---=========================
-local border = Instance.new("Frame")
-border.Parent = gui
-border.Size = UDim2.new(0,56,0,56)
-border.BackgroundColor3 = Color3.fromRGB(0,0,0)
-border.ZIndex = 999998
-border.AnchorPoint = Vector2.new(0,0)
-
-local borderCorner = Instance.new("UICorner")
-borderCorner.CornerRadius = UDim.new(0,14)
-borderCorner.Parent = border
-
---=========================
 -- 🔘 BUTTON (เปลี่ยนจาก TextButton → ImageButton)
 --=========================
 local button = Instance.new("ImageButton")
 button.Parent = gui
-button.Size = UDim2.new(0,50,0,50)
+button.Size = UDim2.new(0,60,0,60)
 button.Position = UDim2.new(0,20,0.5,0)
 button.AnchorPoint = Vector2.new(0,0)
 
