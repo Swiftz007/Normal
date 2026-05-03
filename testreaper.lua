@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 9.2",
+SubTitle = "lib Beta 9.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1414,10 +1414,6 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
---=========================
--- 🔥 COMPLETE TOGGLE UI (SAFE + WINDOW SUPPORT)
---=========================
-
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 
@@ -1431,63 +1427,55 @@ if old then
 end
 
 --=========================
--- 🖥 MAIN GUI
+-- GUI
 --=========================
 local gui = Instance.new("ScreenGui")
 gui.Name = "ToggleUI"
+gui.Parent = playerGui
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999999
-gui.Parent = playerGui
 
 --=========================
--- 🪟 FAKE WINDOW (กัน error + ใช้จริงได้)
---=========================
-local Window = {}
-Window.visible = true
-
-function Window:Minimize(state)
-    self.visible = not state
-
-    local main = gui:FindFirstChild("MainFrame")
-    if main then
-        main.Visible = self.visible
-    end
-end
-
---=========================
--- 📦 MAIN FRAME (UI หลักตัวอย่าง)
---=========================
-local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Parent = gui
-mainFrame.Size = UDim2.new(0, 200, 0, 120)
-mainFrame.Position = UDim2.new(0, 100, 0.5, 0)
-mainFrame.AnchorPoint = Vector2.new(0, 0.5)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-
-local cornerMain = Instance.new("UICorner")
-cornerMain.CornerRadius = UDim.new(0, 12)
-cornerMain.Parent = mainFrame
-
---=========================
--- 🔘 TOGGLE BUTTON
+-- BUTTON
 --=========================
 local button = Instance.new("ImageButton")
 button.Parent = gui
-button.Size = UDim2.new(0, 52, 0, 52)
+button.Size = UDim2.new(0, 55, 0, 55)
 button.Position = UDim2.new(0, 20, 0.5, 0)
 button.AnchorPoint = Vector2.new(0, 0.5)
-button.BackgroundTransparency = 1
-button.Image = "rbxassetid://85106530641186"
-button.ZIndex = 999999
+
+button.BackgroundColor3 = Color3.fromRGB(30,30,30)
+button.BackgroundTransparency = 0
+button.AutoButtonColor = false
+button.Active = true
+button.ZIndex = 10
+
+local IMAGE_ID = "rbxassetid://85106530641186"
+button.Image = IMAGE_ID
+button.ScaleType = Enum.ScaleType.Fit
 
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 14)
 corner.Parent = button
 
 --=========================
--- 🔥 DRAG SYSTEM
+-- IMAGE CHECK (DEBUG IMPORTANT)
+--=========================
+button:GetPropertyChangedSignal("Image"):Connect(function()
+    print("Image changed:", button.Image)
+end)
+
+task.delay(2, function()
+    if button.Image == "" or not button.Image then
+        warn("❌ IMAGE NOT SET")
+    else
+        print("🟢 Image loaded:", button.Image)
+    end
+end)
+
+--=========================
+-- DRAG SYSTEM (FIXED)
 --=========================
 local dragging = false
 local dragStart, startPos
@@ -1495,6 +1483,7 @@ local dragStart, startPos
 button.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 
     or input.UserInputType == Enum.UserInputType.Touch then
+
         dragging = true
         dragStart = input.Position
         startPos = button.Position
@@ -1502,7 +1491,7 @@ button.InputBegan:Connect(function(input)
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging then
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
 
         button.Position = UDim2.new(
@@ -1522,14 +1511,17 @@ UIS.InputEnded:Connect(function(input)
 end)
 
 --=========================
--- 🔥 TOGGLE FUNCTION (FULL WORKING)
+-- TOGGLE TEST
 --=========================
 local isOpen = true
 
 button.MouseButton1Click:Connect(function()
     isOpen = not isOpen
 
-    if Window then
-        Window:Minimize(not isOpen)
-    end
+    print("Toggle =", isOpen)
+
+    -- debug visual
+    button.BackgroundColor3 = isOpen
+        and Color3.fromRGB(30,30,30)
+        or Color3.fromRGB(80,0,0)
 end)
