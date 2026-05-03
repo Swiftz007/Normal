@@ -17,18 +17,16 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 10.4",
+SubTitle = "lib Beta 10.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
 MinimizeKey = Enum.KeyCode.RightControl
 })
 -- Left icon ui
--- Wait for GUI to exist safely
+-- รอ GUI โหลด
 
 task.wait(1)
-
--- Check GUI
 
 local GUI = Fluent.GUI
 
@@ -38,23 +36,27 @@ if not GUI then
 
 end
 
--- Wait for Main
+-- =========================
 
-local Main = GUI:FindFirstChild("Main")
+-- หา TopBar แบบไม่พึ่ง Main
 
-if not Main then
-
-    return warn("Main not found")
-
-end
-
--- Wait for TopBar (retry loop กันโหลดช้า)
+-- =========================
 
 local TopBar
 
-for i = 1, 20 do
+for i = 1, 30 do
 
-    TopBar = Main:FindFirstChild("TopBar")
+    for _, v in pairs(GUI:GetDescendants()) do
+
+        if v.Name == "TopBar" and v:IsA("Frame") then
+
+            TopBar = v
+
+            break
+
+        end
+
+    end
 
     if TopBar then break end
 
@@ -64,7 +66,7 @@ end
 
 if not TopBar then
 
-    return warn("TopBar not found")
+    return warn("TopBar not found (Fluent structure may changed)")
 
 end
 
@@ -84,8 +86,6 @@ Logo.Image = "rbxassetid://86279908104891"
 
 Logo.BackgroundTransparency = 1
 
--- ขนาด + ตำแหน่ง
-
 Logo.Size = UDim2.new(0, 24, 0, 24)
 
 Logo.Position = UDim2.new(0, 8, 0.5, -12)
@@ -98,23 +98,35 @@ Logo.ScaleType = Enum.ScaleType.Fit
 
 -- =========================
 
-local Title = TopBar:FindFirstChild("Title")
+local Title
 
-if Title and Title:IsA("TextLabel") then
+for _, v in pairs(TopBar:GetChildren()) do
 
-    -- ขยับไปทางขวา กันชนโลโก้
+    if v:IsA("TextLabel") and string.find(string.lower(v.Text), "reaper") then
+
+        Title = v
+
+        break
+
+    end
+
+end
+
+if Title then
 
     Title.Position = UDim2.new(0, 40, Title.Position.Y.Scale, Title.Position.Y.Offset)
+
+else
+
+    warn("Title not found")
 
 end
 
 -- =========================
 
--- EXTRA (OPTIONAL BRAND FEEL)
+-- OPTIONAL STYLE
 
 -- =========================
-
--- เพิ่ม UIStroke ให้โลโก้ดูเด่นขึ้น
 
 local Stroke = Instance.new("UIStroke")
 
@@ -123,13 +135,6 @@ Stroke.Thickness = 1
 Stroke.Transparency = 0.3
 
 Stroke.Parent = Logo
-
--- ทำให้ TopBar ดูเข้มขึ้นเล็กน้อย
-
-if TopBar:IsA("Frame") then
-
-    TopBar.BackgroundTransparency = 0.1
-end
 
 -- Tab
 local Tabs = {
