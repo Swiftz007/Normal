@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 10.9",
+SubTitle = "lib Beta 11.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -35,7 +35,7 @@ if not GUI then
 end
 
 -- =========================
--- FIND TITLE
+-- FIND TITLE (Reaper Hub)
 -- =========================
 local Title
 
@@ -55,7 +55,7 @@ if not Title then
 end
 
 -- =========================
--- GET ROOT GUI (ScreenGui)
+-- GET SCREEN GUI (root)
 -- =========================
 local ScreenGui = GUI
 while ScreenGui and not ScreenGui:IsA("ScreenGui") do
@@ -81,20 +81,44 @@ Logo.ScaleType = Enum.ScaleType.Fit
 Logo.ZIndex = 999
 
 -- =========================
--- ALIGN ตำแหน่งกับ Title
+-- UPDATE FUNCTION
 -- =========================
+local function updateLogo()
+    if not Title or not Title.Parent then return end
+
+    local pos = Title.AbsolutePosition
+    local size = Title.AbsoluteSize
+
+    -- ซ้ายของข้อความ + จัดกึ่งกลางแนวตั้ง
+    Logo.Position = UDim2.new(
+        0, pos.X - 30,
+        0, pos.Y + (size.Y / 2)
+    )
+end
+
+-- เรียกครั้งแรก
 task.wait()
+updateLogo()
 
-local titlePos = Title.AbsolutePosition
-local titleSize = Title.AbsoluteSize
+-- =========================
+-- EVENT-BASED UPDATE (ไม่หน่วง)
+-- =========================
+Title:GetPropertyChangedSignal("AbsolutePosition"):Connect(updateLogo)
+Title:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLogo)
 
-Logo.Position = UDim2.new(
-    0, titlePos.X - 30, -- ซ้ายของข้อความ
-    0, titlePos.Y + (titleSize.Y / 2)
-)
+-- กัน Fluent rebuild
+Title.AncestryChanged:Connect(function()
+    task.wait(0.1)
+    updateLogo()
+end)
 
--- ปรับ anchor ให้ตรงกลาง
-Logo.AnchorPoint = Vector2.new(0, 0.5)
+-- =========================
+-- OPTIONAL STYLE
+-- =========================
+local Stroke = Instance.new("UIStroke")
+Stroke.Thickness = 1
+Stroke.Transparency = 0.3
+Stroke.Parent = Logo
 
 -- Tab
 local Tabs = {
