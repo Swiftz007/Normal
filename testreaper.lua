@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 9.4",
+SubTitle = "lib Beta 9.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1416,7 +1416,7 @@ SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
 -- toggle
 --=========================
--- 🔥 TOGGLE BUTTON (PERFECT - MINIMAL CHANGE)
+-- 🔥 TOGGLE BUTTON (FIXED FULL VERSION)
 --=========================
 
 if game.CoreGui:FindFirstChild("ToggleUI") then
@@ -1433,39 +1433,58 @@ gui.DisplayOrder = 999999
 gui.Parent = game.CoreGui
 
 --=========================
--- 🔘 BUTTON (IMAGE VERSION)
+-- 🔥 MAIN UI (อันนี้คือของที่ toggle จริง)
+--=========================
+local main = Instance.new("Frame")
+main.Parent = gui
+main.Size = UDim2.new(0, 220, 0, 130)
+main.Position = UDim2.new(0, 100, 0.5, 0)
+main.AnchorPoint = Vector2.new(0, 0.5)
+
+main.BackgroundColor3 = Color3.fromRGB(30,30,30)
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 12)
+mainCorner.Parent = main
+
+--=========================
+-- 🔘 BUTTON (ใหญ่ขึ้นนิดนึง)
 --=========================
 local button = Instance.new("ImageButton")
 button.Parent = gui
-button.Size = UDim2.new(0, 55, 0, 55)
+
+-- 🔥 55 → 65 (ตามที่ขอ)
+button.Size = UDim2.new(0, 65, 0, 65)
+
 button.Position = UDim2.new(0, 20, 0.5, 0)
-button.AnchorPoint = Vector2.new(0, 0)
+button.AnchorPoint = Vector2.new(0, 0.5)
 
 button.BackgroundTransparency = 1
-button.ZIndex = 999999
 button.Active = true
 button.AutoButtonColor = false
+button.ZIndex = 10
 
--- 🔥 IMAGE (default ON state)
+-- 🔥 รูป ON/OFF
 local imgOn = "rbxassetid://86279908104891"
-local imgOff = "rbxassetid://86279908104891" -- ถ้ามีอีกรูปเปลี่ยนได้ทีหลัง
+local imgOff = "rbxassetid://86279908104891"
 
 button.Image = imgOn
 button.ScaleType = Enum.ScaleType.Fit
 
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
+corner.CornerRadius = UDim.new(0, 14)
 corner.Parent = button
 
 --=========================
--- 🔥 DRAG SYSTEM (UNCHANGED)
+-- 🔥 DRAG SYSTEM (STABLE)
 --=========================
 local dragging = false
 local dragStart, startPos
 
 button.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 
+    if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
+
         dragging = true
         dragStart = input.Position
         startPos = button.Position
@@ -1473,7 +1492,7 @@ button.InputBegan:Connect(function(input)
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging then
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
 
         button.Position = UDim2.new(
@@ -1486,27 +1505,20 @@ UIS.InputChanged:Connect(function(input)
 end)
 
 UIS.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 
-    or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = false
-    end
+    dragging = false
 end)
 
 --=========================
--- 🔥 TOGGLE (IMAGE SWITCH ONLY)
+-- 🔥 TOGGLE (FIXED จริง)
 --=========================
 local isOpen = true
 
 button.MouseButton1Click:Connect(function()
     isOpen = not isOpen
 
-    -- 🔥 เปลี่ยนแค่รูป (แทนเขียว/แดง)
-    if isOpen then
-        button.Image = imgOn
-    else
-        button.Image = imgOff
-    end
+    -- 🔥 เปิด/ปิด UI จริง
+    main.Visible = isOpen
 
-    -- 🔥 ถ้ามี Window ของ Fluent ค่อยเอามาใส่ทีหลัง
-    -- Window:Minimize(not isOpen)
+    -- 🔥 เปลี่ยนรูปตาม state
+    button.Image = isOpen and imgOn or imgOff
 end)
