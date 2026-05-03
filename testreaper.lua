@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 9.0",
+SubTitle = "lib Beta 9.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1415,7 +1415,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
 --=========================
--- 🔥 TOGGLE BUTTON (PERFECT)
+-- 🔥 SIMPLE TOGGLE BUTTON (SINGLE IMAGE)
 --=========================
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
@@ -1431,50 +1431,20 @@ gui.DisplayOrder = 999999
 gui.Parent = game.CoreGui
 
 --=========================
--- 🔳 BORDER (ขอบดำหนา)
+-- 🔘 IMAGE BUTTON (NO BORDER / NO EFFECT)
 --=========================
-local border = Instance.new("Frame")
-border.Parent = gui
-border.Size = UDim2.new(0,56,0,56)
-border.BackgroundColor3 = Color3.fromRGB(0,0,0)
-border.ZIndex = 999998
-border.AnchorPoint = Vector2.new(0,0)
-
-local borderCorner = Instance.new("UICorner")
-borderCorner.CornerRadius = UDim.new(0,14)
-borderCorner.Parent = border
-
---=========================
--- 🔘 BUTTON
---=========================
-local button = Instance.new("TextButton")
+local button = Instance.new("ImageButton")
 button.Parent = gui
-button.Size = UDim2.new(0,50,0,50)
-button.Position = UDim2.new(0,20,0.5,0)
-button.Text = ""
-button.BackgroundColor3 = Color3.fromRGB(0,255,0)
+button.Size = UDim2.new(0, 52, 0, 52)
+button.Position = UDim2.new(0, 20, 0.5, 0)
+button.BackgroundTransparency = 1
+button.Image = "rbxassetid://85106530641186"
 button.ZIndex = 999999
-button.AnchorPoint = Vector2.new(0,0)
+button.AnchorPoint = Vector2.new(0, 0)
 
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0,12)
+corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = button
-
---=========================
--- 🔥 AUTO ALIGN (เป๊ะจริง)
---=========================
-local function UpdateBorder()
-    local offset = (border.Size.X.Offset - button.Size.X.Offset) / 2
-
-    border.Position = UDim2.new(
-        button.Position.X.Scale,
-        button.Position.X.Offset - offset,
-        button.Position.Y.Scale,
-        button.Position.Y.Offset - offset
-    )
-end
-
-UpdateBorder()
 
 --=========================
 -- 🔥 DRAG SYSTEM
@@ -1501,8 +1471,6 @@ UIS.InputChanged:Connect(function(input)
             startPos.Y.Scale,
             startPos.Y.Offset + delta.Y
         )
-
-        UpdateBorder()
     end
 end)
 
@@ -1514,7 +1482,7 @@ UIS.InputEnded:Connect(function(input)
 end)
 
 --=========================
--- 🔥 TOGGLE
+-- 🔥 TOGGLE ONLY (NO COLOR CHANGE)
 --=========================
 local isOpen = true
 
@@ -1524,8 +1492,4 @@ button.MouseButton1Click:Connect(function()
     if Window then
         Window:Minimize(not isOpen)
     end
-
-    button.BackgroundColor3 = isOpen 
-        and Color3.fromRGB(0,255,0) 
-        or Color3.fromRGB(255,0,0)
 end)
