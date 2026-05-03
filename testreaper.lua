@@ -63,6 +63,22 @@ if not TopBar then
 end
 
 -- =========================
+-- FIX LAYOUT (สำคัญ)
+-- =========================
+local Layout
+for _, v in pairs(TopBar:GetChildren()) do
+    if v:IsA("UIListLayout") then
+        Layout = v
+        break
+    end
+end
+
+if Layout then
+    Layout.VerticalAlignment = Enum.VerticalAlignment.Center
+    Layout.Padding = UDim.new(0, 6)
+end
+
+-- =========================
 -- CREATE LOGO (เข้า Layout)
 -- =========================
 local Logo = Instance.new("ImageLabel")
@@ -71,26 +87,17 @@ Logo.Parent = TopBar
 
 Logo.Image = "rbxassetid://86279908104891"
 Logo.BackgroundTransparency = 1
-Logo.Size = UDim2.new(0, 24, 0, 24)
+Logo.Size = UDim2.new(0, 22, 0, 22) -- ปรับให้บาลานซ์กับฟอนต์
 Logo.ScaleType = Enum.ScaleType.Fit
 
--- 🔥 สำคัญมาก
-Logo.LayoutOrder = -1 -- ซ้ายสุด
+-- ให้อยู่ซ้ายสุด
+Logo.LayoutOrder = -1
 
 -- =========================
--- FIX SPACING (ไม่ให้ห่างเกิน)
--- =========================
-for _, v in pairs(TopBar:GetChildren()) do
-    if v:IsA("UIListLayout") then
-        v.Padding = UDim.new(0, 6) -- ระยะระหว่างโลโก้กับข้อความ
-    end
-end
-
--- =========================
--- ALIGN ให้กลาง
+-- ALIGN CENTER (ละเอียด)
 -- =========================
 Logo.AnchorPoint = Vector2.new(0, 0.5)
-Logo.Position = UDim2.new(0, 0, 0.5, 0)
+Logo.Position = UDim2.new(0, 0, 0.5, 1) -- +1 ช่วยแก้ baseline ฟอนต์
 
 -- =========================
 -- OPTIONAL STYLE
