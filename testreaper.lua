@@ -1537,7 +1537,7 @@ button.Size = UDim2.new(0,60,0,60)
 button.Position = UDim2.new(0,20,0.5,0)
 button.AnchorPoint = Vector2.new(0,0)
 
-button.BackgroundTransparency = 1
+button.BackgroundTransparency = 0
 button.ZIndex = 999999
 button.AutoButtonColor = false
 
