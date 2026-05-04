@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 11.4",
+SubTitle = "lib Beta 11.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -103,8 +103,8 @@ Logo.Position = UDim2.new(0, 0, 0.5, 1) -- +1 ช่วยแก้ baseline ฟ
 -- OPTIONAL STYLE
 -- =========================
 local Stroke = Instance.new("UIStroke")
-Stroke.Thickness = 1
-Stroke.Transparency = 0.3
+Stroke.Thickness = 0
+Stroke.Transparency = 1
 Stroke.Parent = Logo
 
 -- Tab
