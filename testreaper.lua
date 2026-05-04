@@ -86,7 +86,7 @@ Logo.Name = "ReaperLogo"
 Logo.Parent = TopBar
 
 Logo.Image = "rbxassetid://131279093559313"
-Logo.BackgroundTransparency = 0
+Logo.BackgroundTransparency = 1
 Logo.Size = UDim2.new(0, 30, 0, 30) -- ปรับให้บาลานซ์กับฟอนต์
 Logo.ScaleType = Enum.ScaleType.Fit
 
