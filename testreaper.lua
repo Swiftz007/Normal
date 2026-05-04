@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 11.5",
+SubTitle = "lib Beta 11.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -87,7 +87,7 @@ Logo.Parent = TopBar
 
 Logo.Image = "rbxassetid://131279093559313"
 Logo.BackgroundTransparency = 1
-Logo.Size = UDim2.new(0, 22, 0, 22) -- ปรับให้บาลานซ์กับฟอนต์
+Logo.Size = UDim2.new(0, 24, 0, 24) -- ปรับให้บาลานซ์กับฟอนต์
 Logo.ScaleType = Enum.ScaleType.Fit
 
 -- ให้อยู่ซ้ายสุด
