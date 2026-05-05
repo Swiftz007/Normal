@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 12.2",
+SubTitle = "lib Beta 12.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -753,27 +753,12 @@ local function formatTime(seconds)
 end
 
 --========================
--- UI
+-- UI (ใช้ Label แทน)
 --========================
-local TimeLabel = Status:AddParagraph({
-    Title = "Time",
-    Content = "Loading..."
-})
-
-local PlayerLabel = Status:AddParagraph({
-    Title = "Players",
-    Content = "Loading..."
-})
-
-local PingLabel = Status:AddParagraph({
-    Title = "Ping",
-    Content = "Loading..."
-})
-
-local FPSLabel = Status:AddParagraph({
-    Title = "FPS",
-    Content = "Loading..."
-})
+local TimeLabel = Status:AddLabel("Time: Loading...")
+local PlayerLabel = Status:AddLabel("Players: Loading...")
+local PingLabel = Status:AddLabel("Ping: Loading...")
+local FPSLabel = Status:AddLabel("FPS: Loading...")
 
 --========================
 -- FPS
@@ -784,19 +769,24 @@ RunService.RenderStepped:Connect(function(dt)
 end)
 
 --========================
--- LOOP
+-- LOOP UPDATE
 --========================
 task.spawn(function()
     while true do
         
-        TimeLabel:SetDesc(formatTime(tick() - startTime))
-        PlayerLabel:SetDesc(#Players:GetPlayers())
-
+        -- TIME
+        TimeLabel:Set("Time: " .. formatTime(tick() - startTime))
+        
+        -- PLAYERS
+        PlayerLabel:Set("Players: " .. #Players:GetPlayers())
+        
+        -- PING
         local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-        PingLabel:SetDesc(ping .. " ms")
-
-        FPSLabel:SetDesc(fps)
-
+        PingLabel:Set("Ping: " .. ping .. " ms")
+        
+        -- FPS
+        FPSLabel:Set("FPS: " .. fps)
+        
         task.wait(0.5)
     end
 end)
