@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 12.5",
+SubTitle = "lib Beta 12.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -750,7 +750,7 @@ local function formatTime(s)
 end
 
 --========================
--- UI (สำคัญมาก)
+-- UI (Fluent)
 --========================
 local TimeLabel = Tabs.Status:AddParagraph({
     Title = "Time",
@@ -773,34 +773,58 @@ local FPSLabel = Tabs.Status:AddParagraph({
 })
 
 --========================
--- FPS
+-- FPS (REALISTIC)
 --========================
 local fps = 60
+local frameCount = 0
+local timeElapsed = 0
+
 RunService.RenderStepped:Connect(function(dt)
-    if dt > 0 then
-        fps = math.floor(1 / dt)
+    -- กันค่าเพี้ยน
+    if dt <= 0 or dt > 0.1 then return end
+
+    frameCount += 1
+    timeElapsed += dt
+
+    -- อัปเดตทุก 0.5 วิ
+    if timeElapsed >= 0.5 then
+        local rawFps = frameCount / timeElapsed
+
+        -- จำกัดค่า
+        rawFps = math.clamp(rawFps, 15, 240)
+
+        fps = math.floor(rawFps + 0.5)
+
+        frameCount = 0
+        timeElapsed = 0
     end
 end)
 
 --========================
--- LOOP
+-- LOOP UPDATE
 --========================
 task.spawn(function()
     while true do
-
-        local time = formatTime(tick() - startTime)
-        local players = #Players:GetPlayers()
-
-        local ping = 0
         pcall(function()
-            ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-        end)
 
-        -- 🔥 จุดสำคัญ
-        TimeLabel:SetDesc(time)
-        PlayerLabel:SetDesc(players)
-        PingLabel:SetDesc(ping .. " ms")
-        FPSLabel:SetDesc(fps)
+            -- TIME
+            TimeLabel:SetDesc(formatTime(tick() - startTime))
+
+            -- PLAYERS
+            PlayerLabel:SetDesc(#Players:GetPlayers())
+
+            -- PING (กันพัง)
+            local ping = 0
+            pcall(function()
+                ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+            end)
+
+            PingLabel:SetDesc(ping .. " ms")
+
+            -- FPS
+            FPSLabel:SetDesc(fps)
+
+        end)
 
         task.wait(0.5)
     end
