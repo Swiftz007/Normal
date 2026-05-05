@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 12.3",
+SubTitle = "lib Beta 12.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -730,66 +730,7 @@ Tabs.ESP:AddToggle("Hitbox", {
 end)
 
 -- Stats 🔥
---========================
--- SERVICES
---========================
-local Players = game:GetService("Players")
-local Stats = game:GetService("Stats")
-local RunService = game:GetService("RunService")
 
---========================
--- START TIME
---========================
-local startTime = tick()
-
---========================
--- FORMAT TIME
---========================
-local function formatTime(seconds)
-    local h = math.floor(seconds / 3600)
-    local m = math.floor((seconds % 3600) / 60)
-    local s = math.floor(seconds % 60)
-    return string.format("%02d:%02d:%02d", h, m, s)
-end
-
---========================
--- UI (ใช้ Label แทน)
---========================
-local TimeLabel = Status:AddLabel("Time: Loading...")
-local PlayerLabel = Status:AddLabel("Players: Loading...")
-local PingLabel = Status:AddLabel("Ping: Loading...")
-local FPSLabel = Status:AddLabel("FPS: Loading...")
-
---========================
--- FPS
---========================
-local fps = 60
-RunService.RenderStepped:Connect(function(dt)
-    fps = math.floor(1 / dt)
-end)
-
---========================
--- LOOP UPDATE
---========================
-task.spawn(function()
-    while true do
-        
-        -- TIME
-        TimeLabel:Set("Time: " .. formatTime(tick() - startTime))
-        
-        -- PLAYERS
-        PlayerLabel:Set("Players: " .. #Players:GetPlayers())
-        
-        -- PING
-        local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-        PingLabel:Set("Ping: " .. ping .. " ms")
-        
-        -- FPS
-        FPSLabel:Set("FPS: " .. fps)
-        
-        task.wait(0.5)
-    end
-end)
 
 -- Credit
 Tabs.Credit:AddParagraph({
@@ -860,7 +801,7 @@ Tabs.Teleport:AddButton({
 -- TELEPORT
 -- =========================
 Tabs.Teleport:AddToggle("tp", {
-    Title = "Teleport Tween",
+    Title = "Teleport",
     Default = false
 }):OnChanged(function(state)
     teleportEnabled = state
