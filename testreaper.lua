@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 12.4",
+SubTitle = "lib Beta 12.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -730,7 +730,81 @@ Tabs.ESP:AddToggle("Hitbox", {
 end)
 
 -- Stats 🔥
+--========================
+-- SERVICES
+--========================
+local Players = game:GetService("Players")
+local Stats = game:GetService("Stats")
+local RunService = game:GetService("RunService")
 
+--========================
+-- TIME
+--========================
+local startTime = tick()
+
+local function formatTime(s)
+    local h = math.floor(s / 3600)
+    local m = math.floor((s % 3600) / 60)
+    local sec = math.floor(s % 60)
+    return string.format("%02d:%02d:%02d", h, m, sec)
+end
+
+--========================
+-- UI (สำคัญมาก)
+--========================
+local TimeLabel = Tabs.Status:AddParagraph({
+    Title = "Time",
+    Content = "Loading..."
+})
+
+local PlayerLabel = Tabs.Status:AddParagraph({
+    Title = "Players",
+    Content = "Loading..."
+})
+
+local PingLabel = Tabs.Status:AddParagraph({
+    Title = "Ping",
+    Content = "Loading..."
+})
+
+local FPSLabel = Tabs.Status:AddParagraph({
+    Title = "FPS",
+    Content = "Loading..."
+})
+
+--========================
+-- FPS
+--========================
+local fps = 60
+RunService.RenderStepped:Connect(function(dt)
+    if dt > 0 then
+        fps = math.floor(1 / dt)
+    end
+end)
+
+--========================
+-- LOOP
+--========================
+task.spawn(function()
+    while true do
+
+        local time = formatTime(tick() - startTime)
+        local players = #Players:GetPlayers()
+
+        local ping = 0
+        pcall(function()
+            ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+        end)
+
+        -- 🔥 จุดสำคัญ
+        TimeLabel:SetDesc(time)
+        PlayerLabel:SetDesc(players)
+        PingLabel:SetDesc(ping .. " ms")
+        FPSLabel:SetDesc(fps)
+
+        task.wait(0.5)
+    end
+end)
 
 -- Credit
 Tabs.Credit:AddParagraph({
