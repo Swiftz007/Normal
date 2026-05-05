@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 12.0",
+SubTitle = "lib Beta 12.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -109,6 +109,7 @@ Stroke.Parent = Logo
 
 -- Tab
 local Tabs = {
+Status = Window:AddTab({ Title = " Status", Icon = "signal-high" }),
 Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
 Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 Player = Window:AddTab({ Title = "Player", Icon = "user" }),
@@ -726,6 +727,78 @@ Tabs.ESP:AddToggle("Hitbox", {
     Default = false
 }):OnChanged(function(v)
     hitboxEnabled = v
+end)
+
+-- Stats 🔥
+--========================
+-- SERVICES
+--========================
+local Players = game:GetService("Players")
+local Stats = game:GetService("Stats")
+local RunService = game:GetService("RunService")
+
+--========================
+-- START TIME
+--========================
+local startTime = tick()
+
+--========================
+-- FORMAT TIME
+--========================
+local function formatTime(seconds)
+    local h = math.floor(seconds / 3600)
+    local m = math.floor((seconds % 3600) / 60)
+    local s = math.floor(seconds % 60)
+    return string.format("%02d:%02d:%02d", h, m, s)
+end
+
+--========================
+-- UI
+--========================
+local TimeLabel = Status:AddParagraph({
+    Title = "Time",
+    Content = "Loading..."
+})
+
+local PlayerLabel = Status:AddParagraph({
+    Title = "Players",
+    Content = "Loading..."
+})
+
+local PingLabel = Status:AddParagraph({
+    Title = "Ping",
+    Content = "Loading..."
+})
+
+local FPSLabel = Status:AddParagraph({
+    Title = "FPS",
+    Content = "Loading..."
+})
+
+--========================
+-- FPS
+--========================
+local fps = 60
+RunService.RenderStepped:Connect(function(dt)
+    fps = math.floor(1 / dt)
+end)
+
+--========================
+-- LOOP
+--========================
+task.spawn(function()
+    while true do
+        
+        TimeLabel:SetDesc(formatTime(tick() - startTime))
+        PlayerLabel:SetDesc(#Players:GetPlayers())
+
+        local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+        PingLabel:SetDesc(ping .. " ms")
+
+        FPSLabel:SetDesc(fps)
+
+        task.wait(0.5)
+    end
 end)
 
 -- Credit
