@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 13.2",
+SubTitle = "lib Beta 13.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -753,6 +753,8 @@ Tabs.Credit:AddParagraph({
     Content = "Fluent X Reaper"
 })
 
+local TweenService = game:GetService("TweenService")
+
 local canClick = true
 
 Tabs.Credit:AddButton({
@@ -774,30 +776,25 @@ Tabs.Credit:AddButton({
         local frame = Instance.new("Frame")
         frame.Parent = gui
         frame.Size = UDim2.new(0, 280, 0, 70)
-        frame.Position = UDim2.new(1, -300, 0, 20)
+        frame.Position = UDim2.new(1, 300, 0, 20)
         frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
         frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
 
-        local stroke = Instance.new("UIStroke")
-        stroke.Parent = frame
+        local stroke = Instance.new("UIStroke", frame)
         stroke.Thickness = 2
         stroke.Color = Color3.fromRGB(255, 60, 60)
-        stroke.Transparency = 0.05
 
-        local corner = Instance.new("UICorner")
+        local corner = Instance.new("UICorner", frame)
         corner.CornerRadius = UDim.new(0, 12)
-        corner.Parent = frame
 
-        local icon = Instance.new("ImageLabel")
-        icon.Parent = frame
+        local icon = Instance.new("ImageLabel", frame)
         icon.Size = UDim2.new(0, 40, 0, 40)
         icon.Position = UDim2.new(0, 12, 0, 15)
         icon.BackgroundTransparency = 1
         icon.Image = "rbxassetid://131279093559313"
 
-        local text = Instance.new("TextLabel")
-        text.Parent = frame
+        local text = Instance.new("TextLabel", frame)
         text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 60, 0, 0)
         text.BackgroundTransparency = 1
@@ -807,36 +804,27 @@ Tabs.Credit:AddButton({
         text.Font = Enum.Font.SourceSansSemibold
         text.TextSize = 14
 
-        -- slide in
-        frame:TweenPosition(
-            UDim2.new(1, -300, 0, 20),
-            Enum.EasingDirection.Out,
-            Enum.EasingStyle.Quint,
-            0.5,
-            true
-        )
+        -- 👉 เข้า
+        local tweenIn = TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+            Position = UDim2.new(1, -300, 0, 20)
+        })
+        tweenIn:Play()
 
-        -- reset cooldown หลังใช้งาน
-        task.delay(3, function()
-            if gui then
+        task.wait(2.5)
 
-                -- slide out
-                frame:TweenPosition(
-                    UDim2.new(1, 300, 0, 20),
-                    Enum.EasingDirection.In,
-                    Enum.EasingStyle.Quint,
-                    0.45,
-                    true
-                )
+        -- 👉 ออก (สำคัญ: ต้องรอให้ tween จบก่อน destroy)
+        local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 300, 0, 20),
+            BackgroundTransparency = 1
+        })
 
-                task.wait(0.5)
-                gui:Destroy()
-            end
+        tweenOut:Play()
+        tweenOut.Completed:Wait() -- 🔥 จุดสำคัญมาก
 
-            task.wait(0.5) -- cooldown time
-            canClick = true
-        end)
+        gui:Destroy()
 
+        task.wait(0.5)
+        canClick = true
     end
 })
 
