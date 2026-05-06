@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 12.7",
+SubTitle = "lib Beta 12.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -749,13 +749,16 @@ Tabs.Credit:AddParagraph({
 })
 
 Tabs.Credit:AddParagraph({
-    Title = "Discord",
-    Content = "https://discord.gg/krbmvBQhJD"
+    Title = "UI Library",
+    Content = "Fluent X Reaper"
 })
 
-Tabs.Credit:AddParagraph({
-    Title = "UI Library",
-    Content = "Fluent UI"
+Tabs.Credit:AddButton({
+    Title = "Discord",
+    Description = "https://discord.gg/krbmvBQhJD",
+    Callback = function()
+        setclipboard("https://discord.gg/krbmvBQhJD")
+    end
 })
 
 -- Teleport
