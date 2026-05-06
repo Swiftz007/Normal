@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 12.6",
+SubTitle = "lib Beta 12.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -137,94 +137,6 @@ local DefaultWS = 16
 local DefaultJP = 50
 
 local initialized = false
-
---================ WALK TP (DASH REAL) =================--
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local LocalPlayer = Players.LocalPlayer
-
-local enabled = false
-local canDash = true
-
-local DASH_POWER = 600 -- แรงพุ่ง
-local COOLDOWN = 2   -- กัน spam
-
-local connection
-
-local function getChar()
-    return LocalPlayer.Character
-end
-
-local function getHRP()
-    local char = getChar()
-    if not char then return end
-    return char:FindFirstChild("HumanoidRootPart")
-end
-
-local function getHumanoid()
-    local char = getChar()
-    if not char then return end
-    return char:FindFirstChildOfClass("Humanoid")
-end
-
-local function start()
-    if connection then connection:Disconnect() end
-
-    connection = RunService.RenderStepped:Connect(function()
-        if not enabled or not canDash then return end
-
-        local humanoid = getHumanoid()
-        local hrp = getHRP()
-        if not humanoid or not hrp then return end
-
-        local moveDir = humanoid.MoveDirection
-
-        -- ถ้ามีการกดเดิน
-        if moveDir.Magnitude > 0 then
-            canDash = false
-
-            -- 🔥 พุ่งไปตามทิศที่กด
-            hrp.Velocity = moveDir.Unit * DASH_POWER + Vector3.new(0, hrp.Velocity.Y, 0)
-
-            -- cooldown
-            task.delay(COOLDOWN, function()
-                canDash = true
-            end)
-        end
-    end)
-end
-
-local function stop()
-    if connection then
-        connection:Disconnect()
-        connection = nil
-    end
-end
-
--- รีตัว
-LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(0.5)
-    if enabled then
-        start()
-    end
-end)
-
--- UI
-Tabs.Player:AddToggle("WalkTP", {
-    Title = "WalkTP",
-    Default = false,
-    Callback = function(v)
-        enabled = v
-
-        if v then
-            start()
-        else
-            stop()
-        end
-    end
-})
 
 --=========================
 -- 🔥 CHARACTER HOOK
@@ -1621,9 +1533,9 @@ gui.Parent = game.CoreGui
 --=========================
 local border = Instance.new("Frame")
 border.Parent = gui
-border.Size = UDim2.new(0,56,0,56)
+border.Size = UDim2.new(0,0,0,0)
 border.BackgroundColor3 = Color3.fromRGB(0,0,0)
-border.ZIndex = 999998
+border.ZIndex = 1
 border.AnchorPoint = Vector2.new(0,0)
 
 local borderCorner = Instance.new("UICorner")
