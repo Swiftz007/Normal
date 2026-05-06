@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 12.8",
+SubTitle = "lib Beta 12.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -757,7 +757,55 @@ Tabs.Credit:AddButton({
     Title = "Discord",
     Description = "https://discord.gg/krbmvBQhJD",
     Callback = function()
-        setclipboard("https://discord.gg/krbmvBQhJD")
+
+        local link = "https://discord.gg/krbmvBQhJD"
+
+        -- copy
+        setclipboard(link)
+
+        -- Fluent notify (พื้นฐาน)
+        Fluent:Notify({
+            Title = "Copied Success",
+            Content = "Discord link copied",
+            Duration = 2
+        })
+
+        -- custom notify (มี icon)
+        local gui = Instance.new("ScreenGui")
+        gui.Name = "CustomNotify"
+        gui.ResetOnSpawn = false
+        gui.Parent = game.CoreGui
+
+        local frame = Instance.new("Frame")
+        frame.Parent = gui
+        frame.Size = UDim2.new(0, 260, 0, 60)
+        frame.Position = UDim2.new(1, -270, 0, 20)
+        frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+        frame.BorderSizePixel = 0
+
+        local icon = Instance.new("ImageLabel")
+        icon.Parent = frame
+        icon.Size = UDim2.new(0, 40, 0, 40)
+        icon.Position = UDim2.new(0, 10, 0, 10)
+        icon.BackgroundTransparency = 1
+        icon.Image = "rbxassetid://131279093559313"
+
+        local text = Instance.new("TextLabel")
+        text.Parent = frame
+        text.Size = UDim2.new(1, -60, 1, 0)
+        text.Position = UDim2.new(0, 60, 0, 0)
+        text.BackgroundTransparency = 1
+        text.Text = "Copied Success\n" .. link
+        text.TextColor3 = Color3.fromRGB(255,255,255)
+        text.TextXAlignment = Enum.TextXAlignment.Left
+        text.Font = Enum.Font.SourceSans
+        text.TextSize = 14
+
+        -- auto remove
+        task.delay(3, function()
+            gui:Destroy()
+        end)
+
     end
 })
 
