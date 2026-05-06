@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 12.9",
+SubTitle = "lib Beta 13.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -759,18 +759,8 @@ Tabs.Credit:AddButton({
     Callback = function()
 
         local link = "https://discord.gg/krbmvBQhJD"
-
-        -- copy
         setclipboard(link)
 
-        -- Fluent notify (พื้นฐาน)
-        Fluent:Notify({
-            Title = "Copied Success",
-            Content = "Discord link copied",
-            Duration = 2
-        })
-
-        -- custom notify (มี icon)
         local gui = Instance.new("ScreenGui")
         gui.Name = "CustomNotify"
         gui.ResetOnSpawn = false
@@ -778,31 +768,49 @@ Tabs.Credit:AddButton({
 
         local frame = Instance.new("Frame")
         frame.Parent = gui
-        frame.Size = UDim2.new(0, 260, 0, 60)
-        frame.Position = UDim2.new(1, -270, 0, 20)
-        frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+        frame.Size = UDim2.new(0, 280, 0, 70)
+        frame.Position = UDim2.new(1, -300, 0, 20)
+        frame.BackgroundColor3 = Color3.fromRGB(120, 25, 25) -- แดงเข้ม
+        frame.BackgroundTransparency = 0.25 -- โปร่ง
         frame.BorderSizePixel = 0
+
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 12)
+        corner.Parent = frame
+
+        local stroke = Instance.new("UIStroke")
+        stroke.Thickness = 1
+        stroke.Color = Color3.fromRGB(180, 60, 60)
+        stroke.Transparency = 0.4
+        stroke.Parent = frame
 
         local icon = Instance.new("ImageLabel")
         icon.Parent = frame
         icon.Size = UDim2.new(0, 40, 0, 40)
-        icon.Position = UDim2.new(0, 10, 0, 10)
+        icon.Position = UDim2.new(0, 12, 0, 15)
         icon.BackgroundTransparency = 1
         icon.Image = "rbxassetid://131279093559313"
 
         local text = Instance.new("TextLabel")
         text.Parent = frame
-        text.Size = UDim2.new(1, -60, 1, 0)
+        text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 60, 0, 0)
         text.BackgroundTransparency = 1
         text.Text = "Copied Success\n" .. link
-        text.TextColor3 = Color3.fromRGB(255,255,255)
+        text.TextColor3 = Color3.fromRGB(255, 220, 220)
         text.TextXAlignment = Enum.TextXAlignment.Left
-        text.Font = Enum.Font.SourceSans
+        text.Font = Enum.Font.SourceSansSemibold
         text.TextSize = 14
 
-        -- auto remove
-        task.delay(3, function()
+        -- fade out เบา ๆ ก่อนหาย
+        task.delay(2.5, function()
+            for i = 1, 10 do
+                frame.BackgroundTransparency += 0.07
+                text.TextTransparency += 0.07
+                icon.ImageTransparency += 0.07
+                stroke.Transparency += 0.07
+                task.wait(0.03)
+            end
             gui:Destroy()
         end)
 
