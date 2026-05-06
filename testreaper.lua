@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 13.0",
+SubTitle = "lib Beta 13.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -769,20 +769,25 @@ Tabs.Credit:AddButton({
         local frame = Instance.new("Frame")
         frame.Parent = gui
         frame.Size = UDim2.new(0, 280, 0, 70)
-        frame.Position = UDim2.new(1, -300, 0, 20)
-        frame.BackgroundColor3 = Color3.fromRGB(120, 25, 25) -- แดงเข้ม
-        frame.BackgroundTransparency = 0.25 -- โปร่ง
+
+        -- จุดเริ่ม (อยู่นอกจอด้านขวา)
+        frame.Position = UDim2.new(1, 300, 0, 20)
+
+        -- สีแดงเข้มด้านใน + โปร่ง
+        frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
+        frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
+
+        -- ขอบแดงจัดขึ้น
+        local stroke = Instance.new("UIStroke")
+        stroke.Parent = frame
+        stroke.Thickness = 2
+        stroke.Color = Color3.fromRGB(255, 60, 60)
+        stroke.Transparency = 0.05
 
         local corner = Instance.new("UICorner")
         corner.CornerRadius = UDim.new(0, 12)
         corner.Parent = frame
-
-        local stroke = Instance.new("UIStroke")
-        stroke.Thickness = 1
-        stroke.Color = Color3.fromRGB(180, 60, 60)
-        stroke.Transparency = 0.4
-        stroke.Parent = frame
 
         local icon = Instance.new("ImageLabel")
         icon.Parent = frame
@@ -797,20 +802,41 @@ Tabs.Credit:AddButton({
         text.Position = UDim2.new(0, 60, 0, 0)
         text.BackgroundTransparency = 1
         text.Text = "Copied Success\n" .. link
-        text.TextColor3 = Color3.fromRGB(255, 220, 220)
+        text.TextColor3 = Color3.fromRGB(255, 200, 200)
         text.TextXAlignment = Enum.TextXAlignment.Left
         text.Font = Enum.Font.SourceSansSemibold
         text.TextSize = 14
 
-        -- fade out เบา ๆ ก่อนหาย
+        -- 👉 slide เข้า (จากขวาเข้ามา)
+        frame:TweenPosition(
+            UDim2.new(1, -300, 0, 20),
+            Enum.EasingDirection.Out,
+            Enum.EasingStyle.Quint,
+            0.5,
+            true
+        )
+
+        -- อยู่บนจอ
         task.delay(2.5, function()
+
+            -- 👉 slide ออก "ทางขวาเหมือนเดิม"
+            frame:TweenPosition(
+                UDim2.new(1, 300, 0, 20),
+                Enum.EasingDirection.In,
+                Enum.EasingStyle.Quint,
+                0.45,
+                true
+            )
+
+            -- fade เบา ๆ ระหว่างออก
             for i = 1, 10 do
-                frame.BackgroundTransparency += 0.07
-                text.TextTransparency += 0.07
-                icon.ImageTransparency += 0.07
+                frame.BackgroundTransparency += 0.05
+                text.TextTransparency += 0.05
+                icon.ImageTransparency += 0.05
                 stroke.Transparency += 0.07
                 task.wait(0.03)
             end
+
             gui:Destroy()
         end)
 
