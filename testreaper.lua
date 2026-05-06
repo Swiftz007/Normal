@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 13.1",
+SubTitle = "lib Beta 13.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -753,10 +753,15 @@ Tabs.Credit:AddParagraph({
     Content = "Fluent X Reaper"
 })
 
+local canClick = true
+
 Tabs.Credit:AddButton({
     Title = "Discord",
     Description = "https://discord.gg/krbmvBQhJD",
     Callback = function()
+
+        if not canClick then return end
+        canClick = false
 
         local link = "https://discord.gg/krbmvBQhJD"
         setclipboard(link)
@@ -769,16 +774,11 @@ Tabs.Credit:AddButton({
         local frame = Instance.new("Frame")
         frame.Parent = gui
         frame.Size = UDim2.new(0, 280, 0, 70)
-
-        -- จุดเริ่ม (อยู่นอกจอด้านขวา)
-        frame.Position = UDim2.new(1, 300, 0, 20)
-
-        -- สีแดงเข้มด้านใน + โปร่ง
+        frame.Position = UDim2.new(1, -300, 0, 20)
         frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
         frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
 
-        -- ขอบแดงจัดขึ้น
         local stroke = Instance.new("UIStroke")
         stroke.Parent = frame
         stroke.Thickness = 2
@@ -807,7 +807,7 @@ Tabs.Credit:AddButton({
         text.Font = Enum.Font.SourceSansSemibold
         text.TextSize = 14
 
-        -- 👉 slide เข้า (จากขวาเข้ามา)
+        -- slide in
         frame:TweenPosition(
             UDim2.new(1, -300, 0, 20),
             Enum.EasingDirection.Out,
@@ -816,28 +816,25 @@ Tabs.Credit:AddButton({
             true
         )
 
-        -- อยู่บนจอ
-        task.delay(2.5, function()
+        -- reset cooldown หลังใช้งาน
+        task.delay(3, function()
+            if gui then
 
-            -- 👉 slide ออก "ทางขวาเหมือนเดิม"
-            frame:TweenPosition(
-                UDim2.new(1, 300, 0, 20),
-                Enum.EasingDirection.In,
-                Enum.EasingStyle.Quint,
-                0.45,
-                true
-            )
+                -- slide out
+                frame:TweenPosition(
+                    UDim2.new(1, 300, 0, 20),
+                    Enum.EasingDirection.In,
+                    Enum.EasingStyle.Quint,
+                    0.45,
+                    true
+                )
 
-            -- fade เบา ๆ ระหว่างออก
-            for i = 1, 10 do
-                frame.BackgroundTransparency += 0.05
-                text.TextTransparency += 0.05
-                icon.ImageTransparency += 0.05
-                stroke.Transparency += 0.07
-                task.wait(0.03)
+                task.wait(0.5)
+                gui:Destroy()
             end
 
-            gui:Destroy()
+            task.wait(0.5) -- cooldown time
+            canClick = true
         end)
 
     end
