@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 14.5",
+SubTitle = "lib Beta 14.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1414,270 +1414,120 @@ Tabs.Server:AddButton({
 })
 
 -- main tab
---================ TP FLY =================--
+-- === ตัวแปรระบบ Aimbot ===
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local LocalPlayer = game:GetService("Players").LocalPlayer
 
-local tpGui = nil
+local AimbotSettings = {
+    Enabled = false,
+    WallCheck = true,
+    TargetPart = "Head" 
+}
 
-function createTPFly()
-    if tpGui then return end
+-- ฟังก์ชันช่วยหาชื่อชิ้นส่วนจริงในตัวละคร
+local function getActualPart(character, choice)
+    if choice == "Head" then
+        return character:FindFirstChild("Head")
+    elseif choice == "Body" then
+        return character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("UpperTorso")
+    elseif choice == "Leg" then
+        return character:FindFirstChild("LeftLowerLeg") or character:FindFirstChild("Left Leg") or character:FindFirstChild("LeftFoot")
+    end
+    return nil
+end
 
-    local Players = game:GetService("Players")
-    local TweenService = game:GetService("TweenService")
-    local LocalPlayer = Players.LocalPlayer
+-- === ฟังก์ชันเช็คกำแพง ===
+local function IsVisible(targetPart)
+    if not AimbotSettings.WallCheck then return true end
+    local char = LocalPlayer.Character
+    if not char then return false end
+    
+    local rayParams = RaycastParams.new()
+    rayParams.FilterType = Enum.RaycastFilterType.Exclude
+    rayParams.FilterDescendantsInstances = {char, targetPart.Parent}
+    
+    local direction = (targetPart.Position - Camera.CFrame.Position)
+    local rayResult = workspace:Raycast(Camera.CFrame.Position, direction, rayParams)
+    
+    return rayResult == nil
+end
 
-    local TWEEN_SPEED = 2
-    local SKY_HEIGHT = 150
+-- === ฟังก์ชันสุ่มเป้าหมาย ===
+local function GetRandomTarget()
+    local players = game:GetService("Players"):GetPlayers()
+    local visiblePlayers = {}
 
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "TPFlyUI"
-    ScreenGui.Parent = game.CoreGui
-    tpGui = ScreenGui
-
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(0, 180, 0, 85)
-    Frame.Position = UDim2.new(0.5, -90, 0.5, -42)
-    Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    Frame.BackgroundTransparency = 0.35
-    Frame.BorderSizePixel = 0
-    Frame.Parent = ScreenGui
-    Frame.Active = true
-    Frame.Draggable = true
-
-    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 14)
-
-    local Stroke = Instance.new("UIStroke")
-    Stroke.Color = Color3.fromRGB(10,10,10)
-    Stroke.Thickness = 2
-    Stroke.Transparency = 0.1
-    Stroke.Parent = Frame
-
-    local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, 0, 0, 22)
-    Title.Position = UDim2.new(0, 0, 0, 3)
-    Title.BackgroundTransparency = 1
-    Title.Text = "TP Fly"
-    Title.TextColor3 = Color3.fromRGB(255,255,255)
-    Title.TextScaled = true
-    Title.Font = Enum.Font.GothamBold
-    Title.Parent = Frame
-
-    local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(0, 140, 0, 36)
-    Button.Position = UDim2.new(0.5, -70, 0, 35)
-    Button.Text = "Tween"
-    Button.TextColor3 = Color3.fromRGB(255,255,255)
-    Button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-    Button.BorderSizePixel = 0
-    Button.Parent = Frame
-    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 14)
-
-    local function getRandomPlayer()
-        local list = {}
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer then
-                table.insert(list, p)
+    for _, player in pairs(players) do
+        if player ~= LocalPlayer and player.Character then
+            local targetPart = getActualPart(player.Character, AimbotSettings.TargetPart)
+            local humanoid = player.Character:FindFirstChild("Humanoid")
+            
+            if targetPart and humanoid and humanoid.Health > 0 and IsVisible(targetPart) then
+                table.insert(visiblePlayers, player)
             end
         end
-        if #list == 0 then return nil end
-        return list[math.random(1, #list)]
     end
 
-    local working = false
-
-    Button.MouseButton1Click:Connect(function()
-        if working then return end
-        working = true
-
-        Button.Text = "Tween..."
-        Button.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-
-        local targetPlayer = getRandomPlayer()
-        if not targetPlayer or not targetPlayer.Character then
-            Button.Text = "Tween"
-            Button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-            working = false
-            return
-        end
-
-        local char = LocalPlayer.Character
-        if not char then return end
-
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if not hrp or not targetHRP then return end
-
-        hrp.CFrame = hrp.CFrame + Vector3.new(0, SKY_HEIGHT, 0)
-        task.wait(0.2)
-
-        local above = targetHRP.Position + Vector3.new(0, 120, 0)
-        local tween1 = TweenService:Create(hrp, TweenInfo.new(TWEEN_SPEED), {CFrame = CFrame.new(above)})
-        tween1:Play()
-        tween1.Completed:Wait()
-
-        hrp.CFrame = CFrame.new(targetHRP.Position + Vector3.new(0, 10, 0))
-        task.wait(0.1)
-
-        local tween2 = TweenService:Create(hrp, TweenInfo.new(TWEEN_SPEED/2), {CFrame = targetHRP.CFrame})
-        tween2:Play()
-        tween2.Completed:Wait()
-
-        Button.Text = "Tween"
-        Button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-        working = false
-    end)
+    if #visiblePlayers > 0 then
+        return visiblePlayers[math.random(1, #visiblePlayers)]
+    end
+    return nil
 end
 
-function removeTPFly()
-    if tpGui then
-        tpGui:Destroy()
-        tpGui = nil
-    end
-end
+local CurrentTarget = nil
 
---================ INVIS V2 =================--
-
-local invisGui = nil
-local lockConnection = nil
-local toggled = false
-local savedCFrame = nil
-
-function createInvis()
-    if invisGui then return end
-
-    local player = game.Players.LocalPlayer
-    local RunService = game:GetService("RunService")
-
-    local OFFSET_Y = 6
-
-    local gui = Instance.new("ScreenGui", game.CoreGui)
-    gui.Name = "InvisClean"
-    gui.ResetOnSpawn = false
-    invisGui = gui
-
-    local frame = Instance.new("Frame", gui)
-    frame.Size = UDim2.new(0, 180, 0, 95)
-    frame.Position = UDim2.new(0.42, 0, 0.35, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(40,40,55)
-    frame.BackgroundTransparency = 0.2
-    frame.Active = true
-    frame.Draggable = true
-
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0,14)
-
-    local stroke = Instance.new("UIStroke", frame)
-    stroke.Thickness = 1.5
-    stroke.Color = Color3.fromRGB(10,10,15)
-    stroke.Transparency = 0.1
-
-    local title = Instance.new("TextLabel", frame)
-    title.Size = UDim2.new(1,0,0,28)
-    title.BackgroundTransparency = 1
-    title.Text = "มุดดิน V2"
-    title.TextColor3 = Color3.fromRGB(220,220,255)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 14
-
-    local button = Instance.new("TextButton", frame)
-    button.Size = UDim2.new(0.7,0,0,32)
-    button.Position = UDim2.new(0.15,0,0.55,0)
-    button.Text = "ปิด"
-    button.BackgroundColor3 = Color3.fromRGB(255,0,0)
-    button.TextColor3 = Color3.new(1,1,1)
-    button.Font = Enum.Font.GothamBold
-    button.TextSize = 16
-
-    Instance.new("UICorner", button).CornerRadius = UDim.new(0,10)
-
-    local function lockPosition(cf)
-        if lockConnection then lockConnection:Disconnect() end
-
-        lockConnection = RunService.RenderStepped:Connect(function()
-            local char = player.Character
-            if not char then return end
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if not hrp then return end
-
-            hrp.CFrame = cf
-            hrp.Velocity = Vector3.zero
-            hrp.RotVelocity = Vector3.zero
-        end)
-    end
-
-    local function unlock()
-        if lockConnection then
-            lockConnection:Disconnect()
-            lockConnection = nil
+-- === ลูปการทำงาน Aimbot (สายโหด: หันทันที) ===
+RunService.RenderStepped:Connect(function()
+    if AimbotSettings.Enabled then
+        local targetPart = CurrentTarget and CurrentTarget.Character and getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
+        
+        if not CurrentTarget or not targetPart or 
+           CurrentTarget.Character.Humanoid.Health <= 0 or 
+           (AimbotSettings.WallCheck and not IsVisible(targetPart)) then
+            
+            CurrentTarget = GetRandomTarget()
         end
-    end
 
-    button.MouseButton1Click:Connect(function()
-        local char = player.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-
-        if not toggled then
-            savedCFrame = hrp.CFrame
-            local target = hrp.CFrame - Vector3.new(0, OFFSET_Y, 0)
-
-            lockPosition(target)
-
-            button.Text = "เปิด"
-            button.BackgroundColor3 = Color3.fromRGB(0,255,0)
-            toggled = true
-        else
-            unlock()
-
-            if savedCFrame then
-                hrp.CFrame = savedCFrame
+        if CurrentTarget and CurrentTarget.Character then
+            local p = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
+            if p then
+                -- เปลี่ยนจาก Lerp เป็นการตั้งค่า CFrame โดยตรง (หันทันที)
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, p.Position)
             end
-
-            button.Text = "ปิด"
-            button.BackgroundColor3 = Color3.fromRGB(255,0,0)
-            toggled = false
         end
-    end)
-end
-
-function removeInvis()
-    if lockConnection then
-        lockConnection:Disconnect()
-        lockConnection = nil
+    else
+        CurrentTarget = nil
     end
+end)
 
-    if invisGui then
-        invisGui:Destroy()
-        invisGui = nil
-    end
-
-    toggled = false
-end
-
---================ TOGGLE (ใช้ Callback เท่านั้น) =================--
-
-Tabs.Main:AddToggle("TPFlyUI", {
-    Title = "Floating TpFly ",
-    Default = false,
-    Callback = function(v)
-        if v then
-            createTPFly()
-        else
-            removeTPFly()
-        end
+-- === เพิ่มลงในหน้า Main ===
+Main:AddDropdown("AimbotPart", {
+    Title = "Target Part",
+    Values = {"Head", "Body", "Leg"},
+    Multi = false,
+    Default = "Head",
+    Callback = function(Value)
+        AimbotSettings.TargetPart = Value
     end
 })
 
-Tabs.Main:AddToggle("InvisUI", {
-    Title = "Floating มุดดิน V2",
+Main:AddToggle("AimbotToggle", {
+    Title = "Enable Aimbot",
     Default = false,
-    Callback = function(v)
-        if v then
-            createInvis()
-        else
-            removeInvis()
-        end
+    Callback = function(Value)
+        AimbotSettings.Enabled = Value
     end
 })
+
+Main:AddToggle("WallCheckToggle", {
+    Title = "Wall Check",
+    Default = true,
+    Callback = function(Value)
+        AimbotSettings.WallCheck = Value
+    end
+})
+
 
 -- Max Zoom
 local Players = game:GetService("Players")
