@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 14.0",
+SubTitle = "lib Beta 14.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -481,7 +481,7 @@ Tabs.Player:AddToggle("SpinPlayer", {
 -- Slider
 Tabs.Player:AddSlider("SpinSpeed", {
     Title = "Spin Speed",
-    Min = 0,
+    Min = 1,
     Max = 100,
     Default = 20,
 	Rounding = 0,
