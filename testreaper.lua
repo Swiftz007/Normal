@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 13.5",
+SubTitle = "lib Beta 13.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1586,14 +1586,34 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
 --=========================
--- 🔥 TOGGLE BUTTON (PERFECT - IMAGE ONLY CHANGE)
+-- 🔥 TOGGLE BUTTON + BLUR
 --=========================
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
 end
 
-local UIS = game:GetService("UserInputService")
+pcall(function()
+    game:GetService("Lighting"):FindFirstChild("MenuBlur"):Destroy()
+end)
 
+--=========================
+-- SERVICES
+--=========================
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+
+--=========================
+-- BLUR
+--=========================
+local Blur = Instance.new("BlurEffect")
+Blur.Name = "MenuBlur"
+Blur.Size = 45
+Blur.Parent = Lighting
+
+--=========================
+-- GUI
+--=========================
 local gui = Instance.new("ScreenGui")
 gui.Name = "ToggleUI"
 gui.ResetOnSpawn = false
@@ -1602,7 +1622,17 @@ gui.DisplayOrder = 999999
 gui.Parent = game.CoreGui
 
 --=========================
--- 🔳 BORDER (เหมือนเดิม)
+-- DARK BACKGROUND
+--=========================
+local dark = Instance.new("Frame")
+dark.Parent = gui
+dark.Size = UDim2.new(1,0,1,0)
+dark.BackgroundColor3 = Color3.fromRGB(0,0,0)
+dark.BackgroundTransparency = 0.35
+dark.ZIndex = 999990
+
+--=========================
+-- BORDER
 --=========================
 local border = Instance.new("Frame")
 border.Parent = gui
@@ -1616,7 +1646,7 @@ borderCorner.CornerRadius = UDim.new(0,14)
 borderCorner.Parent = border
 
 --=========================
--- 🔘 BUTTON (เปลี่ยนจาก TextButton → ImageButton)
+-- BUTTON
 --=========================
 local button = Instance.new("ImageButton")
 button.Parent = gui
@@ -1624,7 +1654,7 @@ button.Size = UDim2.new(0,60,0,60)
 button.Position = UDim2.new(0,20,0.5,0)
 button.AnchorPoint = Vector2.new(0,0)
 
-button.BackgroundTransparency = 0
+button.BackgroundTransparency = 1
 button.ZIndex = 999999
 button.AutoButtonColor = false
 
@@ -1632,17 +1662,20 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0,12)
 corner.Parent = button
 
--- 🔥 รูป ON / OFF
+--=========================
+-- IMAGE
+--=========================
 local imgOn = "rbxassetid://86279908104891"
-local imgOff = "rbxassetid://86279908104891" -- ถ้ามีรูปปิดค่อยเปลี่ยน
+local imgOff = "rbxassetid://86279908104891"
 
 button.Image = imgOn
 button.ScaleType = Enum.ScaleType.Fit
 
 --=========================
--- 🔥 AUTO ALIGN (เหมือนเดิม)
+-- AUTO ALIGN
 --=========================
 local function UpdateBorder()
+
     local offset = (border.Size.X.Offset - button.Size.X.Offset) / 2
 
     border.Position = UDim2.new(
@@ -1656,14 +1689,16 @@ end
 UpdateBorder()
 
 --=========================
--- 🔥 DRAG SYSTEM (เหมือนเดิม)
+-- DRAG SYSTEM
 --=========================
 local dragging = false
 local dragStart, startPos
 
 button.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
+
         dragging = true
         dragStart = input.Position
         startPos = button.Position
@@ -1671,7 +1706,9 @@ button.InputBegan:Connect(function(input)
 end)
 
 UIS.InputChanged:Connect(function(input)
+
     if dragging then
+
         local delta = input.Position - dragStart
 
         button.Position = UDim2.new(
@@ -1686,24 +1723,76 @@ UIS.InputChanged:Connect(function(input)
 end)
 
 UIS.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
+
         dragging = false
     end
 end)
 
 --=========================
--- 🔥 TOGGLE (เหมือนเดิม + เปลี่ยนแค่รูป)
+-- BLUR FUNCTIONS
+--=========================
+local function OpenBlur()
+
+    TweenService:Create(
+        Blur,
+        TweenInfo.new(0.3),
+        {
+            Size = 45
+        }
+    ):Play()
+
+    TweenService:Create(
+        dark,
+        TweenInfo.new(0.3),
+        {
+            BackgroundTransparency = 0.35
+        }
+    ):Play()
+end
+
+local function CloseBlur()
+
+    TweenService:Create(
+        Blur,
+        TweenInfo.new(0.25),
+        {
+            Size = 0
+        }
+    ):Play()
+
+    TweenService:Create(
+        dark,
+        TweenInfo.new(0.25),
+        {
+            BackgroundTransparency = 1
+        }
+    ):Play()
+end
+
+--=========================
+-- TOGGLE
 --=========================
 local isOpen = true
 
 button.MouseButton1Click:Connect(function()
+
     isOpen = not isOpen
 
     if Window then
         Window:Minimize(not isOpen)
     end
 
-    -- 🔥 เปลี่ยนจากสี → รูป
     button.Image = isOpen and imgOn or imgOff
+
+    --=========================
+    -- BLUR CONTROL
+    --=========================
+    if isOpen then
+        OpenBlur()
+    else
+        CloseBlur()
+    end
 end)
