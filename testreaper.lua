@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 14.2",
+SubTitle = "lib Beta 14.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -487,76 +487,6 @@ Tabs.Player:AddSlider("SpinSpeed", {
 	Rounding = 0,
     Callback = function(v)
         spinSpeed = v
-    end
-})
-
--- Anti AFK
-local VirtualUser = game:GetService("VirtualUser")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
--- สร้าง UI Timer
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "AntiAFK_Timer"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.CoreGui
-
-local Label = Instance.new("TextLabel")
-Label.Size = UDim2.new(0, 220, 0, 50)
-Label.Position = UDim2.new(0.5, -110, 0.15, 0) -- กลางจอด้านบน
-Label.BackgroundTransparency = 0.3
-Label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Label.TextColor3 = Color3.fromRGB(0, 255, 0)
-Label.TextScaled = true
-Label.Visible = false
-Label.Font = Enum.Font.GothamBold
-Label.Text = "Anti AFK: 00:00"
-Label.Parent = ScreenGui
-
-local function formatTime(sec)
-    local m = math.floor(sec / 60)
-    local s = sec % 60
-    return string.format("%02d:%02d", m, s)
-end
-
-local running = false
-local startTime = 0
-
-Tabs.Settings:AddToggle("AntiAFK", {
-    Title = "Anti AFK",
-    Default = false,
-    Callback = function(v)
-        if v then
-            getgenv().AntiAFK = true
-            running = true
-            startTime = os.time()
-            Label.Visible = true
-
-            -- อัปเดตเวลา
-            task.spawn(function()
-                while getgenv().AntiAFK do
-                    local elapsed = os.time() - startTime
-                    Label.Text = "Anti AFK: " .. formatTime(elapsed)
-                    task.wait(1)
-                end
-            end)
-
-            -- Anti AFK loop
-            task.spawn(function()
-                while getgenv().AntiAFK do
-                    task.wait(1080)
-
-                    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-                    task.wait(1)
-                    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-                end
-            end)
-
-        else
-            getgenv().AntiAFK = false
-            running = false
-            Label.Visible = false
-        end
     end
 })
 
@@ -1651,6 +1581,96 @@ Tabs.Main:AddToggle("InvisUI", {
     end
 })
 
+-- Max Zoom
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
+
+Tabs.Settings:AddToggle("MaxZoom", {
+    Title = "Max Zoom",
+    Default = false,
+
+    Callback = function(v)
+
+        if v then
+            LocalPlayer.CameraMaxZoomDistance = 999999
+        else
+            LocalPlayer.CameraMaxZoomDistance = DefaultZoom
+        end
+    end
+})
+
+-- Anti AFK
+local VirtualUser = game:GetService("VirtualUser")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- สร้าง UI Timer
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AntiAFK_Timer"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local Label = Instance.new("TextLabel")
+Label.Size = UDim2.new(0, 220, 0, 50)
+Label.Position = UDim2.new(0.5, -110, 0.15, 0) -- กลางจอด้านบน
+Label.BackgroundTransparency = 0.3
+Label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Label.TextColor3 = Color3.fromRGB(0, 255, 0)
+Label.TextScaled = true
+Label.Visible = false
+Label.Font = Enum.Font.GothamBold
+Label.Text = "Anti AFK: 00:00"
+Label.Parent = ScreenGui
+
+local function formatTime(sec)
+    local m = math.floor(sec / 60)
+    local s = sec % 60
+    return string.format("%02d:%02d", m, s)
+end
+
+local running = false
+local startTime = 0
+
+Tabs.Settings:AddToggle("AntiAFK", {
+    Title = "Anti AFK",
+    Default = false,
+    Callback = function(v)
+        if v then
+            getgenv().AntiAFK = true
+            running = true
+            startTime = os.time()
+            Label.Visible = true
+
+            -- อัปเดตเวลา
+            task.spawn(function()
+                while getgenv().AntiAFK do
+                    local elapsed = os.time() - startTime
+                    Label.Text = "Anti AFK: " .. formatTime(elapsed)
+                    task.wait(1)
+                end
+            end)
+
+            -- Anti AFK loop
+            task.spawn(function()
+                while getgenv().AntiAFK do
+                    task.wait(1080)
+
+                    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                    task.wait(1)
+                    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                end
+            end)
+
+        else
+            getgenv().AntiAFK = false
+            running = false
+            Label.Visible = false
+        end
+    end
+})
+
 -- FPS BOOST
 local optimized = false
 local saved = {}
@@ -1689,6 +1709,8 @@ local function applyOptimize(state)
     end
 end
 
+
+--FPS
 Tabs.Settings:AddToggle("FPSBoost", {
     Title = "FPS BOOST",
     Default = false
@@ -1703,7 +1725,7 @@ local LogService = game:GetService("LogService")
 
 --// STATE
 local consoleEnabled = false
-local MAX_LOGS = 60
+local MAX_LOGS = 1000
 local logItems = {}
 
 --// GUI
@@ -1745,6 +1767,8 @@ scroll.Position = UDim2.new(0,0,0,34)
 scroll.Size = UDim2.new(1,0,1,-70)
 scroll.BackgroundTransparency = 1
 scroll.ScrollBarThickness = 4
+scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scroll.CanvasSize = UDim2.new(0,0,0,0)
 
 local layout = Instance.new("UIListLayout", scroll)
 layout.Padding = UDim.new(0,4)
@@ -1760,7 +1784,7 @@ bottom.Size = UDim2.new(1,0,0,32)
 bottom.Position = UDim2.new(0,0,1,-32)
 bottom.BackgroundColor3 = Color3.fromRGB(24,24,30)
 
--- CLEAR
+--// CLEAR BUTTON
 local clear = Instance.new("TextButton", bottom)
 clear.Size = UDim2.new(0,70,0,24)
 clear.Position = UDim2.new(1,-80,0.5,-12)
@@ -1772,41 +1796,51 @@ clear.TextColor3 = Color3.new(1,1,1)
 
 Instance.new("UICorner", clear)
 
--- CLEAR FUNCTION
+--// CLEAR FUNCTION
 clear.MouseButton1Click:Connect(function()
-	for _, v in ipairs(logItems) do
-		if v then v:Destroy() end
+
+	for _,v in ipairs(logItems) do
+		if v then
+			v:Destroy()
+		end
 	end
-	logItems = {}
-	scroll.CanvasSize = UDim2.new(0,0,0,0)
+
+	table.clear(logItems)
+
+	scroll.CanvasPosition = Vector2.new(0,0)
 end)
 
 --// CREATE LOG UI
 local function createLog(text, msgType)
 
 	local container = Instance.new("Frame")
-	container.Size = UDim2.new(1, -6, 0, 0)
+	container.Size = UDim2.new(1,-6,0,0)
 	container.AutomaticSize = Enum.AutomaticSize.Y
 
 	local prefix = "[INFO]"
-	local color = Color3.fromRGB(200,200,200)
+	local color = Color3.fromRGB(220,220,220)
 	local bg = Color3.fromRGB(30,30,35)
 
 	if msgType == Enum.MessageType.MessageError then
+
 		prefix = "[ERROR]"
 		color = Color3.fromRGB(255,80,80)
 		bg = Color3.fromRGB(55,25,25)
+
 	elseif msgType == Enum.MessageType.MessageWarning then
+
 		prefix = "[WARN]"
 		color = Color3.fromRGB(255,200,0)
 		bg = Color3.fromRGB(55,50,20)
 	end
 
 	container.BackgroundColor3 = bg
+
 	Instance.new("UICorner", container).CornerRadius = UDim.new(0,6)
 
 	local pad = Instance.new("UIPadding", container)
 	pad.PaddingLeft = UDim.new(0,6)
+	pad.PaddingRight = UDim.new(0,6)
 	pad.PaddingTop = UDim.new(0,4)
 	pad.PaddingBottom = UDim.new(0,4)
 
@@ -1821,48 +1855,68 @@ local function createLog(text, msgType)
 	label.TextWrapped = true
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.TextYAlignment = Enum.TextYAlignment.Top
+	label.RichText = false
 
-	label.Text = "["..time.."] "..prefix.."  "..text
+	label.Text = "["..time.."] "..prefix.."  "..tostring(text)
 	label.TextColor3 = color
 
 	-- hover effect
 	container.MouseEnter:Connect(function()
-		container.BackgroundColor3 = bg:lerp(Color3.new(1,1,1), 0.05)
+		container.BackgroundColor3 = bg:Lerp(Color3.new(1,1,1), 0.05)
 	end)
+
 	container.MouseLeave:Connect(function()
 		container.BackgroundColor3 = bg
 	end)
+
+	label.Parent = container
 
 	return container
 end
 
 --// ADD LOG
 local function addLog(text, msgType)
-	if not consoleEnabled then return end
 
 	local item = createLog(text, msgType)
 	item.Parent = scroll
 
 	table.insert(logItems, item)
 
-	-- limit logs
+	-- LIMIT
 	if #logItems > MAX_LOGS then
-		logItems[1]:Destroy()
-		table.remove(logItems, 1)
+
+		local old = table.remove(logItems, 1)
+
+		if old then
+			old:Destroy()
+		end
 	end
 
-	scroll.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 6)
+	-- AUTO SCROLL
+	task.defer(function()
+
+		scroll.CanvasPosition = Vector2.new(
+			0,
+			math.max(0, layout.AbsoluteContentSize.Y)
+		)
+	end)
 end
 
---// LISTEN
+--// LOAD OLD LOGS
+for _,log in ipairs(LogService:GetLogHistory()) do
+	addLog(log.message, log.messageType)
+end
+
+--// LISTEN NEW LOGS
 LogService.MessageOut:Connect(function(message, messageType)
 	addLog(message, messageType)
 end)
 
---// FLUENT TOGGLE
+--// TOGGLE
 Tabs.Settings:AddToggle("Console", {
 	Title = "Console",
 	Default = false,
+
 	Callback = function(v)
 		consoleEnabled = v
 		main.Visible = v
