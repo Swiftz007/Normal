@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 14.7",
+SubTitle = "lib Beta 14.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1414,31 +1414,29 @@ Tabs.Server:AddButton({
 })
 
 -- main tab
--- === ตัวแปรหลัก (ควรมีอยู่แล้วในสคริปต์) ===
 local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
+local UserInputService = game:GetService("UserInputService")
 
--- === ค่าเริ่มต้นของ Aimbot ===
 local AimbotSettings = {
     Enabled = false,
     WallCheck = true,
     TargetPart = "Head"
 }
 
--- === ฟังก์ชันตรวจสอบชิ้นส่วน (R6/R15) ===
 local function getActualPart(character, choice)
+    if not character then return nil end
     if choice == "Head" then
         return character:FindFirstChild("Head")
     elseif choice == "Body" then
-        return character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("UpperTorso")
+        return character:FindFirstChild("HumanoidRootPart")
     elseif choice == "Leg" then
-        return character:FindFirstChild("LeftLowerLeg") or character:FindFirstChild("Left Leg") or character:FindFirstChild("LeftFoot")
+        return character:FindFirstChild("LeftLowerLeg") or character:FindFirstChild("Left Leg")
     end
     return nil
 end
 
--- === ฟังก์ชันเช็คกำแพง (Wall Check) ===
 local function IsVisible(targetPart)
     if not AimbotSettings.WallCheck then return true end
     local char = LocalPlayer.Character
@@ -1448,54 +1446,53 @@ local function IsVisible(targetPart)
     rayParams.FilterType = Enum.RaycastFilterType.Exclude
     rayParams.FilterDescendantsInstances = {char, targetPart.Parent}
     
-    local direction = (targetPart.Position - Camera.CFrame.Position)
-    local rayResult = workspace:Raycast(Camera.CFrame.Position, direction, rayParams)
-    
+    local rayResult = workspace:Raycast(Camera.CFrame.Position, (targetPart.Position - Camera.CFrame.Position), rayParams)
     return rayResult == nil
 end
 
--- === ฟังก์ชันสุ่มหาเป้าหมาย ===
-local function GetRandomTarget()
-    local players = game:GetService("Players"):GetPlayers()
-    local visiblePlayers = {}
-
-    for _, player in pairs(players) do
+local function GetClosestTargetToMouse()
+    local target = nil
+    local shortestDistance = math.huge
+    for _, player in pairs(game:GetService("Players"):GetPlayers()) do
         if player ~= LocalPlayer and player.Character then
-            local targetPart = getActualPart(player.Character, AimbotSettings.TargetPart)
+            local part = getActualPart(player.Character, AimbotSettings.TargetPart)
             local humanoid = player.Character:FindFirstChild("Humanoid")
-            
-            if targetPart and humanoid and humanoid.Health > 0 and IsVisible(targetPart) then
-                table.insert(visiblePlayers, player)
+            if part and humanoid and humanoid.Health > 0 and IsVisible(part) then
+                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                if onScreen then
+                    local mousePos = UserInputService:GetMouseLocation()
+                    local distance = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
+                    if distance < shortestDistance then
+                        shortestDistance = distance
+                        target = player
+                    end
+                end
             end
         end
     end
-
-    if #visiblePlayers > 0 then
-        return visiblePlayers[math.random(1, #visiblePlayers)]
-    end
-    return nil
+    return target
 end
 
 local CurrentTarget = nil
 
--- === ลูปการทำงาน Aimbot (Hard Lock) ===
-RunService.RenderStepped:Connect(function()
+-- === แก้ไขตรงนี้: ใช้ BindToRenderStep เพื่อให้กล้องตามตัวละคร ===
+RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, function()
     if AimbotSettings.Enabled then
-        local targetPart = CurrentTarget and CurrentTarget.Character and getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
-        
-        -- ถ้าเป้าหมายเดิมไม่อยู่แล้ว หรือตาย หรือโดนบัง ให้หาใหม่
-        if not CurrentTarget or not targetPart or 
+        -- ตรวจสอบเป้าหมาย
+        if not CurrentTarget or not CurrentTarget.Character or 
+           not getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart) or 
            CurrentTarget.Character.Humanoid.Health <= 0 or 
-           (AimbotSettings.WallCheck and not IsVisible(targetPart)) then
+           (AimbotSettings.WallCheck and not IsVisible(getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart))) then
             
-            CurrentTarget = GetRandomTarget()
+            CurrentTarget = GetClosestTargetToMouse()
         end
 
-        -- ล็อคมุมกล้องทันที (Hard Lock)
+        -- ล็อคกล้องโดยไม่ทำให้กล้องค้าง
         if CurrentTarget and CurrentTarget.Character then
-            local p = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
-            if p then
-                Camera.CFrame = CFrame.new(Camera.CFrame.Position, p.Position)
+            local targetPart = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
+            if targetPart then
+                -- ใช้ตำแหน่งปัจจุบันของกล้องที่เกมคำนวณมาให้แล้ว (จะทำให้กล้องตามตัวเราตลอด)
+                Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
             end
         end
     else
@@ -1503,11 +1500,10 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- === ส่วนของ UI (Tabs.Main) ===
+-- === UI (ใช้ Tabs.Main ตามเดิม) ===
 
--- Toggle เปิด/ปิด Aimbot
 local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
-    Title = "Enable Aimbot (Hard Lock)",
+    Title = "Enable Aimbot",
     Default = false
 })
 
@@ -1515,7 +1511,17 @@ AimbotToggle:OnChanged(function(Value)
     AimbotSettings.Enabled = Value
 end)
 
--- Toggle เปิด/ปิด Wall Check
+local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
+    Title = "Target Part",
+    Values = {"Head", "Body", "Leg"},
+    Multi = false,
+    Default = 1,
+})
+
+PartDropdown:OnChanged(function(Value)
+    AimbotSettings.TargetPart = Value
+end)
+
 local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
     Title = "Wall Check",
     Default = true
@@ -1525,17 +1531,6 @@ WallCheckToggle:OnChanged(function(Value)
     AimbotSettings.WallCheck = Value
 end)
 
--- Dropdown เลือกจุดที่ต้องการล็อคเป้า
-local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
-    Title = "Target Part",
-    Values = {"Head", "Body", "Leg"},
-    Multi = false,
-    Default = 1, -- เลือก Head เป็นค่าเริ่มต้น
-})
-
-PartDropdown:OnChanged(function(Value)
-    AimbotSettings.TargetPart = Value
-end)
 
 
 
