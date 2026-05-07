@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 14.4",
+SubTitle = "lib Beta 14.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -402,32 +402,37 @@ JPValue = tonumber(v) or 50
 end
 })
 
+-- Fly Mode 🔥
 -- === ตัวแปรระบบบิน ===
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
+local LocalPlayer = game:GetService("Players").LocalPlayer
 local flying = false
 local speed = 60
 local bv, bg
 
--- === ฟังก์ชันการบิน (ยกมาจากตัวเดิม) ===
+-- === ฟังก์ชันหยุดบิน ===
 local function stopFlying()
-    flying = false
-    if bv then bv:Destroy() end
-    if bg then bg:Destroy() end
+    if bv then bv:Destroy() bv = nil end
+    if bg then bg:Destroy() bg = nil end
     local char = LocalPlayer.Character
     if char and char:FindFirstChild("Humanoid") then
         char.Humanoid.PlatformStand = false
     end
 end
 
+-- === ฟังก์ชันเริ่มบิน ===
 local function startFlying()
     local char = LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    local root = char.HumanoidRootPart
-    local hum = char.Humanoid
+    -- รอให้ชิ้นส่วนตัวละครโหลดครบก่อนเริ่มบิน (กันบัคตอนเกิดใหม่)
+    local root = char:WaitForChild("HumanoidRootPart", 5)
+    local hum = char:WaitForChild("Humanoid", 5)
     
-    flying = true
+    if not root or not hum then return end
+    
+    -- ล้างของเก่าก่อนสร้างใหม่ (กันซ้อน)
+    if bv then bv:Destroy() end
+    if bg then bg:Destroy() end
+    
     bv = Instance.new("BodyVelocity")
     bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     bv.Velocity = Vector3.new(0, 0, 0)
@@ -440,10 +445,12 @@ local function startFlying()
     
     hum.PlatformStand = true
     
+    -- ลูปการเคลื่อนที่
     task.spawn(function()
-        while flying do
-            local dt = RunService.RenderStepped:Wait()
+        while flying and char == LocalPlayer.Character do
+            RunService.RenderStepped:Wait()
             local cam = workspace.CurrentCamera
+            
             local moveInput = require(LocalPlayer.PlayerScripts:WaitForChild("PlayerModule")):GetControls():GetMoveVector()
             local direction = (cam.CFrame.LookVector * -moveInput.Z) + (cam.CFrame.RightVector * moveInput.X)
             
@@ -457,12 +464,22 @@ local function startFlying()
     end)
 end
 
--- === เพิ่ม Toggle ใน Fluent UI ===
-local FlyToggle = Tabs.Player:AddToggle("FlyToggle", {
+-- === ระบบทำงานต่ออัตโนมัติเมื่อเกิดใหม่ ===
+LocalPlayer.CharacterAdded:Connect(function(newCharacter)
+    if flying then
+        -- รอแป๊บนึงให้ระบบฟิสิกส์ของตัวละครใหม่พร้อม
+        task.wait(0.5) 
+        if flying then startFlying() end
+    end
+end)
+
+-- === เพิ่มเข้า Fluent UI (Tabs.Player) ===
+Tabs.Player:AddToggle("FlyToggle", {
     Title = "Fly Mode", 
     Default = false,
     Callback = function(Value)
-        if Value then
+        flying = Value
+        if flying then
             startFlying()
         else
             stopFlying()
@@ -470,10 +487,9 @@ local FlyToggle = Tabs.Player:AddToggle("FlyToggle", {
     end
 })
 
--- (แถม) ตัวปรับความเร็ว
 Tabs.Player:AddSlider("FlySpeed", {
     Title = "Fly Speed",
-    Description = "ปรับความเร็วในการบิน",
+    Description = "ปรับความเร็วการบิน",
     Default = 60,
     Min = 10,
     Max = 300,
@@ -482,6 +498,7 @@ Tabs.Player:AddSlider("FlySpeed", {
         speed = Value
     end
 })
+
 
 Tabs.Player:AddToggle("INFJ", {
 Title = "Infinite Jump",
