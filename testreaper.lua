@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 13.7",
+SubTitle = "lib Beta 13.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -598,7 +598,280 @@ end
 })
 
 -- ESP NAME & Health bar🔥
+--========================
+-- SERVICES
+--========================
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
 
+local LocalPlayer = Players.LocalPlayer
+
+--========================
+-- SETTINGS
+--========================
+local MaxDistance = 2500
+
+_G.NameESPEnabled = true
+_G.HealthESPEnabled = true
+
+--========================
+-- CACHE
+--========================
+local ESPCache = {}
+
+--========================
+-- CREATE ESP
+--========================
+local function CreateESP(Player)
+
+    if Player == LocalPlayer then
+        return
+    end
+
+    --========================
+    -- NAME
+    --========================
+    local Name = Drawing.new("Text")
+    Name.Visible = false
+    Name.Center = true
+    Name.Outline = true
+    Name.Font = 2
+    Name.Size = 13
+    Name.Color = Color3.fromRGB(255,255,255)
+    Name.Transparency = 1
+
+    --========================
+    -- HEALTH OUTLINE
+    --========================
+    local HealthOutline = Drawing.new("Square")
+    HealthOutline.Visible = false
+    HealthOutline.Filled = true
+    HealthOutline.Thickness = 0
+    HealthOutline.Color = Color3.fromRGB(0,0,0)
+    HealthOutline.Transparency = 0.6
+
+    --========================
+    -- HEALTH BAR
+    --========================
+    local HealthBar = Drawing.new("Square")
+    HealthBar.Visible = false
+    HealthBar.Filled = true
+    HealthBar.Thickness = 0
+    HealthBar.Color = Color3.fromRGB(0,255,100)
+    HealthBar.Transparency = 1
+
+    ESPCache[Player] = {
+        Name = Name,
+        HealthOutline = HealthOutline,
+        HealthBar = HealthBar
+    }
+end
+
+--========================
+-- REMOVE ESP
+--========================
+local function RemoveESP(Player)
+
+    local ESP = ESPCache[Player]
+
+    if ESP then
+
+        for _,v in pairs(ESP) do
+            v:Remove()
+        end
+
+        ESPCache[Player] = nil
+    end
+end
+
+--========================
+-- HIDE ESP
+--========================
+local function HideESP(ESP)
+
+    ESP.Name.Visible = false
+    ESP.HealthOutline.Visible = false
+    ESP.HealthBar.Visible = false
+end
+
+--========================
+-- PLAYER HANDLING
+--========================
+for _,Player in ipairs(Players:GetPlayers()) do
+    CreateESP(Player)
+end
+
+Players.PlayerAdded:Connect(CreateESP)
+Players.PlayerRemoving:Connect(RemoveESP)
+
+--========================
+-- MAIN RENDER
+--========================
+RunService.RenderStepped:Connect(function()
+
+    for Player,ESP in pairs(ESPCache) do
+
+        local Character = Player.Character
+        local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
+        local Root = Character and Character:FindFirstChild("HumanoidRootPart")
+        local Head = Character and Character:FindFirstChild("Head")
+
+        --========================
+        -- VALIDATION
+        --========================
+        if not Character
+        or not Humanoid
+        or not Root
+        or not Head
+        or Humanoid.Health <= 0 then
+
+            HideESP(ESP)
+            continue
+        end
+
+        --========================
+        -- DISTANCE
+        --========================
+        local Distance = (Camera.CFrame.Position - Root.Position).Magnitude
+
+        if Distance > MaxDistance then
+            HideESP(ESP)
+            continue
+        end
+
+        --========================
+        -- VIEWPORT
+        --========================
+        local RootPos, OnScreen = Camera:WorldToViewportPoint(Root.Position)
+
+        if not OnScreen then
+            HideESP(ESP)
+            continue
+        end
+
+        local HeadPos = Camera:WorldToViewportPoint(
+            Head.Position + Vector3.new(0,0.6,0)
+        )
+
+        local LegPos = Camera:WorldToViewportPoint(
+            Root.Position - Vector3.new(0,3,0)
+        )
+
+        --========================
+        -- SCALE
+        --========================
+        local Height = math.abs(HeadPos.Y - LegPos.Y)
+        local Width = Height / 2
+
+        local X = RootPos.X - Width / 2
+        local Y = RootPos.Y - Height / 2
+
+        --========================
+        -- NAME ESP
+        --========================
+        if _G.NameESPEnabled then
+
+            ESP.Name.Visible = true
+
+            local Size = math.clamp(
+                16 - (Distance / 120),
+                13,
+                16
+            )
+
+            ESP.Name.Size = Size
+
+            ESP.Name.Text = string.format(
+                "%s [%dm]",
+                Player.Name,
+                math.floor(Distance)
+            )
+
+            ESP.Name.Position = Vector2.new(
+                RootPos.X,
+                Y - 16
+            )
+
+        else
+            ESP.Name.Visible = false
+        end
+
+        --========================
+        -- HEALTH BAR
+        --========================
+        if _G.HealthESPEnabled then
+
+            local HealthPercent = math.clamp(
+                Humanoid.Health / Humanoid.MaxHealth,
+                0,
+                1
+            )
+
+            local BarHeight = Height * HealthPercent
+
+            local BarX = X - 7
+            local BarY = Y
+
+            -- OUTLINE
+            ESP.HealthOutline.Visible = true
+            ESP.HealthOutline.Size = Vector2.new(
+                4,
+                Height + 2
+            )
+
+            ESP.HealthOutline.Position = Vector2.new(
+                BarX - 1,
+                BarY - 1
+            )
+
+            -- BAR
+            ESP.HealthBar.Visible = true
+            ESP.HealthBar.Size = Vector2.new(
+                2,
+                BarHeight
+            )
+
+            ESP.HealthBar.Position = Vector2.new(
+                BarX,
+                BarY + (Height - BarHeight)
+            )
+
+            -- HEALTH COLOR
+            ESP.HealthBar.Color = Color3.fromRGB(
+                255 - (255 * HealthPercent),
+                255 * HealthPercent,
+                0
+            )
+
+        else
+
+            ESP.HealthOutline.Visible = false
+            ESP.HealthBar.Visible = false
+        end
+    end
+end)
+
+--========================
+-- UI TOGGLES
+--========================
+local NameToggle = ESP:AddToggle("NameESP", {
+    Title = "ESP Name",
+    Default = true
+})
+
+NameToggle:OnChanged(function(Value)
+    _G.NameESPEnabled = Value
+end)
+
+local HealthToggle = ESP:AddToggle("HealthESP", {
+    Title = "ESP Health",
+    Default = true
+})
+
+HealthToggle:OnChanged(function(Value)
+    _G.HealthESPEnabled = Value
+end)
 
 -- Add Hitbox 🔥
 local Players = game:GetService("Players")
