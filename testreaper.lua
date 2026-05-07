@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 14.6",
+SubTitle = "lib Beta 14.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1414,18 +1414,19 @@ Tabs.Server:AddButton({
 })
 
 -- main tab
--- === ตัวแปรระบบ Aimbot ===
+-- === ตัวแปรหลัก (ควรมีอยู่แล้วในสคริปต์) ===
 local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 
+-- === ค่าเริ่มต้นของ Aimbot ===
 local AimbotSettings = {
     Enabled = false,
     WallCheck = true,
-    TargetPart = "Head" 
+    TargetPart = "Head"
 }
 
--- ฟังก์ชันช่วยหาชื่อชิ้นส่วนจริงในตัวละคร
+-- === ฟังก์ชันตรวจสอบชิ้นส่วน (R6/R15) ===
 local function getActualPart(character, choice)
     if choice == "Head" then
         return character:FindFirstChild("Head")
@@ -1437,7 +1438,7 @@ local function getActualPart(character, choice)
     return nil
 end
 
--- === ฟังก์ชันเช็คกำแพง ===
+-- === ฟังก์ชันเช็คกำแพง (Wall Check) ===
 local function IsVisible(targetPart)
     if not AimbotSettings.WallCheck then return true end
     local char = LocalPlayer.Character
@@ -1453,7 +1454,7 @@ local function IsVisible(targetPart)
     return rayResult == nil
 end
 
--- === ฟังก์ชันสุ่มเป้าหมาย ===
+-- === ฟังก์ชันสุ่มหาเป้าหมาย ===
 local function GetRandomTarget()
     local players = game:GetService("Players"):GetPlayers()
     local visiblePlayers = {}
@@ -1477,11 +1478,12 @@ end
 
 local CurrentTarget = nil
 
--- === ลูปการทำงาน Aimbot (สายโหด: หันทันที) ===
+-- === ลูปการทำงาน Aimbot (Hard Lock) ===
 RunService.RenderStepped:Connect(function()
     if AimbotSettings.Enabled then
         local targetPart = CurrentTarget and CurrentTarget.Character and getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
         
+        -- ถ้าเป้าหมายเดิมไม่อยู่แล้ว หรือตาย หรือโดนบัง ให้หาใหม่
         if not CurrentTarget or not targetPart or 
            CurrentTarget.Character.Humanoid.Health <= 0 or 
            (AimbotSettings.WallCheck and not IsVisible(targetPart)) then
@@ -1489,10 +1491,10 @@ RunService.RenderStepped:Connect(function()
             CurrentTarget = GetRandomTarget()
         end
 
+        -- ล็อคมุมกล้องทันที (Hard Lock)
         if CurrentTarget and CurrentTarget.Character then
             local p = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
             if p then
-                -- เปลี่ยนจาก Lerp เป็นการตั้งค่า CFrame โดยตรง (หันทันที)
                 Camera.CFrame = CFrame.new(Camera.CFrame.Position, p.Position)
             end
         end
@@ -1501,32 +1503,40 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- === เพิ่มลงในหน้า Main ===
-Main:AddDropdown("AimbotPart", {
+-- === ส่วนของ UI (Tabs.Main) ===
+
+-- Toggle เปิด/ปิด Aimbot
+local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
+    Title = "Enable Aimbot (Hard Lock)",
+    Default = false
+})
+
+AimbotToggle:OnChanged(function(Value)
+    AimbotSettings.Enabled = Value
+end)
+
+-- Toggle เปิด/ปิด Wall Check
+local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
+    Title = "Wall Check",
+    Default = true
+})
+
+WallCheckToggle:OnChanged(function(Value)
+    AimbotSettings.WallCheck = Value
+end)
+
+-- Dropdown เลือกจุดที่ต้องการล็อคเป้า
+local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
     Title = "Target Part",
     Values = {"Head", "Body", "Leg"},
     Multi = false,
-    Default = "Head",
-    Callback = function(Value)
-        AimbotSettings.TargetPart = Value
-    end
+    Default = 1, -- เลือก Head เป็นค่าเริ่มต้น
 })
 
-Main:AddToggle("AimbotToggle", {
-    Title = "Enable Aimbot",
-    Default = false,
-    Callback = function(Value)
-        AimbotSettings.Enabled = Value
-    end
-})
+PartDropdown:OnChanged(function(Value)
+    AimbotSettings.TargetPart = Value
+end)
 
-Main:AddToggle("WallCheckToggle", {
-    Title = "Wall Check",
-    Default = true,
-    Callback = function(Value)
-        AimbotSettings.WallCheck = Value
-    end
-})
 
 
 -- Max Zoom
