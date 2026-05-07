@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 13.8",
+SubTitle = "lib Beta 13.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -857,7 +857,7 @@ end)
 --========================
 local NameToggle = ESP:AddToggle("NameESP", {
     Title = "ESP Name",
-    Default = true
+    Default = false
 })
 
 NameToggle:OnChanged(function(Value)
@@ -866,7 +866,7 @@ end)
 
 local HealthToggle = ESP:AddToggle("HealthESP", {
     Title = "ESP Health",
-    Default = true
+    Default = false
 })
 
 HealthToggle:OnChanged(function(Value)
