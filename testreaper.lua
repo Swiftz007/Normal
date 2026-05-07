@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 14.9",
+SubTitle = "lib Beta 15.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1419,47 +1419,43 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 
--- === ตั้งค่ารวม ===
-local Settings = {
-    AimbotEnabled = false,
-    AutoFireEnabled = false,
+local AimbotSettings = {
+    Enabled = false,
     WallCheck = true,
-    TargetPart = "Head",
-    FireDelay = 0.1 -- ความเร็วในการรัว (วินาที)
+    TargetPart = "Head"
 }
 
-local CurrentTarget = nil
-local lastShot = 0
-
--- ฟังก์ชันหาชิ้นส่วนเป้าหมาย
 local function getActualPart(character, choice)
     if not character then return nil end
-    if choice == "Head" then return character:FindFirstChild("Head")
-    elseif choice == "Body" then return character:FindFirstChild("HumanoidRootPart")
-    elseif choice == "Leg" then return character:FindFirstChild("LeftLowerLeg") or character:FindFirstChild("Left Leg")
+    if choice == "Head" then
+        return character:FindFirstChild("Head")
+    elseif choice == "Body" then
+        return character:FindFirstChild("HumanoidRootPart")
+    elseif choice == "Leg" then
+        return character:FindFirstChild("LeftLowerLeg") or character:FindFirstChild("Left Leg")
     end
     return nil
 end
 
--- ฟังก์ชันเช็คกำแพง
 local function IsVisible(targetPart)
-    if not Settings.WallCheck then return true end
+    if not AimbotSettings.WallCheck then return true end
     local char = LocalPlayer.Character
     if not char then return false end
+    
     local rayParams = RaycastParams.new()
     rayParams.FilterType = Enum.RaycastFilterType.Exclude
     rayParams.FilterDescendantsInstances = {char, targetPart.Parent}
+    
     local rayResult = workspace:Raycast(Camera.CFrame.Position, (targetPart.Position - Camera.CFrame.Position), rayParams)
     return rayResult == nil
 end
 
--- ฟังก์ชันหาคนใกล้เป้าที่สุด
 local function GetClosestTargetToMouse()
     local target = nil
     local shortestDistance = math.huge
     for _, player in pairs(game:GetService("Players"):GetPlayers()) do
         if player ~= LocalPlayer and player.Character then
-            local part = getActualPart(player.Character, Settings.TargetPart)
+            local part = getActualPart(player.Character, AimbotSettings.TargetPart)
             local humanoid = player.Character:FindFirstChild("Humanoid")
             if part and humanoid and humanoid.Health > 0 and IsVisible(part) then
                 local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
@@ -1477,40 +1473,26 @@ local function GetClosestTargetToMouse()
     return target
 end
 
--- ฟังก์ชันสั่งยิง (แบบไม่กวนนิ้วลากจอ)
-local function shootWeapon()
-    local char = LocalPlayer.Character
-    if not char then return end
-    local tool = char:FindFirstChildOfClass("Tool")
-    if tool and (tick() - lastShot >= Settings.FireDelay) then
-        tool:Activate()
-        lastShot = tick()
-    end
-end
+local CurrentTarget = nil
 
--- === ลูปการทำงานหลัก ===
+-- === แก้ไขตรงนี้: ใช้ BindToRenderStep เพื่อให้กล้องตามตัวละคร ===
 RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, function()
-    if Settings.AimbotEnabled then
-        -- ตรวจสอบ/หาเป้าหมาย
+    if AimbotSettings.Enabled then
+        -- ตรวจสอบเป้าหมาย
         if not CurrentTarget or not CurrentTarget.Character or 
-           not getActualPart(CurrentTarget.Character, Settings.TargetPart) or 
+           not getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart) or 
            CurrentTarget.Character.Humanoid.Health <= 0 or 
-           (Settings.WallCheck and not IsVisible(getActualPart(CurrentTarget.Character, Settings.TargetPart))) then
+           (AimbotSettings.WallCheck and not IsVisible(getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart))) then
             
             CurrentTarget = GetClosestTargetToMouse()
         end
 
-        -- ล็อคและยิง
+        -- ล็อคกล้องโดยไม่ทำให้กล้องค้าง
         if CurrentTarget and CurrentTarget.Character then
-            local targetPart = getActualPart(CurrentTarget.Character, Settings.TargetPart)
+            local targetPart = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
             if targetPart then
-                -- ล็อคกล้อง
+                -- ใช้ตำแหน่งปัจจุบันของกล้องที่เกมคำนวณมาให้แล้ว (จะทำให้กล้องตามตัวเราตลอด)
                 Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
-                
-                -- ยิงอัตโนมัติ (เฉพาะเมื่อล็อคเป้าได้)
-                if Settings.AutoFireEnabled then
-                    shootWeapon()
-                end
             end
         end
     else
@@ -1518,32 +1500,35 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
     end
 end)
 
--- === UI Setup (Tabs.Main) ===
-Tabs.Main:AddDropdown("PartDropdown", {
+-- === UI (ใช้ Tabs.Main ตามเดิม) ===
+local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
     Title = "Target Part",
     Values = {"Head", "Body", "Leg"},
+    Multi = false,
     Default = 1,
-    Callback = function(Value) Settings.TargetPart = Value end
 })
 
-Tabs.Main:AddToggle("AimbotToggle", {
+PartDropdown:OnChanged(function(Value)
+    AimbotSettings.TargetPart = Value
+end)
+
+local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
     Title = "Enable Aimbot",
-    Default = false,
-    Callback = function(Value) Settings.AimbotEnabled = Value end
+    Default = false
 })
 
-Tabs.Main:AddToggle("AutoFireToggle", {
-    Title = "Auto Fire",
-    Default = false,
-    Callback = function(Value) Settings.AutoFireEnabled = Value end
-})
+AimbotToggle:OnChanged(function(Value)
+    AimbotSettings.Enabled = Value
+end)
 
-Tabs.Main:AddToggle("WallCheckToggle", {
+local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
     Title = "Wall Check",
-    Default = true,
-    Callback = function(Value) Settings.WallCheck = Value end
+    Default = true
 })
 
+WallCheckToggle:OnChanged(function(Value)
+    AimbotSettings.WallCheck = Value
+end)
 
 
 -- Max Zoom
