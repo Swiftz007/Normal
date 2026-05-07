@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 13.6",
+SubTitle = "lib Beta 13.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1586,7 +1586,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
 --=========================
--- 🔥 TOGGLE BUTTON + BLUR
+-- TOGGLE BUTTON + PURE BLUR
 --=========================
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
@@ -1608,7 +1608,7 @@ local Lighting = game:GetService("Lighting")
 --=========================
 local Blur = Instance.new("BlurEffect")
 Blur.Name = "MenuBlur"
-Blur.Size = 45
+Blur.Size = 40
 Blur.Parent = Lighting
 
 --=========================
@@ -1620,16 +1620,6 @@ gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999999
 gui.Parent = game.CoreGui
-
---=========================
--- DARK BACKGROUND
---=========================
-local dark = Instance.new("Frame")
-dark.Parent = gui
-dark.Size = UDim2.new(1,0,1,0)
-dark.BackgroundColor3 = Color3.fromRGB(0,0,0)
-dark.BackgroundTransparency = 0.35
-dark.ZIndex = 999990
 
 --=========================
 -- BORDER
@@ -1738,17 +1728,13 @@ local function OpenBlur()
 
     TweenService:Create(
         Blur,
-        TweenInfo.new(0.3),
+        TweenInfo.new(
+            0.3,
+            Enum.EasingStyle.Quad,
+            Enum.EasingDirection.Out
+        ),
         {
-            Size = 45
-        }
-    ):Play()
-
-    TweenService:Create(
-        dark,
-        TweenInfo.new(0.3),
-        {
-            BackgroundTransparency = 0.35
+            Size = 40
         }
     ):Play()
 end
@@ -1757,17 +1743,13 @@ local function CloseBlur()
 
     TweenService:Create(
         Blur,
-        TweenInfo.new(0.25),
+        TweenInfo.new(
+            0.25,
+            Enum.EasingStyle.Quad,
+            Enum.EasingDirection.Out
+        ),
         {
             Size = 0
-        }
-    ):Play()
-
-    TweenService:Create(
-        dark,
-        TweenInfo.new(0.25),
-        {
-            BackgroundTransparency = 1
         }
     ):Play()
 end
@@ -1787,9 +1769,7 @@ button.MouseButton1Click:Connect(function()
 
     button.Image = isOpen and imgOn or imgOff
 
-    --=========================
-    -- BLUR CONTROL
-    --=========================
+    -- BLUR
     if isOpen then
         OpenBlur()
     else
