@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 13.9",
+SubTitle = "lib Beta 14.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -612,8 +612,8 @@ local LocalPlayer = Players.LocalPlayer
 --========================
 local MaxDistance = 2500
 
-_G.NameESPEnabled = true
-_G.HealthESPEnabled = true
+_G.NameESPEnabled = false
+_G.HealthESPEnabled = false
 
 --========================
 -- CACHE
@@ -853,25 +853,23 @@ RunService.RenderStepped:Connect(function()
 end)
 
 --========================
--- UI TOGGLES
+-- TOGGLES
 --========================
-local NameToggle = ESP:AddToggle("NameESP", {
+Tabs.ESP:AddToggle("NameESP", {
     Title = "ESP Name",
-    Default = false
+    Default = false,
+    Callback = function(v)
+        _G.NameESPEnabled = v
+    end
 })
 
-NameToggle:OnChanged(function(Value)
-    _G.NameESPEnabled = Value
-end)
-
-local HealthToggle = ESP:AddToggle("HealthESP", {
+Tabs.ESP:AddToggle("HealthESP", {
     Title = "ESP Health",
-    Default = false
+    Default = false,
+    Callback = function(v)
+        _G.HealthESPEnabled = v
+    end
 })
-
-HealthToggle:OnChanged(function(Value)
-    _G.HealthESPEnabled = Value
-end)
 
 -- Add Hitbox 🔥
 local Players = game:GetService("Players")
