@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 14.3",
+SubTitle = "lib Beta 14.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -400,6 +400,87 @@ Default = "50",
 Callback = function(v)
 JPValue = tonumber(v) or 50
 end
+})
+
+-- === ตัวแปรระบบบิน ===
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local flying = false
+local speed = 60
+local bv, bg
+
+-- === ฟังก์ชันการบิน (ยกมาจากตัวเดิม) ===
+local function stopFlying()
+    flying = false
+    if bv then bv:Destroy() end
+    if bg then bg:Destroy() end
+    local char = LocalPlayer.Character
+    if char and char:FindFirstChild("Humanoid") then
+        char.Humanoid.PlatformStand = false
+    end
+end
+
+local function startFlying()
+    local char = LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    local root = char.HumanoidRootPart
+    local hum = char.Humanoid
+    
+    flying = true
+    bv = Instance.new("BodyVelocity")
+    bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bv.Velocity = Vector3.new(0, 0, 0)
+    bv.Parent = root
+    
+    bg = Instance.new("BodyGyro")
+    bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+    bg.P = 9e4
+    bg.Parent = root
+    
+    hum.PlatformStand = true
+    
+    task.spawn(function()
+        while flying do
+            local dt = RunService.RenderStepped:Wait()
+            local cam = workspace.CurrentCamera
+            local moveInput = require(LocalPlayer.PlayerScripts:WaitForChild("PlayerModule")):GetControls():GetMoveVector()
+            local direction = (cam.CFrame.LookVector * -moveInput.Z) + (cam.CFrame.RightVector * moveInput.X)
+            
+            if direction.Magnitude > 0 then
+                bv.Velocity = direction * speed
+            else
+                bv.Velocity = Vector3.new(0, 0, 0)
+            end
+            bg.CFrame = cam.CFrame
+        end
+    end)
+end
+
+-- === เพิ่ม Toggle ใน Fluent UI ===
+local FlyToggle = Tabs.Player:AddToggle("FlyToggle", {
+    Title = "Fly Mode", 
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            startFlying()
+        else
+            stopFlying()
+        end
+    end
+})
+
+-- (แถม) ตัวปรับความเร็ว
+Tabs.Player:AddSlider("FlySpeed", {
+    Title = "Fly Speed",
+    Description = "ปรับความเร็วในการบิน",
+    Default = 60,
+    Min = 10,
+    Max = 300,
+    Rounding = 1,
+    Callback = function(Value)
+        speed = Value
+    end
 })
 
 Tabs.Player:AddToggle("INFJ", {
