@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 15.4",
+SubTitle = "lib Beta 15.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1020,17 +1020,25 @@ Tabs.ESP:AddToggle("Hitbox", {
 })
 
 -- SLIDER
-Tabs.ESP:AddSlider("HitboxSize", {
-    Title = "Hitbox Size",
-    Min = 5,
-    Max = 30,
-    Default = 6,
-    Rounding = 0,
-
-    Callback = function(v)
-        hitboxSize = v
+-- เปลี่ยนจาก SLIDER เป็น INPUT พร้อมจำกัดค่า
+Tabs.ESP:AddInput("HitboxSize", {
+    Title = "Hitbox Size (1 - 50)",
+    Default = "6",
+    Placeholder = "...",
+    NumericOnly = true, -- พิมพ์ได้เฉพาะตัวเลข
+    Finished = false, -- เปลี่ยนค่าทันทีที่พิมพ์
+    Callback = function(Value)
+        local num = tonumber(Value)
+        if num then
+            -- จำกัดค่าไว้ที่ ต่ำสุด 1 และ สูงสุด 50 (ปรับตัวเลขได้ตามใจชอบ)
+            local minSize = 1
+            local maxSize = 50
+            
+            hitboxSize = math.clamp(num, minSize, maxSize)
+        end
     end
 })
+
 
 -- Stats 🔥
 --========================
