@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 15.0",
+SubTitle = "lib Beta 15.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -585,6 +585,86 @@ Tabs.Player:AddSlider("SpinSpeed", {
 	Rounding = 0,
     Callback = function(v)
         spinSpeed = v
+    end
+})
+
+-- ESP Chams🔥
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local ChamsList = {} -- เก็บ Highlight ทั้งหมดไว้ที่นี่
+
+-- ฟังก์ชันสร้าง Chams (เรียกใช้เฉพาะตอนกดเปิด หรือตอนคนเกิด)
+local function CreateChams(char)
+    if not char or char:FindFirstChild("FullChams") then return end
+    
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "FullChams"
+    highlight.Parent = char
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.FillTransparency = 0.5
+    highlight.OutlineColor = Color3.new(1, 1, 1)
+    
+    table.insert(ChamsList, highlight) -- เก็บเข้าตะกร้าไว้เปลี่ยนสี
+end
+
+-- ฟังก์ชันลบ Chams (เรียกใช้เฉพาะตอนกดปิด)
+local function ClearAllChams()
+    for _, h in pairs(ChamsList) do
+        if h then h:Destroy() end
+    end
+    ChamsList = {}
+end
+
+-- ระบบจัดการตอนคนเกิด/จอย (ทำครั้งเดียว ไม่ใช่ Loop)
+local function MonitorPlayer(player)
+    player.CharacterAdded:Connect(function(char)
+        if _G.ChamsEnabled then
+            task.wait(0.5) -- รอตัวละครโหลดแป๊บหนึ่ง
+            CreateChams(char)
+        end
+    end)
+end
+
+-- วิ่งแค่ Loop เดียวเพื่อเปลี่ยนสีรุ้ง (กินทรัพยากรน้อยมาก)
+RunService.Heartbeat:Connect(function()
+    if _G.ChamsEnabled and #ChamsList > 0 then
+        local color = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+        for i = #ChamsList, 1, -1 do
+            local h = ChamsList[i]
+            if h and h.Parent then
+                h.FillColor = color
+            else
+                table.remove(ChamsList, i) -- ถ้าคนนั้นตายหรือออก ก็เอาออกจากตะกร้า
+            end
+        end
+    end
+end)
+
+-- เริ่ม Monitor ทุกคน
+for _, p in pairs(Players:GetPlayers()) do
+    if p ~= LocalPlayer then MonitorPlayer(p) end
+end
+Players.PlayerAdded:Connect(MonitorPlayer)
+
+-- [[ UI Toggle อยู่ด้านล่างตามที่คุณต้องการ ]]
+Tabs.ESP:AddToggle("ChamsToggle", {
+    Title = "ESP Chams (Rainbow)",
+    Default = false,
+    Callback = function(v)
+        _G.ChamsEnabled = v
+        if v then
+            -- ถ้าเปิด: ใส่ Chams ให้ทุกคนที่มีตัวละครอยู่ตอนนี้
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character then
+                    CreateChams(p.Character)
+                end
+            end
+        else
+            -- ถ้าปิด: ล้างทิ้งทีเดียวจบ ไม่ต้องรัน Loop ต่อ
+            ClearAllChams()
+        end
     end
 })
 
