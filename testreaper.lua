@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 15.5",
+SubTitle = "lib Beta 15.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -964,80 +964,87 @@ Tabs.ESP:AddToggle("HealthESP", {
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+-- ค่าเริ่มต้น
 local hitboxEnabled = false
 local hitboxSize = 6
+local minSize = 1
+local maxSize = 50
 
+-- ฟังก์ชันจัดการ Hitbox (ตัวนี้จะทำงานแค่ครั้งเดียวเมื่อถูกเรียก)
 local function applyHitbox(player)
     if player == LocalPlayer then return end
 
     local char = player.Character
-    if not char then return end
-
-    local root = char:FindFirstChild("HumanoidRootPart")
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    
     if not root then return end
 
     if hitboxEnabled then
-
-        root.Size = Vector3.new(
-            hitboxSize,
-            hitboxSize,
-            hitboxSize
-        )
-
+        -- ขยาย Hitbox
+        root.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
         root.Transparency = 0.6
         root.Material = Enum.Material.ForceField
         root.Color = Color3.fromRGB(255, 0, 0)
         root.CanCollide = false
-
     else
-
-        root.Size = Vector3.new(2,2,1)
+        -- คืนค่าปกติ
+        root.Size = Vector3.new(2, 2, 1)
         root.Transparency = 1
         root.Material = Enum.Material.Plastic
+        root.CanCollide = true
     end
 end
 
--- UPDATE LOOP
-task.spawn(function()
-
-    while true do
-
-        for _,p in ipairs(Players:GetPlayers()) do
-            pcall(applyHitbox, p)
-        end
-
-        task.wait(0.3)
+-- ฟังก์ชันอัปเดตทุกคนในเซิร์ฟเวอร์พร้อมกัน (ใช้ตอนเปิด/ปิด หรือเปลี่ยนขนาด)
+local function refreshAll()
+    for _, p in ipairs(Players:GetPlayers()) do
+        pcall(applyHitbox, p)
     end
-end)
+end
 
--- TOGGLE
-Tabs.ESP:AddToggle("Hitbox", {
+-- ระบบ Event: จัดการคนที่เกิดใหม่ หรือคนที่เพิ่งเข้าเกม (ไม่ต้องใช้ Loop)
+local function onPlayerAdded(player)
+    player.CharacterAdded:Connect(function(char)
+        task.wait(0.5) -- รอตัวละครโหลดเสร็จแป๊บนึง
+        applyHitbox(player)
+    end)
+end
+
+-- รันระบบ Event สำหรับทุกคน
+for _, p in ipairs(Players:GetPlayers()) do onPlayerAdded(p) end
+Players.PlayerAdded:Connect(onPlayerAdded)
+
+-- UI: TOGGLE
+Tabs.ESP:AddToggle("HitboxToggle", {
     Title = "Hitbox Expand",
     Default = false,
     Callback = function(v)
         hitboxEnabled = v
+        refreshAll() -- อัปเดตทุกคนทันทีที่กดปุ่ม
     end
 })
 
--- SLIDER
--- เปลี่ยนจาก SLIDER เป็น INPUT พร้อมจำกัดค่า
-Tabs.ESP:AddInput("HitboxSize", {
-    Title = "Hitbox Size (1 - 50)",
-    Default = "6",
+-- UI: INPUT (แทน Slider เดิม)
+Tabs.ESP:AddInput("HitboxSizeInput", {
+    Title = "Hitbox Size (" .. minSize .. "-" .. maxSize .. ")",
+    Default = tostring(hitboxSize),
     Placeholder = "...",
-    NumericOnly = true, -- พิมพ์ได้เฉพาะตัวเลข
+    NumericOnly = true,
     Finished = false, -- เปลี่ยนค่าทันทีที่พิมพ์
-    Callback = function(Value)
-        local num = tonumber(Value)
+    Callback = function(v)
+        local num = tonumber(v)
         if num then
-            -- จำกัดค่าไว้ที่ ต่ำสุด 1 และ สูงสุด 50 (ปรับตัวเลขได้ตามใจชอบ)
-            local minSize = 1
-            local maxSize = 50
-            
+            -- จำกัดค่าไว้ที่ 1 - 50 เพื่อความปลอดภัย
             hitboxSize = math.clamp(num, minSize, maxSize)
+            
+            -- ถ้าเปิดใช้งานอยู่ ให้รีเฟรชขนาดทันทีที่พิมพ์เลข
+            if hitboxEnabled then
+                refreshAll()
+            end
         end
     end
 })
+
 
 
 -- Stats 🔥
