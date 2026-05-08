@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 15.2",
+SubTitle = "lib Beta 15.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1479,12 +1479,26 @@ local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
 
 local AimbotSettings = {
     Enabled = false,
     WallCheck = true,
-    TargetPart = "Head"
+    TargetPart = "Head",
+    Mode = "Random", -- [Random / Select]
+    SelectedPlayerName = nil
 }
+
+-- ฟังก์ชันดึงรายชื่อผู้เล่นในเซิร์ฟเวอร์
+local function getPlayerNames()
+    local names = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            table.insert(names, player.Name)
+        end
+    end
+    return names
+end
 
 local function getActualPart(character, choice)
     if not character then return nil end
@@ -1514,7 +1528,7 @@ end
 local function GetClosestTargetToMouse()
     local target = nil
     local shortestDistance = math.huge
-    for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+    for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character then
             local part = getActualPart(player.Character, AimbotSettings.TargetPart)
             local humanoid = player.Character:FindFirstChild("Humanoid")
@@ -1536,24 +1550,39 @@ end
 
 local CurrentTarget = nil
 
--- === แก้ไขตรงนี้: ใช้ BindToRenderStep เพื่อให้กล้องตามตัวละคร ===
+-- === Main Logic ===
 RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, function()
     if AimbotSettings.Enabled then
-        -- ตรวจสอบเป้าหมาย
-        if not CurrentTarget or not CurrentTarget.Character or 
-           not getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart) or 
-           CurrentTarget.Character.Humanoid.Health <= 0 or 
-           (AimbotSettings.WallCheck and not IsVisible(getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart))) then
-            
-            CurrentTarget = GetClosestTargetToMouse()
+        
+        if AimbotSettings.Mode == "Random" then
+            -- โหมด Random: หาคนที่ใกล้เมาส์ที่สุด
+            if not CurrentTarget or not CurrentTarget.Character or 
+               not getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart) or 
+               CurrentTarget.Character.Humanoid.Health <= 0 or 
+               (AimbotSettings.WallCheck and not IsVisible(getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart))) then
+                
+                CurrentTarget = GetClosestTargetToMouse()
+            end
+        elseif AimbotSettings.Mode == "Select" then
+            -- โหมด Select: ล็อคเฉพาะคนที่เราเลือก
+            local targetPlayer = Players:FindFirstChild(AimbotSettings.SelectedPlayerName or "")
+            if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") and targetPlayer.Character.Humanoid.Health > 0 then
+                CurrentTarget = targetPlayer
+            else
+                CurrentTarget = nil
+            end
         end
 
-        -- ล็อคกล้องโดยไม่ทำให้กล้องค้าง
+        -- การทำงานของกล้อง
         if CurrentTarget and CurrentTarget.Character then
             local targetPart = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
             if targetPart then
-                -- ใช้ตำแหน่งปัจจุบันของกล้องที่เกมคำนวณมาให้แล้ว (จะทำให้กล้องตามตัวเราตลอด)
-                Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
+                -- เช็ค WallCheck อีกรอบสำหรับโหมด Select (ถ้าเปิดไว้)
+                if AimbotSettings.Mode == "Select" and AimbotSettings.WallCheck and not IsVisible(targetPart) then
+                    -- ถ้าเลือกแบบระบุตัวแต่ติดกำแพง และเปิด WallCheck ไว้ จะไม่ล็อค
+                else
+                    Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
+                end
             end
         end
     else
@@ -1561,7 +1590,51 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
     end
 end)
 
--- === UI (ใช้ Tabs.Main ตามเดิม) ===
+-- === UI (Tabs.Main) ===
+
+local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
+    Title = "Enable Aimbot",
+    Default = false
+})
+
+AimbotToggle:OnChanged(function(Value)
+    AimbotSettings.Enabled = Value
+end)
+
+-- Dropdown 1: เลือกโหมด
+local ModeDropdown = Tabs.Main:AddDropdown("ModeDropdown", {
+    Title = "Aimbot Mode",
+    Values = {"Random", "Select"},
+    Multi = false,
+    Default = 1,
+})
+
+ModeDropdown:OnChanged(function(Value)
+    AimbotSettings.Mode = Value
+    CurrentTarget = nil -- รีเซ็ตเป้าหมายเมื่อเปลี่ยนโหมด
+end)
+
+-- Dropdown 2: รายชื่อผู้เล่น
+local PlayerDropdown = Tabs.Main:AddDropdown("PlayerDropdown", {
+    Title = "Select Player",
+    Values = getPlayerNames(),
+    Multi = false,
+    Default = nil,
+})
+
+PlayerDropdown:OnChanged(function(Value)
+    AimbotSettings.SelectedPlayerName = Value
+end)
+
+-- ปุ่ม Refresh รายชื่อ
+Tabs.Main:AddButton({
+    Title = "Refresh Player List",
+    Description = "Update the names in the dropdown",
+    Callback = function()
+        PlayerDropdown:SetValues(getPlayerNames())
+    end
+})
+
 local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
     Title = "Target Part",
     Values = {"Head", "Body", "Leg"},
@@ -1571,15 +1644,6 @@ local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
 
 PartDropdown:OnChanged(function(Value)
     AimbotSettings.TargetPart = Value
-end)
-
-local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
-    Title = "Enable Aimbot",
-    Default = false
-})
-
-AimbotToggle:OnChanged(function(Value)
-    AimbotSettings.Enabled = Value
 end)
 
 local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
