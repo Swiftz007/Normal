@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 15.6",
+SubTitle = "lib Beta 15.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1070,6 +1070,15 @@ end
 --========================
 -- UI (Fluent)
 --========================
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+
+-- แสดงข้อมูล Profile ในแท็บ Status ที่อยู่ใน Table Tabs
+Tabs.Status:AddParagraph({
+    Title = "Player Profile",
+    Content = "Display Name: " .. lp.DisplayName .. "\nUsername: @" .. lp.Name
+})
+
 local TimeLabel = Tabs.Status:AddParagraph({
     Title = "Time",
     Content = "Loading..."
