@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 15.8",
+SubTitle = "lib Beta 15.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -27,7 +27,7 @@ MinimizeKey = Enum.KeyCode.RightControl
 -- =========================
 -- WAIT GUI
 -- =========================
-task.wait(1)
+task.wait(0.3)
 
 local GUI = Fluent.GUI
 if not GUI then
@@ -374,12 +374,6 @@ StartESP()
 --=========================
 -- 🔥 UI
 --=========================
-Tabs.Player:AddToggle("WS", {
-Title = "WalkSpeed",
-Default = false,
-Callback = function(v) State.WS = v end
-})
-
 Tabs.Player:AddInput("WSV", {
 Title = "Speed Value",
 Default = "16",
@@ -388,10 +382,10 @@ WSValue = tonumber(v) or 16
 end
 })
 
-Tabs.Player:AddToggle("JP", {
-Title = "JumpPower",
+Tabs.Player:AddToggle("WS", {
+Title = "WalkSpeed",
 Default = false,
-Callback = function(v) State.JP = v end
+Callback = function(v) State.WS = v end
 })
 
 Tabs.Player:AddInput("JPV", {
@@ -400,6 +394,12 @@ Default = "50",
 Callback = function(v)
 JPValue = tonumber(v) or 50
 end
+})
+
+Tabs.Player:AddToggle("JP", {
+Title = "JumpPower",
+Default = false,
+Callback = function(v) State.JP = v end
 })
 
 -- Fly Mode 🔥
@@ -1618,15 +1618,6 @@ end)
 
 -- === UI (Tabs.Main) ===
 
--- 1. เปิด/ปิด Aimbot
-local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
-    Title = "Enable Aimbot",
-    Default = false
-})
-AimbotToggle:OnChanged(function(Value)
-    AimbotSettings.Enabled = Value
-end)
-
 -- 2. Dropdown เลือกโหมด
 local ModeDropdown = Tabs.Main:AddDropdown("ModeDropdown", {
     Title = "Aimbot Mode",
@@ -1668,6 +1659,15 @@ local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
 })
 PartDropdown:OnChanged(function(Value)
     AimbotSettings.TargetPart = Value
+end)
+
+-- 1. เปิด/ปิด Aimbot
+local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
+    Title = "Enable Aimbot",
+    Default = false
+})
+AimbotToggle:OnChanged(function(Value)
+    AimbotSettings.Enabled = Value
 end)
 
 local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
