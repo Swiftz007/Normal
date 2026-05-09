@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 16.0",
+SubTitle = "lib Beta 16.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -2040,6 +2040,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
+Window:SelectTab(1)
 --=========================
 -- TOGGLE BUTTON + PURE BLUR
 --=========================
