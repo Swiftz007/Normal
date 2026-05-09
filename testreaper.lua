@@ -17,7 +17,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 15.7",
+SubTitle = "lib Beta 15.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1174,13 +1174,13 @@ local canClick = true
 
 Tabs.Credit:AddButton({
     Title = "Discord",
-    Description = "https://discord.gg/krbmvBQhJD",
+    Description = "https://discord.gg/HfRpS7fepm",
     Callback = function()
 
         if not canClick then return end
         canClick = false
 
-        local link = "https://discord.gg/krbmvBQhJD"
+        local link = "https://discord.gg/HfRpS7fepm"
         setclipboard(link)
 
         local gui = Instance.new("ScreenGui")
