@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 16.7",
+SubTitle = "lib Beta 16.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1703,7 +1703,7 @@ end)
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local TweenService = game:GetService("TweenService")
-local GuiService = game:GetService("GuiService") -- เพิ่มเพื่อเช็คค่า Offset จอ
+local GuiService = game:GetService("GuiService") -- เพิ่มเพื่อแก้ปัญหาคลิกพลาด
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
@@ -1756,9 +1756,7 @@ local function SpawnNotify(msg)
             Position = UDim2.new(1, -300, 0, 20)
         })
         tweenIn:Play()
-
         task.wait(2.5)
-
         local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
             Position = UDim2.new(1, 300, 0, 20),
             BackgroundTransparency = 1
@@ -1772,7 +1770,7 @@ end
 --// [2. สร้างปุ่มลอย (Anchor)]
 local AnchorGui = Instance.new("ScreenGui")
 AnchorGui.Name = "AutoFireAnchor"
-AnchorGui.IgnoreGuiInset = true -- ✅ แก้ปัญหาพิกัดคลาดเคลื่อน (Topbar)
+AnchorGui.IgnoreGuiInset = true -- 🔥 ทำให้พิกัดบนจอตรงกับพิกัดคลิกเป๊ะๆ
 AnchorGui.Parent = game:GetService("CoreGui")
 AnchorGui.Enabled = false
 
@@ -1816,12 +1814,17 @@ ResetBtn.MouseButton1Click:Connect(function()
     AF_Pos = nil
 end)
 
---// [ฟังก์ชันเช็คตัวละครแบบแม่นยำ]
-local function GetTargetHum(target)
+--// [ฟังก์ชันเช็คศัตรูแบบแม่นยำ]
+local function GetEnemyHum()
+    local target = Mouse.Target
     if not target then return nil end
-    local model = target:FindFirstAncestorOfClass("Model")
-    if model then
-        return model:FindFirstChildOfClass("Humanoid")
+    -- ค้นหา Model ที่เป็นตัวละคร (หาได้แม้จะชี้โดนปืนหรือหมวก)
+    local char = target:FindFirstAncestorOfClass("Model")
+    if char then
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum and hum.Health > 0 and char.Name ~= LocalPlayer.Name then
+            return hum
+        end
     end
     return nil
 end
@@ -1829,22 +1832,26 @@ end
 --// [4. ระบบประมวลผลการยิง (Logic)]
 RunService.Heartbeat:Connect(function()
     if AF_Enabled and AF_Saved and AF_Pos then
-        if tick() - AF_LastShot >= AF_Delay then
-            local hum = GetTargetHum(Mouse.Target)
-            
-            if hum and hum.Health > 0 and hum.Parent.Name ~= LocalPlayer.Name then
+        local enemy = GetEnemyHum()
+        
+        if enemy then
+            -- ยิงทันทีถ้านัดแรก หรือครบ Delay แล้ว
+            if tick() - AF_LastShot >= AF_Delay then
                 AF_LastShot = tick()
                 
-                -- คำนวณ Offset หน้าจอเพื่อให้คลิกตรงจุดเป๊ะๆ
+                -- แก้พิกัดคลิกให้ตรงกับหน้าจอเป๊ะๆ (ป้องกันเครื่องค้าง)
                 local inset = GuiService:GetGuiInset()
-                local clickX = AF_Pos.X + inset.X
-                local clickY = AF_Pos.Y + inset.Y
+                local x = AF_Pos.X + inset.X
+                local y = AF_Pos.Y + inset.Y
 
-                VIM:SendMouseButtonEvent(clickX, clickY, 0, true, game, 0)
-                task.delay(0.05, function() -- ✅ หน่วงเวลาคลิกเล็กน้อยเพื่อให้เกมตรวจจับอินพุตได้ทัน
-                    VIM:SendMouseButtonEvent(clickX, clickY, 0, false, game, 0)
+                VIM:SendMouseButtonEvent(x, y, 0, true, game, 0)
+                task.delay(0.02, function() -- ปล่อยคลิกไวขึ้นเพื่อไม่ให้กวน Touch
+                    VIM:SendMouseButtonEvent(x, y, 0, false, game, 0)
                 end)
             end
+        else
+            -- ถ้าไม่เจอศัตรู ให้รีเซ็ตคูลดาวน์ (เพื่อให้ศัตรูโผล่มานัดหน้ายิงได้ทันที)
+            AF_LastShot = 0 
         end
     end
 end)
@@ -1856,7 +1863,6 @@ Tabs.Main:AddToggle("AutoFireToggle", {
     Callback = function(Value)
         AF_Enabled = Value
         AnchorGui.Enabled = Value
-        
         if not Value then
             AF_Saved = false
             AF_Pos = nil
@@ -1865,6 +1871,7 @@ Tabs.Main:AddToggle("AutoFireToggle", {
         end
     end
 })
+
 
 
 
