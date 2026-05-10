@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 16.2",
+SubTitle = "lib Beta 16.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1641,7 +1641,7 @@ end)
 
 -- Dropdown สำหรับเลือกเป้าหมายเดี่ยว (Select Mode)
 local PlayerDropdown = Tabs.Main:AddDropdown("PlayerDropdown", {
-    Title = "Select Player (Lock Focus)",
+    Title = "Select Player",
     Values = getPlayerNames(),
     Multi = false,
     Default = nil,
@@ -1652,8 +1652,8 @@ end)
 
 -- [เพิ่มใหม่] Multi-Select Dropdown สำหรับ Ignore List (Random Mode)
 local IgnoreDropdown = Tabs.Main:AddDropdown("IgnoreDropdown", {
-    Title = "Ignored Players (Random Mode)",
-    Description = "จะไม่ล็อคเป้าหมายคนที่มีชื่ออยู่ในนี้",
+    Title = "Ignored Players",
+    Description = "",
     Values = getPlayerNames(),
     Multi = true, -- เปิดใช้งานเลือกได้หลายคน
     Default = {},
@@ -1670,8 +1670,8 @@ end)
 
 -- ปุ่ม Refresh รายชื่อ (อัปเดตทั้งคู่)
 Tabs.Main:AddButton({
-    Title = "Refresh All Player Lists",
-    Description = "Update both Select and Ignore lists",
+    Title = "Refresh List",
+    Description = "",
     Callback = function()
         local names = getPlayerNames()
         PlayerDropdown:SetValues(names)
