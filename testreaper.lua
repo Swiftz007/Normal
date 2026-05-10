@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 16.6",
+SubTitle = "lib Beta 16.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1702,7 +1702,8 @@ end)
 --// [1. เตรียม Services และ Variables]
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
-local TweenService = game:GetService("TweenService") -- เพิ่ม TweenService สำหรับ Notify ใหม่
+local TweenService = game:GetService("TweenService")
+local GuiService = game:GetService("GuiService") -- เพิ่มเพื่อเช็คค่า Offset จอ
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
@@ -1723,7 +1724,7 @@ local function SpawnNotify(msg)
         local frame = Instance.new("Frame")
         frame.Parent = gui
         frame.Size = UDim2.new(0, 280, 0, 70)
-        frame.Position = UDim2.new(1, 300, 0, 20) -- เริ่มนอกจอ
+        frame.Position = UDim2.new(1, 300, 0, 20)
         frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
         frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
@@ -1751,7 +1752,6 @@ local function SpawnNotify(msg)
         text.Font = Enum.Font.SourceSansSemibold
         text.TextSize = 14
 
-        -- 👉 Tween เข้า
         local tweenIn = TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
             Position = UDim2.new(1, -300, 0, 20)
         })
@@ -1759,22 +1759,20 @@ local function SpawnNotify(msg)
 
         task.wait(2.5)
 
-        -- 👉 Tween ออก
         local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
             Position = UDim2.new(1, 300, 0, 20),
             BackgroundTransparency = 1
         })
-
         tweenOut:Play()
         tweenOut.Completed:Wait()
-
         gui:Destroy()
     end)
 end
 
---// [2. สร้างปุ่มลอย (Anchor) สำหรับตั้งจุดยิง]
+--// [2. สร้างปุ่มลอย (Anchor)]
 local AnchorGui = Instance.new("ScreenGui")
 AnchorGui.Name = "AutoFireAnchor"
+AnchorGui.IgnoreGuiInset = true -- ✅ แก้ปัญหาพิกัดคลาดเคลื่อน (Topbar)
 AnchorGui.Parent = game:GetService("CoreGui")
 AnchorGui.Enabled = false
 
@@ -1808,7 +1806,6 @@ SaveBtn.MouseButton1Click:Connect(function()
     AF_Saved = true
     AF_Pos = AnchorFrame.AbsolutePosition + (AnchorFrame.AbsoluteSize / 2)
     AnchorFrame.Visible = false
-    -- เรียกใช้ Notify ตัวใหม่ที่คุณสั่ง
     SpawnNotify("บันทึกตำแหน่งยิงสำเร็จ!") 
 end)
 
@@ -1819,20 +1816,34 @@ ResetBtn.MouseButton1Click:Connect(function()
     AF_Pos = nil
 end)
 
+--// [ฟังก์ชันเช็คตัวละครแบบแม่นยำ]
+local function GetTargetHum(target)
+    if not target then return nil end
+    local model = target:FindFirstAncestorOfClass("Model")
+    if model then
+        return model:FindFirstChildOfClass("Humanoid")
+    end
+    return nil
+end
+
 --// [4. ระบบประมวลผลการยิง (Logic)]
 RunService.Heartbeat:Connect(function()
     if AF_Enabled and AF_Saved and AF_Pos then
         if tick() - AF_LastShot >= AF_Delay then
-            local target = Mouse.Target
-            if target and target.Parent then
-                local hum = target.Parent:FindFirstChildOfClass("Humanoid") or target.Parent.Parent:FindFirstChildOfClass("Humanoid")
-                if hum and hum.Health > 0 and hum.Parent.Name ~= LocalPlayer.Name then
-                    AF_LastShot = tick()
-                    VIM:SendMouseButtonEvent(AF_Pos.X, AF_Pos.Y, 0, true, game, 0)
-                    task.defer(function()
-                        VIM:SendMouseButtonEvent(AF_Pos.X, AF_Pos.Y, 0, false, game, 0)
-                    end)
-                end
+            local hum = GetTargetHum(Mouse.Target)
+            
+            if hum and hum.Health > 0 and hum.Parent.Name ~= LocalPlayer.Name then
+                AF_LastShot = tick()
+                
+                -- คำนวณ Offset หน้าจอเพื่อให้คลิกตรงจุดเป๊ะๆ
+                local inset = GuiService:GetGuiInset()
+                local clickX = AF_Pos.X + inset.X
+                local clickY = AF_Pos.Y + inset.Y
+
+                VIM:SendMouseButtonEvent(clickX, clickY, 0, true, game, 0)
+                task.delay(0.05, function() -- ✅ หน่วงเวลาคลิกเล็กน้อยเพื่อให้เกมตรวจจับอินพุตได้ทัน
+                    VIM:SendMouseButtonEvent(clickX, clickY, 0, false, game, 0)
+                end)
             end
         end
     end
@@ -1854,6 +1865,7 @@ Tabs.Main:AddToggle("AutoFireToggle", {
         end
     end
 })
+
 
 
 -- wall Check
