@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 16.5",
+SubTitle = "lib Beta 16.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1689,7 +1689,7 @@ local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
 PartDropdown:OnChanged(function(Value)
     AimbotSettings.TargetPart = Value
 end)
-
+-- Aimbot
 local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
     Title = "Enable Aimbot",
     Default = false
@@ -1698,6 +1698,165 @@ AimbotToggle:OnChanged(function(Value)
     AimbotSettings.Enabled = Value
 end)
 
+-- Auto Fire test 🔥
+--// [1. เตรียม Services และ Variables]
+local RunService = game:GetService("RunService")
+local VIM = game:GetService("VirtualInputManager")
+local TweenService = game:GetService("TweenService") -- เพิ่ม TweenService สำหรับ Notify ใหม่
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+local AF_Enabled = false
+local AF_Saved = false
+local AF_Pos = nil
+local AF_LastShot = 0
+local AF_Delay = 0.50 
+
+--// [ฟังก์ชัน Custom Notify]
+local function SpawnNotify(msg)
+    task.spawn(function()
+        local gui = Instance.new("ScreenGui")
+        gui.Name = "CustomNotify"
+        gui.ResetOnSpawn = false
+        gui.Parent = game:GetService("CoreGui")
+
+        local frame = Instance.new("Frame")
+        frame.Parent = gui
+        frame.Size = UDim2.new(0, 280, 0, 70)
+        frame.Position = UDim2.new(1, 300, 0, 20) -- เริ่มนอกจอ
+        frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
+        frame.BackgroundTransparency = 0.25
+        frame.BorderSizePixel = 0
+
+        local stroke = Instance.new("UIStroke", frame)
+        stroke.Thickness = 2
+        stroke.Color = Color3.fromRGB(255, 60, 60)
+
+        local corner = Instance.new("UICorner", frame)
+        corner.CornerRadius = UDim.new(0, 12)
+
+        local icon = Instance.new("ImageLabel", frame)
+        icon.Size = UDim2.new(0, 40, 0, 40)
+        icon.Position = UDim2.new(0, 12, 0, 15)
+        icon.BackgroundTransparency = 1
+        icon.Image = "rbxassetid://131279093559313"
+
+        local text = Instance.new("TextLabel", frame)
+        text.Size = UDim2.new(1, -70, 1, 0)
+        text.Position = UDim2.new(0, 60, 0, 0)
+        text.BackgroundTransparency = 1
+        text.Text = "Auto Fire System\n" .. msg
+        text.TextColor3 = Color3.fromRGB(255, 200, 200)
+        text.TextXAlignment = Enum.TextXAlignment.Left
+        text.Font = Enum.Font.SourceSansSemibold
+        text.TextSize = 14
+
+        -- 👉 Tween เข้า
+        local tweenIn = TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+            Position = UDim2.new(1, -300, 0, 20)
+        })
+        tweenIn:Play()
+
+        task.wait(2.5)
+
+        -- 👉 Tween ออก
+        local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 300, 0, 20),
+            BackgroundTransparency = 1
+        })
+
+        tweenOut:Play()
+        tweenOut.Completed:Wait()
+
+        gui:Destroy()
+    end)
+end
+
+--// [2. สร้างปุ่มลอย (Anchor) สำหรับตั้งจุดยิง]
+local AnchorGui = Instance.new("ScreenGui")
+AnchorGui.Name = "AutoFireAnchor"
+AnchorGui.Parent = game:GetService("CoreGui")
+AnchorGui.Enabled = false
+
+local AnchorFrame = Instance.new("Frame")
+AnchorFrame.Size = UDim2.fromOffset(60, 60)
+AnchorFrame.Position = UDim2.new(0.5, -30, 0.5, -30)
+AnchorFrame.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
+AnchorFrame.BackgroundTransparency = 0.5
+AnchorFrame.Active = true
+AnchorFrame.Draggable = true
+AnchorFrame.Parent = AnchorGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(1, 0)
+UICorner.Parent = AnchorFrame
+
+local SaveBtn = Instance.new("TextButton")
+SaveBtn.Size = UDim2.fromOffset(50, 25)
+SaveBtn.Position = UDim2.new(1, 5, 0, 0)
+SaveBtn.Text = "SAVE"
+SaveBtn.Parent = AnchorFrame
+
+local ResetBtn = Instance.new("TextButton")
+ResetBtn.Size = UDim2.fromOffset(50, 25)
+ResetBtn.Position = UDim2.new(1, 5, 0, 30)
+ResetBtn.Text = "RESET"
+ResetBtn.Parent = AnchorFrame
+
+--// [3. ระบบ Save / Reset]
+SaveBtn.MouseButton1Click:Connect(function()
+    AF_Saved = true
+    AF_Pos = AnchorFrame.AbsolutePosition + (AnchorFrame.AbsoluteSize / 2)
+    AnchorFrame.Visible = false
+    -- เรียกใช้ Notify ตัวใหม่ที่คุณสั่ง
+    SpawnNotify("บันทึกตำแหน่งยิงสำเร็จ!") 
+end)
+
+ResetBtn.MouseButton1Click:Connect(function()
+    AF_Saved = false
+    AnchorFrame.Visible = true
+    AnchorFrame.Position = UDim2.new(0.5, -30, 0.5, -30)
+    AF_Pos = nil
+end)
+
+--// [4. ระบบประมวลผลการยิง (Logic)]
+RunService.Heartbeat:Connect(function()
+    if AF_Enabled and AF_Saved and AF_Pos then
+        if tick() - AF_LastShot >= AF_Delay then
+            local target = Mouse.Target
+            if target and target.Parent then
+                local hum = target.Parent:FindFirstChildOfClass("Humanoid") or target.Parent.Parent:FindFirstChildOfClass("Humanoid")
+                if hum and hum.Health > 0 and hum.Parent.Name ~= LocalPlayer.Name then
+                    AF_LastShot = tick()
+                    VIM:SendMouseButtonEvent(AF_Pos.X, AF_Pos.Y, 0, true, game, 0)
+                    task.defer(function()
+                        VIM:SendMouseButtonEvent(AF_Pos.X, AF_Pos.Y, 0, false, game, 0)
+                    end)
+                end
+            end
+        end
+    end
+end)
+
+--// [5. สร้างปุ่ม Toggle ใน Fluent UI]
+Tabs.Main:AddToggle("AutoFireToggle", {
+    Title = "Enable Auto Fire",
+    Default = false,
+    Callback = function(Value)
+        AF_Enabled = Value
+        AnchorGui.Enabled = Value
+        
+        if not Value then
+            AF_Saved = false
+            AF_Pos = nil
+            AnchorFrame.Visible = true
+            AnchorFrame.Position = UDim2.new(0.5, -30, 0.5, -30)
+        end
+    end
+})
+
+
+-- wall Check
 local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
     Title = "Wall Check",
     Default = true
