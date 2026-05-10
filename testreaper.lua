@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 16.1",
+SubTitle = "lib Beta 16.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Dark",
@@ -1509,16 +1509,16 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 
--- 1. เพิ่มตัวแปร Mode และ SelectedPlayer เข้าไปใน Settings
+-- === 1. ปรับปรุง Settings เพิ่ม IgnoredPlayers ===
 local AimbotSettings = {
     Enabled = false,
     WallCheck = true,
     TargetPart = "Head",
-    Mode = "Random", -- โหมดปัจจุบัน: "Random" หรือ "Select"
-    SelectedPlayerName = nil -- เก็บชื่อผู้เล่นที่เลือกจาก Dropdown
+    Mode = "Random", 
+    SelectedPlayerName = nil,
+    IgnoredPlayers = {} -- เก็บรายชื่อผู้เล่นที่จะไม่ล็อค (Multi-select)
 }
 
--- ฟังก์ชันดึงรายชื่อผู้เล่น (สำหรับใช้ใน Dropdown)
 local function getPlayerNames()
     local names = {}
     for _, player in pairs(Players:GetPlayers()) do
@@ -1554,10 +1554,16 @@ local function IsVisible(targetPart)
     return rayResult == nil
 end
 
+-- === 2. ปรับปรุงฟังก์ชันหาเป้าหมายให้รองรับ Ignore List ===
 local function GetClosestTargetToMouse()
     local target = nil
     local shortestDistance = math.huge
     for _, player in pairs(Players:GetPlayers()) do
+        -- ตรวจสอบว่าอยู่ในรายชื่อที่ Ignore หรือไม่ (เฉพาะโหมด Random)
+        if AimbotSettings.Mode == "Random" and table.find(AimbotSettings.IgnoredPlayers, player.Name) then
+            continue 
+        end
+
         if player ~= LocalPlayer and player.Character then
             local part = getActualPart(player.Character, AimbotSettings.TargetPart)
             local humanoid = player.Character:FindFirstChild("Humanoid")
@@ -1579,22 +1585,22 @@ end
 
 local CurrentTarget = nil
 
--- === ระบบหลัก: BindToRenderStep ===
+-- === 3. ระบบหลัก: BindToRenderStep ===
 RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, function()
     if AimbotSettings.Enabled then
         
-        -- ส่วนการหาเป้าหมาย (Logic แยกตามโหมด)
         if AimbotSettings.Mode == "Random" then
-            -- โหมด Random: ถ้าเป้าหมายเดิมหลุด/ตาย/ติดกำแพง ให้หาใหม่
+            -- เช็คเงื่อนไข: ถ้าเป้าหมายเดิมตาย/หลุด/หรือเพิ่งถูกเพิ่มเข้า Ignore List ให้หาใหม่
             if not CurrentTarget or not CurrentTarget.Character or 
                not getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart) or 
                CurrentTarget.Character.Humanoid.Health <= 0 or 
-               (AimbotSettings.WallCheck and not IsVisible(getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart))) then
+               (AimbotSettings.WallCheck and not IsVisible(getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart))) or
+               table.find(AimbotSettings.IgnoredPlayers, CurrentTarget.Name) then
                 
                 CurrentTarget = GetClosestTargetToMouse()
             end
         elseif AimbotSettings.Mode == "Select" then
-            -- โหมด Select: ล็อคเฉพาะคนที่เราเลือกใน Dropdown
+            -- โหมด Select: ล็อคเฉพาะคนที่เราเลือก (ไม่สน Ignore List ตามคำขอ)
             local targetPlayer = Players:FindFirstChild(AimbotSettings.SelectedPlayerName or "")
             if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") and targetPlayer.Character.Humanoid.Health > 0 then
                 CurrentTarget = targetPlayer
@@ -1603,13 +1609,12 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
             end
         end
 
-        -- ส่วนการล็อคกล้อง
+        -- การล็อคกล้อง
         if CurrentTarget and CurrentTarget.Character then
             local targetPart = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
             if targetPart then
-                -- ถ้าโหมด Select และเปิด WallCheck ไว้ จะล็อคต่อเมื่อมองเห็นเท่านั้น
                 if AimbotSettings.Mode == "Select" and AimbotSettings.WallCheck and not IsVisible(targetPart) then
-                    -- ไม่ทำอะไร (เป้าหมายติดกำแพง)
+                    -- ติดกำแพงในโหมด Select (ไม่ขยับกล้อง)
                 else
                     Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
                 end
@@ -1620,9 +1625,9 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
     end
 end)
 
--- === UI (Tabs.Main) ===
+-- === 4. UI Section (Fluent/Library Context) ===
 
--- 2. Dropdown เลือกโหมด
+-- เลือกโหมด
 local ModeDropdown = Tabs.Main:AddDropdown("ModeDropdown", {
     Title = "Aimbot Mode",
     Values = {"Random", "Select"},
@@ -1631,12 +1636,12 @@ local ModeDropdown = Tabs.Main:AddDropdown("ModeDropdown", {
 })
 ModeDropdown:OnChanged(function(Value)
     AimbotSettings.Mode = Value
-    CurrentTarget = nil -- รีเซ็ตเป้าหมายเมื่อเปลี่ยนโหมดเพื่อให้หาใหม่ตามเงื่อนไขโหมดนั้นๆ
+    CurrentTarget = nil 
 end)
 
--- 3. Dropdown เลือกผู้เล่น (จะทำงานร่วมกับปุ่ม Refresh)
+-- Dropdown สำหรับเลือกเป้าหมายเดี่ยว (Select Mode)
 local PlayerDropdown = Tabs.Main:AddDropdown("PlayerDropdown", {
-    Title = "Select Player",
+    Title = "Select Player (Lock Focus)",
     Values = getPlayerNames(),
     Multi = false,
     Default = nil,
@@ -1645,16 +1650,36 @@ PlayerDropdown:OnChanged(function(Value)
     AimbotSettings.SelectedPlayerName = Value
 end)
 
--- 4. ปุ่ม Refresh รายชื่อผู้เล่น
+-- [เพิ่มใหม่] Multi-Select Dropdown สำหรับ Ignore List (Random Mode)
+local IgnoreDropdown = Tabs.Main:AddDropdown("IgnoreDropdown", {
+    Title = "Ignored Players (Random Mode)",
+    Description = "จะไม่ล็อคเป้าหมายคนที่มีชื่ออยู่ในนี้",
+    Values = getPlayerNames(),
+    Multi = true, -- เปิดใช้งานเลือกได้หลายคน
+    Default = {},
+})
+IgnoreDropdown:OnChanged(function(Value)
+    -- ใน Multi-dropdown 'Value' จะเป็น Table ของชื่อที่ถูกเลือก
+    AimbotSettings.IgnoredPlayers = {}
+    for name, state in pairs(Value) do
+        if state then
+            table.insert(AimbotSettings.IgnoredPlayers, name)
+        end
+    end
+end)
+
+-- ปุ่ม Refresh รายชื่อ (อัปเดตทั้งคู่)
 Tabs.Main:AddButton({
-    Title = "Refresh Player List",
-    Description = "Update list for Select Mode",
+    Title = "Refresh All Player Lists",
+    Description = "Update both Select and Ignore lists",
     Callback = function()
-        PlayerDropdown:SetValues(getPlayerNames())
+        local names = getPlayerNames()
+        PlayerDropdown:SetValues(names)
+        IgnoreDropdown:SetValues(names)
     end
 })
 
--- 5. ส่วนอื่นๆ (Target Part / Wall Check)
+-- ตั้งค่าอื่นๆ
 local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
     Title = "Target Part",
     Values = {"Head", "Body", "Leg"},
@@ -1665,7 +1690,6 @@ PartDropdown:OnChanged(function(Value)
     AimbotSettings.TargetPart = Value
 end)
 
--- 1. เปิด/ปิด Aimbot
 local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
     Title = "Enable Aimbot",
     Default = false
@@ -1681,6 +1705,7 @@ local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
 WallCheckToggle:OnChanged(function(Value)
     AimbotSettings.WallCheck = Value
 end)
+
 
 
 -- Max Zoom
