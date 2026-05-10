@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 16.9",
+SubTitle = "lib Beta 17.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1699,101 +1699,82 @@ AimbotToggle:OnChanged(function(Value)
 end)
 
 -- Auto Fire test 🔥
---// [1. เตรียม Services และ Variables]
+--// [1. เตรียม Services]
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local TweenService = game:GetService("TweenService")
-local GuiService = game:GetService("GuiService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
+--// [Variables]
 local AF_Enabled = false
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
 local AF_Delay = 0.50 
 
---// [ฟังก์ชัน Custom Notify ตามแบบที่คุณต้องการ]
+--// [ฟังก์ชัน Custom Notify - สีแดงดำดุดัน]
 local function SpawnNotify(msg)
     task.spawn(function()
-        local gui = Instance.new("ScreenGui")
-        gui.Name = "CustomNotify"
-        gui.ResetOnSpawn = false
-        gui.Parent = game:GetService("CoreGui")
-
-        local frame = Instance.new("Frame")
-        frame.Parent = gui
+        local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+        local frame = Instance.new("Frame", gui)
         frame.Size = UDim2.new(0, 280, 0, 70)
         frame.Position = UDim2.new(1, 300, 0, 20)
-        frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
-        frame.BackgroundTransparency = 0.25
+        frame.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
         frame.BorderSizePixel = 0
-        local stroke = Instance.new("UIStroke", frame)
-        stroke.Thickness = 2
-        stroke.Color = Color3.fromRGB(255, 60, 60)
-        local corner = Instance.new("UICorner", frame)
-        corner.CornerRadius = UDim.new(0, 12)
-
-        local icon = Instance.new("ImageLabel", frame)
-        icon.Size = UDim2.new(0, 40, 0, 40)
-        icon.Position = UDim2.new(0, 12, 0, 15)
-        icon.BackgroundTransparency = 1
-        icon.Image = "rbxassetid://131279093559313"
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+        Instance.new("UIStroke", frame).Color = Color3.fromRGB(255, 0, 0)
 
         local text = Instance.new("TextLabel", frame)
-        text.Size = UDim2.new(1, -70, 1, 0)
-        text.Position = UDim2.new(0, 60, 0, 0)
+        text.Size = UDim2.new(1, -20, 1, 0)
+        text.Position = UDim2.new(0, 10, 0, 0)
         text.BackgroundTransparency = 1
-        text.Text = "AUTO FIRE SYSTEM\n" .. msg
-        text.TextColor3 = Color3.fromRGB(255, 200, 200)
-        text.TextXAlignment = Enum.TextXAlignment.Left
-        text.Font = Enum.Font.SourceSansSemibold
-        text.TextSize = 14
+        text.Text = "REAPER AUTO-FIRE\n" .. msg
+        text.TextColor3 = Color3.new(1, 1, 1)
+        text.Font = Enum.Font.SourceSansBold
+        text.TextSize = 16
 
-        TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2.new(1, -300, 0, 20)}):Play()
-        task.wait(2.2)
-        local tOut = TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {Position = UDim2.new(1, 300, 0, 20), BackgroundTransparency = 1})
+        TweenService:Create(frame, TweenInfo.new(0.5), {Position = UDim2.new(1, -300, 0, 20)}):Play()
+        task.wait(2)
+        local tOut = TweenService:Create(frame, TweenInfo.new(0.5), {Position = UDim2.new(1, 300, 0, 20)})
         tOut:Play()
         tOut.Completed:Wait()
         gui:Destroy()
     end)
 end
 
---// [2. สร้างปุ่มลอย (Anchor)]
-local AnchorGui = Instance.new("ScreenGui")
-AnchorGui.Name = "AutoFireAnchor"
-AnchorGui.IgnoreGuiInset = true 
-AnchorGui.Parent = game:GetService("CoreGui")
+--// [2. สร้างปุ่ม Anchor (วงกลมเขียว)]
+local AnchorGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+AnchorGui.IgnoreGuiInset = true
 AnchorGui.Enabled = false
 
-local AnchorFrame = Instance.new("Frame")
+local AnchorFrame = Instance.new("Frame", AnchorGui)
 AnchorFrame.Size = UDim2.fromOffset(60, 60)
 AnchorFrame.Position = UDim2.new(0.5, -30, 0.5, -30)
-AnchorFrame.BackgroundColor3 = Color3.fromRGB(0, 255, 127)
+AnchorFrame.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 AnchorFrame.BackgroundTransparency = 0.5
 AnchorFrame.Active = true
 AnchorFrame.Draggable = true
-AnchorFrame.Parent = AnchorGui
 Instance.new("UICorner", AnchorFrame).CornerRadius = UDim.new(1, 0)
 
-local SaveBtn = Instance.new("TextButton")
-SaveBtn.Size = UDim2.fromOffset(50, 25)
+local SaveBtn = Instance.new("TextButton", AnchorFrame)
+SaveBtn.Size = UDim2.fromOffset(60, 30)
 SaveBtn.Position = UDim2.new(1, 5, 0, 0)
 SaveBtn.Text = "SAVE"
-SaveBtn.Parent = AnchorFrame
+SaveBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
 
-local ResetBtn = Instance.new("TextButton")
-ResetBtn.Size = UDim2.fromOffset(50, 25)
-ResetBtn.Position = UDim2.new(1, 5, 0, 30)
+local ResetBtn = Instance.new("TextButton", AnchorFrame)
+ResetBtn.Size = UDim2.fromOffset(60, 30)
+ResetBtn.Position = UDim2.new(1, 5, 0, 35)
 ResetBtn.Text = "RESET"
-ResetBtn.Parent = AnchorFrame
+ResetBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
 
 SaveBtn.MouseButton1Click:Connect(function()
     AF_Saved = true
     AF_Pos = AnchorFrame.AbsolutePosition + (AnchorFrame.AbsoluteSize / 2)
     AnchorFrame.Visible = false
-    SpawnNotify("TOUCH MODE ACTIVE! พร้อมยิง") 
+    SpawnNotify("ล็อกเป้าหมายแล้ว!")
 end)
 
 ResetBtn.MouseButton1Click:Connect(function()
@@ -1802,20 +1783,24 @@ ResetBtn.MouseButton1Click:Connect(function()
     AF_Pos = nil
 end)
 
---// [ฟังก์ชัน Raycast เช็คศัตรู - เจาะทะลุเครื่องประดับ]
-local function IsAimingAtEnemy()
-    local ray = Camera:ScreenPointToRay(Mouse.X, Mouse.Y)
-    local params = RaycastParams.new()
-    params.FilterType = Enum.RaycastFilterType.Exclude
-    params.FilterDescendantsInstances = {LocalPlayer.Character}
-
-    local result = workspace:Raycast(ray.Origin, ray.Direction * 1000, params)
+--// [ฟังก์ชันตรวจเช็คศัตรู - หัวใจสำคัญ]
+local function CheckTarget()
+    -- ยิงเลเซอร์จาก "กึ่งกลางหน้าจอ" เป๊ะๆ (จุดที่เป้าปืนอยู่)
+    local viewportCenter = Camera.ViewportSize / 2
+    local unitRay = Camera:ViewportPointToRay(viewportCenter.X, viewportCenter.Y)
+    
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+    raycastParams.FilterDescendantsInstances = {LocalPlayer.Character} -- ข้ามตัวเราเอง
+    
+    local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, raycastParams)
     
     if result and result.Instance then
-        local model = result.Instance:FindFirstAncestorOfClass("Model")
-        if model then
-            local hum = model:FindFirstChildOfClass("Humanoid")
-            if hum and hum.Health > 0 and model.Name ~= LocalPlayer.Name then
+        -- ขุดหา Humanoid จากสิ่งที่ยิงโดน
+        local character = result.Instance:FindFirstAncestorOfClass("Model")
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            local hum = character:FindFirstChildOfClass("Humanoid")
+            if hum.Health > 0 and character.Name ~= LocalPlayer.Name then
                 return true
             end
         end
@@ -1823,32 +1808,30 @@ local function IsAimingAtEnemy()
     return false
 end
 
---// [4. ระบบประมวลผลการยิง (Logic)]
+--// [4. ระบบประมวลผล]
 RunService.RenderStepped:Connect(function()
     if AF_Enabled and AF_Saved and AF_Pos then
-        if IsAimingAtEnemy() then
+        if CheckTarget() then
             if tick() - AF_LastShot >= AF_Delay then
                 AF_LastShot = tick()
                 
+                -- ใช้ระบบ Touch จำลอง (เพื่อไม่ให้ปุ่มเดิน/กระโดดหาย)
                 local x, y = AF_Pos.X, AF_Pos.Y
-                
-                -- 🔥 เปลี่ยนจาก Mouse เป็น SendTouchEvent เพื่อไม่ให้ปุ่มเดินหาย
-                -- ใช้ TouchID เป็น 10 เพื่อไม่ให้ซ้ำกับนิ้วที่ใช้เดิน
-                VIM:SendTouchEvent(10, 0, x, y, game) -- 0 = Begin (จิ้มลง)
+                VIM:SendTouchEvent(15, 0, x, y, game) -- จิ้มลง
                 task.delay(0.01, function()
-                    VIM:SendTouchEvent(10, 2, x, y, game) -- 2 = End (ปล่อยนิ้ว)
+                    VIM:SendTouchEvent(15, 2, x, y, game) -- ปล่อยนิ้ว
                 end)
             end
         else
-            -- นัดแรกต้องทันทีเมื่อเจอศัตรู
+            -- ถ้าเป้าหลุด ให้รีเซ็ตคูลดาวน์นัดแรกทันที (เจอคนใหม่ยิงได้เลย)
             AF_LastShot = 0
         end
     end
 end)
 
---// [5. สร้างปุ่ม Toggle ใน Fluent UI]
-Tabs.Main:AddToggle("AutoFireToggleTouch", {
-    Title = "Enable Mobile Auto Fire",
+--// [5. Toggle ใน Fluent]
+Tabs.Main:AddToggle("AutoFireV3", {
+    Title = "Auto Fire",
     Default = false,
     Callback = function(Value)
         AF_Enabled = Value
@@ -1860,6 +1843,7 @@ Tabs.Main:AddToggle("AutoFireToggleTouch", {
         end
     end
 })
+
 
 
 
