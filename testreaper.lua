@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 17.7",
+SubTitle = "lib Beta 17.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1699,7 +1699,7 @@ AimbotToggle:OnChanged(function(Value)
 end)
 
 -- Auto Fire test 🔥
---// [1. เตรียม Services & Cache]
+--// [REAPER SYSTEM - MOBILE FIXED]
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local TweenService = game:GetService("TweenService")
@@ -1709,23 +1709,18 @@ local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
---// [Variables]
+--// Variables
 local AF_Enabled = false
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
-local AF_Delay = 0.50   
-local AF_HoldTime = 0.12 
+local AF_Delay = 0.45   
+local AF_HoldTime = 0.1 
 
-local RayParams = RaycastParams.new()
-RayParams.FilterType = Enum.RaycastFilterType.Exclude
-RayParams.IgnoreWater = true
-
---// [2. ฟังก์ชันแจ้งเตือนพร้อมโลโก้ (Optimized)]
+--// [1. ฟังก์ชันแจ้งเตือนพร้อมโลโก้ (Fix ให้ไม่กวนระบบหลัก)]
 local function SpawnNotify(msg)
     task.spawn(function()
         if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
-        
         local gui = Instance.new("ScreenGui", CoreGui)
         gui.Name = "ReaperNotify"
         
@@ -1739,7 +1734,6 @@ local function SpawnNotify(msg)
         stroke.Thickness = 2
         stroke.Color = Color3.fromRGB(255, 60, 60)
 
-        -- 👉 โลโก้ตามที่ต้องการ
         local icon = Instance.new("ImageLabel", frame)
         icon.Size = UDim2.new(0, 45, 0, 45)
         icon.Position = UDim2.new(0, 12, 0, 12)
@@ -1766,10 +1760,48 @@ local function SpawnNotify(msg)
     end)
 end
 
---// [3. ระบบ Anchor (ตัวเลือกตำแหน่ง)]
+--// [2. ฟังก์ชันตรวจเป้าหมาย (แม่นยำกว่าเดิม)]
+local function CheckTarget()
+    local viewportCenter = Camera.ViewportSize / 2
+    local unitRay = Camera:ViewportPointToRay(viewportCenter.X, viewportCenter.Y)
+    
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
+    
+    local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, params)
+    
+    if result and result.Instance then
+        local model = result.Instance:FindFirstAncestorOfClass("Model")
+        if model and model:FindFirstChildOfClass("Humanoid") then
+            if model:FindFirstChildOfClass("Humanoid").Health > 0 and not model:IsDescendantOf(LocalPlayer.Character) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+--// [3. ระบบคลิก Native Mobile (Fix ID 15)]
+RunService.RenderStepped:Connect(function()
+    if not (AF_Enabled and AF_Saved and AF_Pos) then return end
+    
+    if CheckTarget() then
+        local now = tick()
+        if now - AF_LastShot >= AF_Delay then
+            AF_LastShot = now
+            -- ใช้ ID 15 แยกนิ้วชัดเจน
+            VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game) 
+            task.delay(AF_HoldTime, function()
+                VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game) 
+            end)
+        end
+    end
+end)
+
+--// [4. ระบบ Anchor (Fix พิกัดเยื้อง)]
 local AnchorGui = Instance.new("ScreenGui", CoreGui)
-AnchorGui.IgnoreGuiInset = true
-AnchorGui.Enabled = false
+AnchorGui.IgnoreGuiInset = true -- ตัวการที่ทำให้คลิกไม่ตรงในมือถือ
 
 local AnchorFrame = Instance.new("Frame", AnchorGui)
 AnchorFrame.Size = UDim2.fromOffset(65, 65)
@@ -1783,77 +1815,37 @@ Instance.new("UICorner", AnchorFrame).CornerRadius = UDim.new(1, 0)
 local SaveBtn = Instance.new("TextButton", AnchorFrame)
 SaveBtn.Size = UDim2.fromOffset(80, 35)
 SaveBtn.Position = UDim2.new(0.5, -40, 1, 10)
-SaveBtn.Text = "SAVE"
+SaveBtn.Text = "SAVE POS"
 SaveBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
 SaveBtn.TextColor3 = Color3.new(1, 1, 1)
 SaveBtn.Font = Enum.Font.SourceSansBold
 Instance.new("UICorner", SaveBtn)
 
 SaveBtn.MouseButton1Click:Connect(function()
-    local absPos = AnchorFrame.AbsolutePosition
-    local absSize = AnchorFrame.AbsoluteSize
-    -- เก็บค่าพิกัดกลางวงกลมเพื่อความแม่นยำ
-    AF_Pos = Vector2.new(absPos.X + (absSize.X/2), absPos.Y + (absSize.Y/2))
+    -- ดึงพิกัดจากหน้าจอโดยตรง ไม่ใช้ค่า Relative
+    local screenPos = AnchorFrame.AbsolutePosition
+    local size = AnchorFrame.AbsoluteSize
+    AF_Pos = Vector2.new(screenPos.X + (size.X/2), screenPos.Y + (size.Y/2))
+    
     AF_Saved = true
-    
-    -- 🔥 ปิด GUI ทันทีเพื่อให้กดเดิน/หันจอผ่านจุดนี้ได้ปกติ
     AnchorGui.Enabled = false 
-    AnchorFrame.Active = false
-    SpawnNotify("บันทึกสำเร็จ! ระบบพร้อมยิง")
+    SpawnNotify("บันทึกพิกัดแล้ว ระบบพร้อมยิง!")
 end)
 
---// [4. ตรวจเช็คเป้าหมาย]
-local function CheckTarget()
-    local viewportCenter = Camera.ViewportSize / 2
-    local unitRay = Camera:ViewportPointToRay(viewportCenter.X, viewportCenter.Y)
-    
-    RayParams.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
-    local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, RayParams)
-    
-    if result and result.Instance then
-        local model = result.Instance:FindFirstAncestorOfClass("Model")
-        if model and model:FindFirstChildOfClass("Humanoid") then
-            if model:FindFirstChildOfClass("Humanoid").Health > 0 then
-                return true
-            end
-        end
-    end
-    return false
-end
-
---// [5. ระบบคลิกอัตโนมัติ (Safe Mobile)]
-RunService.RenderStepped:Connect(function()
-    if not (AF_Enabled and AF_Saved and AF_Pos) then return end
-    
-    if CheckTarget() then
-        local now = tick()
-        if now - AF_LastShot >= AF_Delay then
-            AF_LastShot = now
-            task.spawn(function()
-                -- 🚀 ใช้ ID 15 เพื่อไม่ให้กวนนิ้วเดิน (Joystick)
-                VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game) 
-                task.wait(AF_HoldTime)
-                VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game) 
-            end)
-        end
-    end
-end)
-
---// [6. Toggle Function]
+--// [5. Toggle]
 local function ToggleAutoFire(state)
     AF_Enabled = state
     if state then
         AF_Saved = false
         AnchorGui.Enabled = true
-        AnchorFrame.Active = true
-        SpawnNotify("ลากวงกลมไปทับปุ่มยิง\nแล้วกด SAVE")
+        SpawnNotify("ลากวงกลมไปทับปุ่มยิงแล้วกด SAVE")
     else
         AF_Saved = false
         AnchorGui.Enabled = false
     end
 end
 
---// การใช้งานกับ UI Library
+-- นำไปเชื่อมกับ Toggle ใน UI Lib ของนาย
 Tabs.Main:AddToggle("AutoFireV3", {
     Title = "Auto Fire",
     Default = false,
