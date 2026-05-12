@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 17.3",
+SubTitle = "lib Beta 17.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1712,14 +1712,15 @@ local AF_Enabled = false
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
-local AF_Delay = 0.50 
+local AF_Delay = 0.50  -- ระยะห่างระหว่างนัด
+local AF_HoldTime = 0.1 -- ระยะเวลากดค้าง (ปรับตามต้องการ)
 
---// Cache RaycastParams เพื่อประสิทธิภาพสูงสุด (ไม่สร้างใหม่ทุกเฟรม)
+--// Cache RaycastParams
 local RayParams = RaycastParams.new()
 RayParams.FilterType = Enum.RaycastFilterType.Exclude
 RayParams.IgnoreWater = true
 
---// [ฟังก์ชัน Custom Notify - ตามสไตล์ที่คุณให้มา]
+--// [ฟังก์ชัน Custom Notify]
 local function SpawnNotify(msg)
     task.spawn(function()
         local gui = Instance.new("ScreenGui")
@@ -1746,7 +1747,7 @@ local function SpawnNotify(msg)
         icon.Size = UDim2.new(0, 40, 0, 40)
         icon.Position = UDim2.new(0, 12, 0.5, -20)
         icon.BackgroundTransparency = 1
-        icon.Image = "rbxassetid://131279093559313" -- โลโก้ของคุณ
+        icon.Image = "rbxassetid://131279093559313" 
 
         local text = Instance.new("TextLabel", frame)
         text.Size = UDim2.new(1, -70, 1, 0)
@@ -1759,14 +1760,12 @@ local function SpawnNotify(msg)
         text.TextSize = 14
         text.RichText = true
 
-        -- 👉 แอนิเมชันขาเข้า (Quint Style)
         TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
             Position = UDim2.new(1, -300, 0, 20)
         }):Play()
 
         task.wait(2.5)
 
-        -- 👉 แอนิเมชันขาออก
         local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
             Position = UDim2.new(1, 300, 0, 20),
             BackgroundTransparency = 1
@@ -1777,7 +1776,7 @@ local function SpawnNotify(msg)
     end)
 end
 
---// [2. สร้างปุ่ม Anchor]
+--// [2. สร้างปุ่ม Anchor - แก้ไขให้ไม่ล็อคจอ]
 local AnchorGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 AnchorGui.IgnoreGuiInset = true
 AnchorGui.Enabled = false
@@ -1787,8 +1786,8 @@ AnchorFrame.Size = UDim2.fromOffset(60, 60)
 AnchorFrame.Position = UDim2.new(0.5, -30, 0.5, -30)
 AnchorFrame.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 AnchorFrame.BackgroundTransparency = 0.5
-AnchorFrame.Active = true
-AnchorFrame.Draggable = true
+AnchorFrame.Active = false -- ปิดไว้เพื่อให้หมุนจอได้
+AnchorFrame.Draggable = true 
 Instance.new("UICorner", AnchorFrame).CornerRadius = UDim.new(1, 0)
 
 local SaveBtn = Instance.new("TextButton", AnchorFrame)
@@ -1797,16 +1796,18 @@ SaveBtn.Position = UDim2.new(1, 5, 0, 0)
 SaveBtn.Text = "SAVE"
 SaveBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
 SaveBtn.TextColor3 = Color3.new(1, 1, 1)
+SaveBtn.Active = true -- ปุ่ม Save ต้องกดได้
 Instance.new("UICorner", SaveBtn)
 
 SaveBtn.MouseButton1Click:Connect(function()
     AF_Saved = true
     AF_Pos = AnchorFrame.AbsolutePosition + (AnchorFrame.AbsoluteSize / 2)
     AnchorFrame.Visible = false
+    AnchorFrame.Active = false
     SpawnNotify("บันทึกตำแหน่งปุ่มยิงสำเร็จ!")
 end)
 
---// [3. ฟังก์ชันตรวจเช็คศัตรู - Optimized Raycast]
+--// [3. ฟังก์ชันตรวจเช็คศัตรู]
 local function CheckTarget()
     local viewportCenter = Camera.ViewportSize / 2
     local unitRay = Camera:ViewportPointToRay(viewportCenter.X, viewportCenter.Y)
@@ -1826,7 +1827,7 @@ local function CheckTarget()
     return false
 end
 
---// [4. ระบบประมวลผล]
+--// [4. ระบบประมวลผล - เพิ่มเวลากดค้าง]
 RunService.RenderStepped:Connect(function()
     if not (AF_Enabled and AF_Saved and AF_Pos) then return end
     
@@ -1834,31 +1835,34 @@ RunService.RenderStepped:Connect(function()
         local now = tick()
         if now - AF_LastShot >= AF_Delay then
             AF_LastShot = now
-            -- ใช้ task.defer เพื่อลดภาระ Main Thread
-            task.defer(function()
-                VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game)
-                task.wait(0.2)
-                VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
+            task.spawn(function()
+                VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game) -- กด
+                task.wait(AF_HoldTime)                             -- ค้างไว้ (0.1 วินาที)
+                VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game) -- ปล่อย
             end)
         end
     else
-        AF_LastShot = 0 -- Reset ให้ยิงได้ทันทีถ้าสลับเป้าใหม่
+        AF_LastShot = 0
     end
 end)
 
 --// [5. Toggle Integration]
--- ใส่ฟังก์ชันนี้ในปุ่ม Toggle ของคุณ
 local function ToggleAutoFire(state)
     AF_Enabled = state
     AnchorGui.Enabled = state
-    if not state then
+    if state then
+        AnchorFrame.Visible = true
+        AnchorFrame.Active = true -- เปิดชั่วคราวให้ลากไปปุ่มยิงได้
+    else
         AF_Saved = false
         AF_Pos = nil
-        AnchorFrame.Visible = true
+        AnchorFrame.Visible = false
+        AnchorFrame.Active = false
     end
 end
 
--- ตัวอย่างการใช้กับ Fluent
+
+-- Toggle
 Tabs.Main:AddToggle("AutoFireV3", {
     Title = "Auto Fire",
     Default = false,
