@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 18.3",
+SubTitle = "lib Beta 18.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1855,19 +1855,31 @@ SaveBtn.MouseButton1Click:Connect(function()
     SpawnNotify("บันทึกพิกัดเรียบร้อย!")
 end)
 
---// [6. Toggle Function]
+
+--// เพิ่มตัวแปรนี้ไว้ด้านบนสุดของสคริปต์ (ใต้ Variables)
+local FirstRun = true 
+
+--// [6. Toggle Function (แก้ไขใหม่)]
 local function ToggleAutoFire(state)
     AF_Enabled = state
+    
+    -- ถ้าเป็นการรันครั้งแรก (ตอนโหลดสคริปต์) ให้ข้ามการแจ้งเตือนไป
+    if FirstRun then
+        FirstRun = false
+        if not state then return end -- ถ้า Default เป็น false ไม่ต้องทำอะไรเลย
+    end
+
     if state then
         AF_Saved = false
         AnchorGui.Enabled = true
-        SpawnNotify("อย่าลืม SAVE")
+        SpawnNotify("SAVE สิเย็ดแม่")
     else
         AF_Saved = false
         AnchorGui.Enabled = false
         SpawnNotify("ปิดการใช้งานระบบ")
     end
 end
+
 
  
 -- นำไปเชื่อมกับ Toggle ใน UI Lib ของนาย
