@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 18.4",
+SubTitle = "lib Beta 18.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1699,10 +1699,11 @@ AimbotToggle:OnChanged(function(Value)
 end)
 
 -- Auto Fire test 🔥
---// [REAPER SYSTEM - MOBILE ULTIMATE]
+--// [REAPER SYSTEM - MOBILE OFFSET FIXED]
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local TweenService = game:GetService("TweenService")
+local GuiService = game:GetService("GuiService") -- เพิ่มตัวนี้
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
@@ -1713,38 +1714,31 @@ local AF_Enabled = false
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
-local AF_Delay = 0.15   
+local AF_Delay = 0.3   
 local AF_HoldTime = 0.05 
+local FirstRun = true 
 
-local RayParams = RaycastParams.new()
-RayParams.FilterType = Enum.RaycastFilterType.Exclude
-RayParams.IgnoreWater = true
-
---// [1. ระบบแจ้งเตือน (คืนค่าเดิม + โลโก้)]
+--// [1. ระบบแจ้งเตือน (คงเดิม)]
 local function SpawnNotify(msg)
     task.spawn(function()
         if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
         local gui = Instance.new("ScreenGui", CoreGui)
         gui.Name = "ReaperNotify"
         gui.DisplayOrder = 999999
-
         local frame = Instance.new("Frame", gui)
         frame.Size = UDim2.new(0, 280, 0, 70)
-        frame.Position = UDim2.new(1, 300, 0, 20) -- เริ่มจากนอกจอ
+        frame.Position = UDim2.new(1, 300, 0, 20)
         frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
         frame.BackgroundTransparency = 0.25
-        frame.BorderSizePixel = 0
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
         local stroke = Instance.new("UIStroke", frame)
         stroke.Thickness = 2
         stroke.Color = Color3.fromRGB(255, 60, 60)
-
         local icon = Instance.new("ImageLabel", frame)
         icon.Size = UDim2.new(0, 40, 0, 40)
         icon.Position = UDim2.new(0, 12, 0, 15)
         icon.BackgroundTransparency = 1
         icon.Image = "rbxassetid://131279093559313"
-
         local text = Instance.new("TextLabel", frame)
         text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 60, 0, 0)
@@ -1755,26 +1749,16 @@ local function SpawnNotify(msg)
         text.Font = Enum.Font.SourceSansSemibold
         text.TextSize = 14
         text.RichText = true
-
-        -- เข้า
-        TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-            Position = UDim2.new(1, -300, 0, 20)
-        }):Play()
-
+        TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(1, -300, 0, 20)}):Play()
         task.wait(2.5)
-
-        -- ออก
-        local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
-            Position = UDim2.new(1, 300, 0, 20),
-            BackgroundTransparency = 1
-        })
+        local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint), {Position = UDim2.new(1, 300, 0, 20), BackgroundTransparency = 1})
         tweenOut:Play()
         tweenOut.Completed:Wait()
         gui:Destroy()
     end)
 end
 
---// [2. ตรวจหา Humanoid]
+--// [2. ตรวจเป้าหมาย]
 local function GetHumanoid(part)
     local char = part.Parent
     while char and char ~= workspace do
@@ -1785,47 +1769,41 @@ local function GetHumanoid(part)
     return nil
 end
 
---// [3. ตรวจเป้าหมาย]
 local function CheckTarget()
     local viewportCenter = Camera.ViewportSize / 2
     local unitRay = Camera:ViewportPointToRay(viewportCenter.X, viewportCenter.Y)
-    
-    RayParams.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
-    local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, RayParams)
-    
+    local params = RaycastParams.new()
+    params.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, params)
     if result and result.Instance then
         local hum, char = GetHumanoid(result.Instance)
-        if hum and hum.Health > 0 and char ~= LocalPlayer.Character then
-            return true
-        end
+        if hum and hum.Health > 0 and char ~= LocalPlayer.Character then return true end
     end
     return false
 end
 
---// [4. ระบบส่ง Input (Pure Mobile - แก้ปุ่มเดินหาย)]
+--// [3. ระบบส่ง Input (Mobile - จิ้มตามพิกัดชดเชย)]
 RunService.RenderStepped:Connect(function()
     if not (AF_Enabled and AF_Saved and AF_Pos) then return end
-    
     if CheckTarget() then
         local now = tick()
         if now - AF_LastShot >= AF_Delay then
             AF_LastShot = now
-            
             task.spawn(function()
-                -- 📱 ใช้เฉพาะ Touch เท่านั้น (TouchID 15)
-                VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game) -- เริ่มจิ้ม
+                -- จิ้มตรงๆ ตามพิกัดที่ชดเชยค่า Inset แล้ว
+                VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game)
                 task.wait(AF_HoldTime)
-                VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game) -- ปล่อย
+                VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
             end)
         end
     end
 end)
 
---// [5. ระบบ Anchor UI]
+--// [4. ระบบ Anchor UI (จุดสำคัญที่แก้เรื่องตำแหน่ง)]
 local AnchorGui = Instance.new("ScreenGui", CoreGui)
 AnchorGui.Name = "ReaperAnchor"
-AnchorGui.IgnoreGuiInset = true 
-AnchorGui.DisplayOrder = 999999
+AnchorGui.IgnoreGuiInset = true -- ให้ UI นับพิกัดจากขอบจอจริงๆ
 AnchorGui.Enabled = false
 
 local AnchorFrame = Instance.new("Frame", AnchorGui)
@@ -1847,39 +1825,36 @@ SaveBtn.Font = Enum.Font.SourceSansBold
 Instance.new("UICorner", SaveBtn)
 
 SaveBtn.MouseButton1Click:Connect(function()
+    -- 🔥 วิธีแก้: ดึงค่าระยะห่างของแถบด้านบน (Inset) มาบวกชดเชย
+    local inset = GuiService:GetGuiInset()
     local screenPos = AnchorFrame.AbsolutePosition
     local size = AnchorFrame.AbsoluteSize
-    AF_Pos = Vector2.new(screenPos.X + (size.X/2), screenPos.Y + (size.Y/2))
+    
+    -- บวก inset.Y เข้าไป เพื่อให้จุดจิ้ม "เลื่อนลงมา" ให้ตรงกับที่ตาเห็น
+    AF_Pos = Vector2.new(
+        screenPos.X + (size.X/2), 
+        screenPos.Y + (size.Y/2) + inset.Y 
+    )
+    
     AF_Saved = true
     AnchorGui.Enabled = false 
-    SpawnNotify("บันทึกพิกัดเรียบร้อย!")
+    SpawnNotify("บันทึกพิกัดแล้ว! (ชดเชยระยะจิ้มเรียบร้อย)")
 end)
 
-
---// เพิ่มตัวแปรนี้ไว้ด้านบนสุดของสคริปต์ (ใต้ Variables)
-local FirstRun = true 
-
---// [6. Toggle Function (แก้ไขใหม่)]
+--// [5. Toggle]
 local function ToggleAutoFire(state)
     AF_Enabled = state
-    
-    -- ถ้าเป็นการรันครั้งแรก (ตอนโหลดสคริปต์) ให้ข้ามการแจ้งเตือนไป
-    if FirstRun then
-        FirstRun = false
-        if not state then return end -- ถ้า Default เป็น false ไม่ต้องทำอะไรเลย
-    end
-
+    if FirstRun then FirstRun = false return end
     if state then
         AF_Saved = false
         AnchorGui.Enabled = true
-        SpawnNotify("SAVE สิเย็ดแม่")
+        SpawnNotify("Press Save")
     else
         AF_Saved = false
         AnchorGui.Enabled = false
         SpawnNotify("ปิดการใช้งานระบบ")
     end
 end
-
 
  
 -- นำไปเชื่อมกับ Toggle ใน UI Lib ของนาย
