@@ -1837,7 +1837,7 @@ RunService.RenderStepped:Connect(function()
             -- ใช้ task.defer เพื่อลดภาระ Main Thread
             task.defer(function()
                 VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game)
-                task.wait(0.01)
+                task.wait(0.2)
                 VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
             end)
         end
