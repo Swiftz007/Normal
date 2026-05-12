@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 17.8",
+SubTitle = "lib Beta 17.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1726,9 +1726,9 @@ local function SpawnNotify(msg)
         
         local frame = Instance.new("Frame", gui)
         frame.Size = UDim2.new(0, 280, 0, 70)
-        frame.Position = UDim2.new(1, 50, 0, 50) 
+        frame.Position = UDim2.new(1, 300, 0, 20) 
         frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
-        frame.BackgroundTransparency = 0.2
+        frame.BackgroundTransparency = 0.25
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
         local stroke = Instance.new("UIStroke", frame)
         stroke.Thickness = 2
@@ -1815,7 +1815,7 @@ Instance.new("UICorner", AnchorFrame).CornerRadius = UDim.new(1, 0)
 local SaveBtn = Instance.new("TextButton", AnchorFrame)
 SaveBtn.Size = UDim2.fromOffset(80, 35)
 SaveBtn.Position = UDim2.new(0.5, -40, 1, 10)
-SaveBtn.Text = "SAVE POS"
+SaveBtn.Text = "SAVE"
 SaveBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
 SaveBtn.TextColor3 = Color3.new(1, 1, 1)
 SaveBtn.Font = Enum.Font.SourceSansBold
