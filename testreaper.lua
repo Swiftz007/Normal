@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 17.9",
+SubTitle = "lib Beta 18.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1699,12 +1699,11 @@ AimbotToggle:OnChanged(function(Value)
 end)
 
 -- Auto Fire test 🔥
---// [REAPER SYSTEM - MOBILE FIXED]
+--// [REAPER SYSTEM - FINAL OPTIMIZED]
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
@@ -1717,12 +1716,18 @@ local AF_LastShot = 0
 local AF_Delay = 0.45   
 local AF_HoldTime = 0.1 
 
---// [1. ฟังก์ชันแจ้งเตือนพร้อมโลโก้ (Fix ให้ไม่กวนระบบหลัก)]
+--// Cache RaycastParams ไว้ข้างนอกเพื่อลดการสร้าง Object ทุกเฟรม (ประหยัดแรม)
+local RayParams = RaycastParams.new()
+RayParams.FilterType = Enum.RaycastFilterType.Exclude
+RayParams.IgnoreWater = true
+
+--// [1. ฟังก์ชันแจ้งเตือน]
 local function SpawnNotify(msg)
     task.spawn(function()
         if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
         local gui = Instance.new("ScreenGui", CoreGui)
         gui.Name = "ReaperNotify"
+        gui.DisplayOrder = 999999
         
         local frame = Instance.new("Frame", gui)
         frame.Size = UDim2.new(0, 280, 0, 70)
@@ -1730,18 +1735,16 @@ local function SpawnNotify(msg)
         frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
         frame.BackgroundTransparency = 0.25
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
-        local stroke = Instance.new("UIStroke", frame)
-        stroke.Thickness = 2
-        stroke.Color = Color3.fromRGB(255, 60, 60)
+        Instance.new("UIStroke", frame).Color = Color3.fromRGB(255, 60, 60)
 
         local icon = Instance.new("ImageLabel", frame)
-        icon.Size = UDim2.new(0, 45, 0, 45)
-        icon.Position = UDim2.new(0, 12, 0, 12)
+        icon.Size = UDim2.new(0, 40, 0, 40)
+        icon.Position = UDim2.new(0, 12, 0, 15)
         icon.BackgroundTransparency = 1
         icon.Image = "rbxassetid://131279093559313"
 
         local text = Instance.new("TextLabel", frame)
-        text.Size = UDim2.new(1, -75, 1, 0)
+        text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 65, 0, 0)
         text.BackgroundTransparency = 1
         text.Text = "<b>REAPER SYSTEM</b>\n" .. msg
@@ -1760,21 +1763,19 @@ local function SpawnNotify(msg)
     end)
 end
 
---// [2. ฟังก์ชันตรวจเป้าหมาย (แม่นยำกว่าเดิม)]
+--// [2. ตรวจเป้าหมาย (Optimized)]
 local function CheckTarget()
     local viewportCenter = Camera.ViewportSize / 2
     local unitRay = Camera:ViewportPointToRay(viewportCenter.X, viewportCenter.Y)
     
-    local params = RaycastParams.new()
-    params.FilterType = Enum.RaycastFilterType.Exclude
-    params.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
-    
-    local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, params)
+    RayParams.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
+    local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, RayParams)
     
     if result and result.Instance then
         local model = result.Instance:FindFirstAncestorOfClass("Model")
-        if model and model:FindFirstChildOfClass("Humanoid") then
-            if model:FindFirstChildOfClass("Humanoid").Health > 0 and not model:IsDescendantOf(LocalPlayer.Character) then
+        if model then
+            local hum = model:FindFirstChildOfClass("Humanoid")
+            if hum and hum.Health > 0 and not model:IsDescendantOf(LocalPlayer.Character) then
                 return true
             end
         end
@@ -1782,7 +1783,7 @@ local function CheckTarget()
     return false
 end
 
---// [3. ระบบคลิก Native Mobile (Fix ID 15)]
+--// [3. ระบบคลิก]
 RunService.RenderStepped:Connect(function()
     if not (AF_Enabled and AF_Saved and AF_Pos) then return end
     
@@ -1790,7 +1791,6 @@ RunService.RenderStepped:Connect(function()
         local now = tick()
         if now - AF_LastShot >= AF_Delay then
             AF_LastShot = now
-            -- ใช้ ID 15 แยกนิ้วชัดเจน
             VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game) 
             task.delay(AF_HoldTime, function()
                 VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game) 
@@ -1799,9 +1799,12 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
---// [4. ระบบ Anchor (Fix พิกัดเยื้อง)]
+--// [4. ระบบ Anchor]
 local AnchorGui = Instance.new("ScreenGui", CoreGui)
-AnchorGui.IgnoreGuiInset = true -- ตัวการที่ทำให้คลิกไม่ตรงในมือถือ
+AnchorGui.Name = "ReaperAnchor"
+AnchorGui.IgnoreGuiInset = true 
+AnchorGui.DisplayOrder = 999999
+AnchorGui.Enabled = false
 
 local AnchorFrame = Instance.new("Frame", AnchorGui)
 AnchorFrame.Size = UDim2.fromOffset(65, 65)
@@ -1822,11 +1825,9 @@ SaveBtn.Font = Enum.Font.SourceSansBold
 Instance.new("UICorner", SaveBtn)
 
 SaveBtn.MouseButton1Click:Connect(function()
-    -- ดึงพิกัดจากหน้าจอโดยตรง ไม่ใช้ค่า Relative
     local screenPos = AnchorFrame.AbsolutePosition
     local size = AnchorFrame.AbsoluteSize
     AF_Pos = Vector2.new(screenPos.X + (size.X/2), screenPos.Y + (size.Y/2))
-    
     AF_Saved = true
     AnchorGui.Enabled = false 
     SpawnNotify("บันทึกพิกัดแล้ว ระบบพร้อมยิง!")
@@ -1845,14 +1846,13 @@ local function ToggleAutoFire(state)
     end
 end
 
+
 -- นำไปเชื่อมกับ Toggle ใน UI Lib ของนาย
 Tabs.Main:AddToggle("AutoFireV3", {
     Title = "Auto Fire",
     Default = false,
     Callback = ToggleAutoFire
 })
-
-
 
 
 -- wall Check
