@@ -24,7 +24,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 19.0",
+SubTitle = "lib Beta 19.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1970,52 +1970,74 @@ Tabs.Settings:AddToggle("AntiAFK", {
 })
 
 -- FPS BOOST
-local optimized = false
 local saved = {}
+local connection = nil -- ตัวแปรสำหรับดักจับวัตถุใหม่
+
+local function optimizeObject(v)
+    if v:IsA("Texture") or v:IsA("Decal") then
+        if not saved[v] then saved[v] = v.Transparency end
+        v.Transparency = 1
+    elseif v:IsA("BasePart") then
+        if not saved[v] then
+            saved[v] = {
+                Material = v.Material,
+                Reflectance = v.Reflectance,
+                CastShadow = v.CastShadow
+            }
+        end
+        v.Material = Enum.Material.SmoothPlastic
+        v.Reflectance = 0
+        v.CastShadow = false -- ปิดเงาที่ตัววัตถุ (ช่วยลดภาระ GPU มือถือมาก)
+    end
+end
 
 local function applyOptimize(state)
     if state then
+        -- 1. กวาดล้างวัตถุที่มีอยู่แล้วในตอนนี้
         for _, v in ipairs(game:GetDescendants()) do
-            
-            if v:IsA("Texture") or v:IsA("Decal") then
-                saved[v] = v.Transparency
-                v.Transparency = 1
-
-            elseif v:IsA("BasePart") then
-                saved[v] = {
-                    Material = v.Material,
-                    Reflectance = v.Reflectance
-                }
-
-                v.Material = Enum.Material.SmoothPlastic
-                v.Reflectance = 0
-            end
-
+            optimizeObject(v)
         end
+
+        -- 2. เปิด "หูดักฟัง" วัตถุใหม่ที่กำลังจะโหลดเข้ามา (จุดใหม่ๆ ในแมพ)
+        connection = game.DescendantAdded:Connect(function(v)
+            -- ใช้ task.delay เล็กน้อยเพื่อให้ Object โหลด Property เสร็จก่อนจัดการ
+            task.skip_frame() 
+            optimizeObject(v)
+        end)
+        
+        game.Lighting.GlobalShadows = false -- ปิดเงาโลก
     else
+        -- ปิดการดักฟังเมื่อปิด Toggle
+        if connection then
+            connection:Disconnect()
+            connection = nil
+        end
+
+        -- คืนค่าเดิม
         for obj, data in pairs(saved) do
             if obj and obj.Parent then
                 if typeof(data) == "table" then
                     obj.Material = data.Material
                     obj.Reflectance = data.Reflectance
+                    obj.CastShadow = data.CastShadow
                 else
                     obj.Transparency = data
                 end
             end
         end
         saved = {}
+        game.Lighting.GlobalShadows = true
     end
 end
 
-
---FPS
+-- FPS Toggle
 Tabs.Settings:AddToggle("FPSBoost", {
-    Title = "FPS BOOST",
+    Title = "Boost FPS",
     Default = false
 }):OnChanged(function(v)
-    optimized = v
     applyOptimize(v)
 end)
+
 
 -- Console
 --// SERVICES
