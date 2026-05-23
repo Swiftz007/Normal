@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 2
+-- Lib Load Screen Reaper Hub 3
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -1969,93 +1969,81 @@ Tabs.Settings:AddToggle("AntiAFK", {
 -- FPS BOOST
 local workspace = game:GetService("Workspace")
 local lighting = game:GetService("Lighting")
-local terrain = workspace:FindFirstChildOfClass("Terrain")
 
-local saved = setmetatable({}, {__mode = "k"})
+local saved = {}
 local connection = nil
 
--- ฟังก์ชันจัดการวัตถุแบบเจาะจง
-local function fastOptimize(v)
-    if v:IsA("BasePart") and not v:IsA("MeshPart") then
+local function optimizeObject(v)
+    -- ตรวจสอบว่าวัตถุอยู่ใน Workspace เท่านั้น (ป้องกัน UI)
+    if not v:IsDescendantOf(workspace) then return end
+
+    if v:IsA("Texture") or v:IsA("Decal") then
+        if not saved[v] then saved[v] = v.Transparency end
+        v.Transparency = 1
+    elseif v:IsA("BasePart") then
         if not saved[v] then
-            saved[v] = {v.Material, v.Reflectance, v.CastShadow}
+            -- เก็บค่าเดิมในรูปแบบ Table เพื่อคืนค่าได้ครบถ้วน
+            saved[v] = {
+                Material = v.Material,
+                Reflectance = v.Reflectance,
+                CastShadow = v.CastShadow
+            }
         end
         v.Material = Enum.Material.SmoothPlastic
         v.Reflectance = 0
         v.CastShadow = false
-    elseif v:IsA("Decal") or v:IsA("Texture") then
-        if not saved[v] then saved[v] = v.Transparency end
-        v.Transparency = 1
-    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-        if not saved[v] then saved[v] = v.Enabled end
-        v.Enabled = false
-    elseif v:IsA("Explosion") then
-        v.Visible = false
     end
 end
 
-local function toggleFPSBoost(state)
+local function applyOptimize(state)
     if state then
-        -- 1. ล้าง Rendering ที่หนักที่สุดออก
-        if terrain then
-            terrain.WaterWaveSize = 0
-            terrain.WaterWaveSpeed = 0
-            terrain.WaterReflectance = 0
-            terrain.WaterTransparency = 0
+        -- 1. จัดการเฉพาะใน Workspace
+        for _, v in ipairs(workspace:GetDescendants()) do
+            optimizeObject(v)
         end
+
+        -- 2. ดักจับวัตถุใหม่ที่โหลดเข้า Workspace เท่านั้น
+        connection = workspace.DescendantAdded:Connect(function(v)
+            task.defer(function() 
+                if v and v.Parent then optimizeObject(v) end 
+            end)
+        end)
         
         lighting.GlobalShadows = false
-        lighting.FogEnd = 9e9
-        for _, effect in ipairs(lighting:GetChildren()) do
-            if effect:IsA("PostEffect") or effect:IsA("Clouds") then
-                effect.Enabled = false
-            end
-        end
-
-        -- 2. จัดการวัตถุในแมพ (ใช้ครั้งเดียวตอนเปิด)
-        for _, v in ipairs(workspace:GetDescendants()) do
-            fastOptimize(v)
-        end
-
-        -- 3. ดักจับสิ่งที่โหลดมาใหม่ (StreamingEnabled)
-        connection = workspace.DescendantAdded:Connect(function(v)
-            task.defer(fastOptimize, v)
-        end)
     else
-        -- คืนค่าเดิม
-        if connection then connection:Disconnect(); connection = nil end
-        
-        lighting.GlobalShadows = true
-        for _, effect in ipairs(lighting:GetChildren()) do
-            if effect:IsA("PostEffect") or effect:IsA("Clouds") then
-                effect.Enabled = true
-            end
+        -- ปิดการดักจับ
+        if connection then
+            connection:Disconnect()
+            connection = nil
         end
 
+        -- 3. คืนค่าเดิม (Restoration Logic)
         for obj, data in pairs(saved) do
             if obj and obj.Parent then
                 if typeof(data) == "table" then
-                    obj.Material, obj.Reflectance, obj.CastShadow = data[1], data[2], data[3]
+                    obj.Material = data.Material
+                    obj.Reflectance = data.Reflectance
+                    obj.CastShadow = data.CastShadow
                 else
-                    if obj:IsA("Decal") or obj:IsA("Texture") then
-                        obj.Transparency = data
-                    else
-                        obj.Enabled = data
-                    end
+                    obj.Transparency = data
                 end
             end
         end
+        
+        -- เคลียร์ Memory
         table.clear(saved)
+        lighting.GlobalShadows = true
     end
 end
 
--- การนำไปใช้กับ UI
+-- FPS Toggle
 Tabs.Settings:AddToggle("FPSBoost", {
-    Title = "FPS BOOST",
+    Title = "FPS Boost",
     Default = false
 }):OnChanged(function(v)
-    toggleFPSBoost(v)
+    applyOptimize(v)
 end)
+
 
 
 
