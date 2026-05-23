@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 1
+-- Lib Load Screen Reaper Hub 2
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -2312,7 +2312,7 @@ borderCorner.Parent = border
 local button = Instance.new("ImageButton")
 button.Parent = gui
 button.Size = UDim2.new(0,60,0,60)
-button.Position = UDim2.new(0,40,0.2,0)
+button.Position = UDim2.new(0,60,0.2,0)
 button.AnchorPoint = Vector2.new(0,0)
 
 button.BackgroundTransparency = 1
