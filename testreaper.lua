@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 7
+-- Lib Load Screen Reaper Hub 8
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -503,64 +503,6 @@ Callback = function(v) State.INFJ = v
 	end
 })
 
--- Noclip
-local RunService = game:GetService("RunService")
-local LocalPlayer = game.Players.LocalPlayer
-local noclipConnection
-local charAddedConnection -- เพิ่มตัวแปรเพื่อดักจับการเกิดใหม่
-local noclipParts = {}
-
--- ฟังก์ชันดึงชิ้นส่วนร่างกายมาเก็บไว้ใน Cache
-local function UpdateNoclipCache()
-    noclipParts = {}
-    local character = LocalPlayer.Character
-    if character then
-        for _, part in ipairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                table.insert(noclipParts, part)
-            end
-        end
-    end
-end
-
--- Logic หลักที่รองรับการเกิดใหม่
-local function SetNoclip(state)
-    -- ล้าง Connection เก่าทุกครั้งเพื่อป้องกัน Memory Leak หรือการทำงานซ้อน
-    if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
-    if charAddedConnection then charAddedConnection:Disconnect() charAddedConnection = nil end
-
-    if state then
-        UpdateNoclipCache()
-        
-        -- เมื่อตัวละครเกิดใหม่ ให้ทำการอัปเดตชิ้นส่วนใน Cache อัตโนมัติ
-        charAddedConnection = LocalPlayer.CharacterAdded:Connect(function()
-            task.wait(0.5) -- รอให้ฟิสิกส์ตัวละครเซ็ตตัว
-            UpdateNoclipCache()
-        end)
-
-        -- ลูปทำให้ตัวทะลุ
-        noclipConnection = RunService.Stepped:Connect(function()
-            for i = 1, #noclipParts do
-                local part = noclipParts[i]
-                if part and part.Parent then
-                    part.CanCollide = false
-                end
-            end
-        end)
-    else
-        -- เมื่อปิด ให้ล้างค่าทุกอย่างเพื่อให้ตัวละครกลับมามีแรงปะทะปกติ
-        noclipParts = {}
-    end
-end
-
--- ส่วนของ UI Toggle
-    Title = "Noclip",
-    Description = "",
-    Default = false,
-    Callback = function(Value)
-        SetNoclip(Value)
-    end
-})
 
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
