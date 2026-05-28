@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 3
+-- Lib Load Screen Reaper Hub 4
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -517,7 +517,8 @@ Tabs.Player:AddSlider("FlySpeed", {
 Tabs.Player:AddToggle("INFJ", {
 Title = "Infinite Jump",
 Default = false,
-Callback = function(v) State.INFJ = v end
+Callback = function(v) State.INFJ = v 
+	end
 })
 
 Tabs.Player:AddToggle("NC", {
