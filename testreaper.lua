@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 19.4",
+SubTitle = "lib Beta 19.5",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -191,15 +191,25 @@ RunService.RenderStepped:Connect(function()
         hum.JumpPower = DefaultJP
     end
 
-    -- NC (ไม่แก้ logic เดิม)
-    if State.NC then
-        for _,v in pairs(char:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = false
+-- Noclip
+local NoclipConn
+local function SetNoclip(state)
+    if state then
+        -- ใช้ Stepped แทน RenderStepped (ประหยัด CPU กว่า และเหมาะกับ Physics)
+        NoclipConn = RunService.Stepped:Connect(function()
+            if LP.Character then
+                for _, v in pairs(LP.Character:GetDescendants()) do
+                    if v:IsA("BasePart") and v.CanCollide then
+                        v.CanCollide = false
+                    end
+                end
             end
-        end
+        end)
+    else
+        if NoclipConn then NoclipConn:Disconnect() NoclipConn = nil end
     end
-end)
+end
+
 
 --=========================
 -- 🔥 INFINITE JUMP
@@ -511,9 +521,12 @@ Callback = function(v) State.INFJ = v end
 })
 
 Tabs.Player:AddToggle("NC", {
-Title = "Noclip",
-Default = false,
-Callback = function(v) State.NC = v end
+    Title = "Noclip",
+    Default = false,
+    Callback = function(v) 
+        State.NC = v 
+        SetNoclip(v) -- เรียกใช้ฟังก์ชันที่สร้างใหม่ตรงนี้
+    end
 })
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
