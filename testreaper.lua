@@ -21,7 +21,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 19.5",
+SubTitle = "lib Beta 19.6",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -141,6 +141,34 @@ local DefaultWS = 16
 local DefaultJP = 50
 
 local initialized = false
+
+
+-- Noclip
+--=========================
+-- 🔥 NOCLIP LOGIC
+--=========================
+local NoclipConnection
+local function SetNoclip(state)
+    State.NC = state
+    if state then
+        NoclipConnection = RunService.Stepped:Connect(function()
+            if LP.Character then
+                for _, v in pairs(LP.Character:GetDescendants()) do
+                    if v:IsA("BasePart") and v.CanCollide then
+                        v.CanCollide = false
+                    end
+                end
+            end
+        end)
+    else
+        if NoclipConnection then
+            NoclipConnection:Disconnect()
+            NoclipConnection = nil
+        end
+        -- คืนค่า CanCollide ให้ตัวละคร (Optional: ปกติ Roblox จะคืนค่าให้เองเมื่อหยุดเซ็ต false)
+    end
+end
+
 
 --=========================
 -- 🔥 CHARACTER HOOK
@@ -504,6 +532,14 @@ Callback = function(v) State.INFJ = v
 	end
 })
 
+Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
+    Title = "Noclip",
+    Description = "",
+    Default = false,
+    Callback = function(Value)
+        SetNoclip(Value) -- ส่งค่าไปให้ฟังก์ชันจัดการต่อ
+    end
+})
 
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
