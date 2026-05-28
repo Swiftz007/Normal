@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 6
+-- Lib Load Screen Reaper Hub 7
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -394,7 +394,8 @@ end
 Tabs.Player:AddToggle("JP", {
 Title = "JumpPower",
 Default = false,
-Callback = function(v) State.JP = v end
+Callback = function(v) State.JP = v 
+end
 })
 
 -- Fly Mode 🔥
