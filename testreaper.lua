@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 10
+-- Lib Load Screen Reaper Hub 11
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -6,7 +6,6 @@ local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/InterfaceManager.lua"))()
 
-local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Icon.lua"))()
 
 --=========================
 -- 🔥 SERVICES
@@ -30,6 +29,7 @@ Theme = "Reaper",
 MinimizeKey = Enum.KeyCode.RightControl
 })
 
+local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Icon.lua"))()
 
 -- Tab
 local Tabs = {
