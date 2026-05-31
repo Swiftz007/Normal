@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 19.6",
+SubTitle = "lib Beta 19.7",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1645,11 +1645,11 @@ AimbotToggle:OnChanged(function(Value)
 end)
 
 -- Auto Fire test 🔥
---// [REAPER SYSTEM - MOBILE OFFSET FIXED]
+--// [REAPER SYSTEM - MULTI-MODE FULL VERSION]
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local TweenService = game:GetService("TweenService")
-local GuiService = game:GetService("GuiService") -- เพิ่มตัวนี้
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
@@ -1660,11 +1660,17 @@ local AF_Enabled = false
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
-local AF_Delay = 0.3   
-local AF_HoldTime = 0.05 
+local AF_Mode = "Normal" -- โหมดการยิง [Normal, Spam, Hold]
+local IsHolding = false -- สถานะสำหรับการกดยิงค้าง
 local FirstRun = true 
 
---// [1. ระบบแจ้งเตือน (คงเดิม)]
+--// Configs สำหรับแต่ละโหมด
+local ModeConfigs = {
+    ["Normal"] = {Delay = 0.3, Hold = 0.05},
+    ["Spam"]   = {Delay = 0.01, Hold = 0.01}
+}
+
+--// [1. ระบบแจ้งเตือน (คงโลโก้เดิม 100%)]
 local function SpawnNotify(msg)
     task.spawn(function()
         if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
@@ -1684,7 +1690,7 @@ local function SpawnNotify(msg)
         icon.Size = UDim2.new(0, 40, 0, 40)
         icon.Position = UDim2.new(0, 12, 0, 15)
         icon.BackgroundTransparency = 1
-        icon.Image = "rbxassetid://131279093559313"
+        icon.Image = "rbxassetid://131279093559313" -- โลโก้ของคุณ
         local text = Instance.new("TextLabel", frame)
         text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 60, 0, 0)
@@ -1729,29 +1735,49 @@ local function CheckTarget()
     return false
 end
 
---// [3. ระบบส่ง Input (Mobile - จิ้มตามพิกัดชดเชย)]
+--// [3. ระบบส่ง Input แบ่งตามโหมด]
 RunService.RenderStepped:Connect(function()
-    if not (AF_Enabled and AF_Saved and AF_Pos) then return end
-    if CheckTarget() then
-        local now = tick()
-        if now - AF_LastShot >= AF_Delay then
-            AF_LastShot = now
-            task.spawn(function()
-                -- จิ้มตรงๆ ตามพิกัดที่ชดเชยค่า Inset แล้ว
-                VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game)
-                task.wait(AF_HoldTime)
-                VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
-            end)
+    if not (AF_Enabled and AF_Saved and AF_Pos) then 
+        if IsHolding then 
+            VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
+            IsHolding = false
+        end
+        return 
+    end
+
+    local targetFound = CheckTarget()
+
+    if AF_Mode == "Hold" then
+        if targetFound and not IsHolding then
+            IsHolding = true
+            VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game) -- เริ่มกดยิงค้าง
+        elseif not targetFound and IsHolding then
+            IsHolding = false
+            VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game) -- ปล่อยมือ
+        end
+    else
+        -- โหมด Normal และ Spam
+        if IsHolding then IsHolding = false end
+        if targetFound then
+            local now = tick()
+            local config = ModeConfigs[AF_Mode]
+            if now - AF_LastShot >= config.Delay then
+                AF_LastShot = now
+                task.spawn(function()
+                    VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game)
+                    task.wait(config.Hold)
+                    VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
+                end)
+            end
         end
     end
 end)
 
---// [4. ระบบ Anchor UI (จุดสำคัญที่แก้เรื่องตำแหน่ง)]
+--// [4. ระบบ Anchor UI]
 local AnchorGui = Instance.new("ScreenGui", CoreGui)
 AnchorGui.Name = "ReaperAnchor"
-AnchorGui.IgnoreGuiInset = true -- ให้ UI นับพิกัดจากขอบจอจริงๆ
+AnchorGui.IgnoreGuiInset = true
 AnchorGui.Enabled = false
-
 local AnchorFrame = Instance.new("Frame", AnchorGui)
 AnchorFrame.Size = UDim2.fromOffset(60, 60)
 AnchorFrame.Position = UDim2.new(0.5, -30, 0.5, -30)
@@ -1760,7 +1786,6 @@ AnchorFrame.BackgroundTransparency = 0.5
 AnchorFrame.Active = true 
 AnchorFrame.Draggable = true 
 Instance.new("UICorner", AnchorFrame).CornerRadius = UDim.new(1, 0)
-
 local SaveBtn = Instance.new("TextButton", AnchorFrame)
 SaveBtn.Size = UDim2.fromOffset(80, 35)
 SaveBtn.Position = UDim2.new(0.5, -40, 1, 10)
@@ -1771,44 +1796,49 @@ SaveBtn.Font = Enum.Font.SourceSansBold
 Instance.new("UICorner", SaveBtn)
 
 SaveBtn.MouseButton1Click:Connect(function()
-    -- 🔥 วิธีแก้: ดึงค่าระยะห่างของแถบด้านบน (Inset) มาบวกชดเชย
     local inset = GuiService:GetGuiInset()
     local screenPos = AnchorFrame.AbsolutePosition
     local size = AnchorFrame.AbsoluteSize
-    
-    -- บวก inset.Y เข้าไป เพื่อให้จุดจิ้ม "เลื่อนลงมา" ให้ตรงกับที่ตาเห็น
-    AF_Pos = Vector2.new(
-        screenPos.X + (size.X/2), 
-        screenPos.Y + (size.Y/2) + inset.Y 
-    )
-    
+    AF_Pos = Vector2.new(screenPos.X + (size.X/2), screenPos.Y + (size.Y/2) + inset.Y)
     AF_Saved = true
     AnchorGui.Enabled = false 
-    SpawnNotify("บันทึกพิกัดแล้ว! (ชดเชยระยะจิ้มเรียบร้อย)")
+    SpawnNotify("บันทึกพิกัดโหมด " .. AF_Mode .. " แล้ว!")
 end)
 
---// [5. Toggle]
-local function ToggleAutoFire(state)
-    AF_Enabled = state
-    if FirstRun then FirstRun = false return end
-    if state then
-        AF_Saved = false
-        AnchorGui.Enabled = true
-        SpawnNotify("Press Save")
-    else
-        AF_Saved = false
-        AnchorGui.Enabled = false
-        SpawnNotify("ปิดการใช้งานระบบ")
-    end
-end
-
- 
--- นำไปเชื่อมกับ Toggle ใน UI Lib ของนาย
+--// [5. UI Integration]
 Tabs.Main:AddToggle("AutoFireV3", {
     Title = "Auto Fire",
     Default = false,
-    Callback = ToggleAutoFire
+    Callback = function(state)
+        AF_Enabled = state
+        if FirstRun then FirstRun = false return end
+        if state then
+            AF_Saved = false
+            AnchorGui.Enabled = true
+            SpawnNotify("Press Save")
+        else
+            AF_Saved = false
+            AnchorGui.Enabled = false
+            SpawnNotify("ปิดการใช้งานระบบ")
+        end
+    end
 })
+
+Tabs.Main:AddDropdown("FireMode", {
+    Title = "Fire Mode",
+    Values = {"Normal", "Spam", "Hold"},
+    Default = "Normal",
+    Callback = function(val)
+        AF_Mode = val
+        -- รีเซ็ตสถานะปุ่มหากเปลี่ยนโหมดขณะยิง
+        if IsHolding then
+            VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
+            IsHolding = false
+        end
+        SpawnNotify("โหมดการยิง: " .. val)
+    end
+})
+
 
 
 -- wall Check
