@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 12
+-- Lib Load Screen Reaper Hub 13
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -1644,8 +1644,7 @@ AimbotToggle:OnChanged(function(Value)
     AimbotSettings.Enabled = Value
 end)
 
--- Auto Fire test 🔥
---// [REAPER SYSTEM - NORMAL & SPAM ONLY]
+-- Auto Fire test 🔥--// [REAPER SYSTEM - FIXED CAMERA LOCK]
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local TweenService = game:GetService("TweenService")
@@ -1660,14 +1659,11 @@ local AF_Enabled = false
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
-local AF_Mode = "Normal" -- [Normal, Spam]
+local AF_Mode = "Normal"
+local AF_Delay = 0.3   
+local AF_HoldTime = 0.05 
 local FirstRun = true 
-
---// Configs by Mode (ปรับแต่งความเร็วที่นี่)
-local ModeConfigs = {
-    ["Normal"] = {Delay = 0.3, Hold = 0.05},
-    ["Spam"]   = {Delay = 0.01, Hold = 0.01}
-}
+local IsShooting = false -- เพิ่มเพื่อเช็คสถานะ ป้องกัน Event ซ้อน
 
 --// [1. ระบบแจ้งเตือน (โลโก้เดิมของคุณ)]
 local function SpawnNotify(msg)
@@ -1689,7 +1685,7 @@ local function SpawnNotify(msg)
         icon.Size = UDim2.new(0, 40, 0, 40)
         icon.Position = UDim2.new(0, 12, 0, 15)
         icon.BackgroundTransparency = 1
-        icon.Image = "rbxassetid://131279093559313" -- โลโก้เดิม
+        icon.Image = "rbxassetid://131279093559313"
         local text = Instance.new("TextLabel", frame)
         text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 60, 0, 0)
@@ -1734,20 +1730,21 @@ local function CheckTarget()
     return false
 end
 
---// [3. ระบบส่ง Input (Mobile Offset Fixed)]
+--// [3. ระบบส่ง Input (Fixed Camera Lock)]
 RunService.RenderStepped:Connect(function()
     if not (AF_Enabled and AF_Saved and AF_Pos) then return end
     
-    if CheckTarget() then
+    if CheckTarget() and not IsShooting then
         local now = tick()
-        local config = ModeConfigs[AF_Mode]
-        
-        if now - AF_LastShot >= config.Delay then
+        if now - AF_LastShot >= AF_Delay then
             AF_LastShot = now
+            IsShooting = true -- ล็อคไว้เพื่อไม่ให้ส่ง Event ซ้อนกัน
             task.spawn(function()
-                VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game)
-                task.wait(config.Hold)
-                VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
+                -- ใช้ ID 99 เพื่อเลี่ยงการทับซ้อนนิ้วที่หันจอ
+                VIM:SendTouchEvent(99, 0, AF_Pos.X, AF_Pos.Y, game)
+                task.wait(AF_HoldTime)
+                VIM:SendTouchEvent(99, 2, AF_Pos.X, AF_Pos.Y, game)
+                IsShooting = false -- ปลดล็อคพร้อมยิงนัดถัดไป
             end)
         end
     end
@@ -1785,7 +1782,7 @@ SaveBtn.MouseButton1Click:Connect(function()
     SpawnNotify("บันทึกพิกัดโหมด " .. AF_Mode .. " แล้ว!")
 end)
 
---// [5. UI Library Integration]
+--// [5. UI Integration]
 Tabs.Main:AddToggle("AutoFireV3", {
     Title = "Auto Fire",
     Default = false,
@@ -1799,20 +1796,31 @@ Tabs.Main:AddToggle("AutoFireV3", {
         else
             AF_Saved = false
             AnchorGui.Enabled = false
+            -- ปล่อยปุ่มยิงทันทีที่ปิด
+            VIM:SendTouchEvent(99, 2, 0, 0, game)
+            IsShooting = false
             SpawnNotify("ปิดการใช้งานระบบ")
         end
     end
 })
 
 Tabs.Main:AddDropdown("FireMode", {
-    Title = "Firing Mode",
+    Title = "Fire Mode",
     Values = {"Normal", "Spam"},
     Default = "Normal",
     Callback = function(val)
         AF_Mode = val
-        SpawnNotify("สลับเป็นโหมด: " .. val)
+        if val == "Normal" then
+            AF_Delay = 0.3
+            AF_HoldTime = 0.05
+        elseif val == "Spam" then
+            AF_Delay = 0.05 -- ปรับให้ปลอดภัยต่อระบบหันหน้าจอ
+            AF_HoldTime = 0.02
+        end
+        SpawnNotify("เปลี่ยนเป็นโหมด: " .. val)
     end
 })
+
 
 
 
