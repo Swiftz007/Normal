@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 11
+-- Lib Load Screen Reaper Hub 12
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -1645,7 +1645,7 @@ AimbotToggle:OnChanged(function(Value)
 end)
 
 -- Auto Fire test 🔥
---// [REAPER SYSTEM - MULTI-MODE FULL VERSION]
+--// [REAPER SYSTEM - NORMAL & SPAM ONLY]
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local TweenService = game:GetService("TweenService")
@@ -1660,17 +1660,16 @@ local AF_Enabled = false
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
-local AF_Mode = "Normal" -- โหมดการยิง [Normal, Spam, Hold]
-local IsHolding = false -- สถานะสำหรับการกดยิงค้าง
+local AF_Mode = "Normal" -- [Normal, Spam]
 local FirstRun = true 
 
---// Configs สำหรับแต่ละโหมด
+--// Configs by Mode (ปรับแต่งความเร็วที่นี่)
 local ModeConfigs = {
     ["Normal"] = {Delay = 0.3, Hold = 0.05},
     ["Spam"]   = {Delay = 0.01, Hold = 0.01}
 }
 
---// [1. ระบบแจ้งเตือน (คงโลโก้เดิม 100%)]
+--// [1. ระบบแจ้งเตือน (โลโก้เดิมของคุณ)]
 local function SpawnNotify(msg)
     task.spawn(function()
         if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
@@ -1690,7 +1689,7 @@ local function SpawnNotify(msg)
         icon.Size = UDim2.new(0, 40, 0, 40)
         icon.Position = UDim2.new(0, 12, 0, 15)
         icon.BackgroundTransparency = 1
-        icon.Image = "rbxassetid://131279093559313" -- โลโก้ของคุณ
+        icon.Image = "rbxassetid://131279093559313" -- โลโก้เดิม
         local text = Instance.new("TextLabel", frame)
         text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 60, 0, 0)
@@ -1735,40 +1734,21 @@ local function CheckTarget()
     return false
 end
 
---// [3. ระบบส่ง Input แบ่งตามโหมด]
+--// [3. ระบบส่ง Input (Mobile Offset Fixed)]
 RunService.RenderStepped:Connect(function()
-    if not (AF_Enabled and AF_Saved and AF_Pos) then 
-        if IsHolding then 
-            VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
-            IsHolding = false
-        end
-        return 
-    end
-
-    local targetFound = CheckTarget()
-
-    if AF_Mode == "Hold" then
-        if targetFound and not IsHolding then
-            IsHolding = true
-            VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game) -- เริ่มกดยิงค้าง
-        elseif not targetFound and IsHolding then
-            IsHolding = false
-            VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game) -- ปล่อยมือ
-        end
-    else
-        -- โหมด Normal และ Spam
-        if IsHolding then IsHolding = false end
-        if targetFound then
-            local now = tick()
-            local config = ModeConfigs[AF_Mode]
-            if now - AF_LastShot >= config.Delay then
-                AF_LastShot = now
-                task.spawn(function()
-                    VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game)
-                    task.wait(config.Hold)
-                    VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
-                end)
-            end
+    if not (AF_Enabled and AF_Saved and AF_Pos) then return end
+    
+    if CheckTarget() then
+        local now = tick()
+        local config = ModeConfigs[AF_Mode]
+        
+        if now - AF_LastShot >= config.Delay then
+            AF_LastShot = now
+            task.spawn(function()
+                VIM:SendTouchEvent(15, 0, AF_Pos.X, AF_Pos.Y, game)
+                task.wait(config.Hold)
+                VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
+            end)
         end
     end
 end)
@@ -1805,7 +1785,7 @@ SaveBtn.MouseButton1Click:Connect(function()
     SpawnNotify("บันทึกพิกัดโหมด " .. AF_Mode .. " แล้ว!")
 end)
 
---// [5. UI Integration]
+--// [5. UI Library Integration]
 Tabs.Main:AddToggle("AutoFireV3", {
     Title = "Auto Fire",
     Default = false,
@@ -1825,19 +1805,15 @@ Tabs.Main:AddToggle("AutoFireV3", {
 })
 
 Tabs.Main:AddDropdown("FireMode", {
-    Title = "Fire Mode",
-    Values = {"Normal", "Spam", "Hold"},
+    Title = "Firing Mode",
+    Values = {"Normal", "Spam"},
     Default = "Normal",
     Callback = function(val)
         AF_Mode = val
-        -- รีเซ็ตสถานะปุ่มหากเปลี่ยนโหมดขณะยิง
-        if IsHolding then
-            VIM:SendTouchEvent(15, 2, AF_Pos.X, AF_Pos.Y, game)
-            IsHolding = false
-        end
-        SpawnNotify("โหมดการยิง: " .. val)
+        SpawnNotify("สลับเป็นโหมด: " .. val)
     end
 })
+
 
 
 
