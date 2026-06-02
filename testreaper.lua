@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 19.7",
+SubTitle = "lib Beta 19.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1834,6 +1834,80 @@ WallCheckToggle:OnChanged(function(Value)
     AimbotSettings.WallCheck = Value
 end)
 
+
+-- Safe Mode
+local LP = game:GetService("Players").LocalPlayer -- มั่นใจว่ามีตัวแปรนี้
+local SafeModeActive = false
+local SafeModeType = "Tween"
+local OriginalPos = nil
+local SafeAltitude = 5000 
+
+local function HandleSafeMode(state)
+    local char = LP.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    
+    if not hrp then return end
+
+    if state then
+        -- [ ขาขึ้น ]
+        OriginalPos = hrp.CFrame 
+        local targetCFrame = hrp.CFrame + Vector3.new(0, SafeAltitude, 0)
+
+        if SafeModeType == "Instant" then
+            hrp.CFrame = targetCFrame
+            task.wait(0.1)
+            if SafeModeActive then hrp.Anchored = true end -- เช็คซ้ำว่ายังเปิดอยู่ไหม
+        else
+            hrp.Anchored = false
+            local tweenIn = game:GetService("TweenService"):Create(
+                hrp, 
+                TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), 
+                {CFrame = targetCFrame}
+            )
+            tweenIn:Play()
+            tweenIn.Completed:Connect(function()
+                if SafeModeActive then hrp.Anchored = true end
+            end)
+        end
+    else
+        -- [ ขาลง ]
+        hrp.Anchored = false
+        if OriginalPos then
+            if SafeModeType == "Instant" then
+                hrp.CFrame = OriginalPos
+            else
+                game:GetService("TweenService"):Create(
+                    hrp, 
+                    TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), 
+                    {CFrame = OriginalPos}
+                ):Play()
+            end
+        end
+    end
+end
+
+-- --- UI Section ---
+-- 1. เลือกโหมด (Dropdown) - อยู่ด้านบนตามสั่ง
+Tabs.Settings:AddDropdown("SafeModeType", {
+    Title = "Safe Mode Method",
+    Description = "",
+    Values = {"Tween", "Instant"},
+    Default = "Tween",
+    Callback = function(Value)
+        SafeModeType = Value
+    end
+})
+
+-- 2. ปุ่มเปิดปิด (Toggle) - อยู่ด้านล่าง
+Tabs.Settings:AddToggle("SafeModeToggle", {
+    Title = "Safe Mode",
+    Description = "",
+    Default = false,
+    Callback = function(Value)
+        SafeModeActive = Value
+        HandleSafeMode(Value)
+    end
+})
 
 
 -- Max Zoom
