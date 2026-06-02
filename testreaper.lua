@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 13
+-- Lib Load Screen Reaper Hub 14
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -40,6 +40,7 @@ Player = Window:AddTab({ Title = "Player", Icon = "user" }),
 ESP = Window:AddTab({ Title = "ESP", Icon = "box" }),
 Teleport = Window:AddTab({ Title = "Teleport", Icon = "menu" }),
 Server = Window:AddTab({ Title = "Server", Icon = "server" }),
+Misc = Window:AddTab({ Title = "Misc", Icon = "hash" }),
 Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
@@ -1888,7 +1889,7 @@ end
 
 -- --- UI Section ---
 -- 1. เลือกโหมด (Dropdown) - อยู่ด้านบนตามสั่ง
-Tabs.Settings:AddDropdown("SafeModeType", {
+Tabs.Misc:AddDropdown("SafeModeType", {
     Title = "Safe Mode Method",
     Description = "",
     Values = {"Tween", "Instant"},
@@ -1899,7 +1900,7 @@ Tabs.Settings:AddDropdown("SafeModeType", {
 })
 
 -- 2. ปุ่มเปิดปิด (Toggle) - อยู่ด้านล่าง
-Tabs.Settings:AddToggle("SafeModeToggle", {
+Tabs.Misc:AddToggle("SafeModeToggle", {
     Title = "Safe Mode",
     Description = "",
     Default = false,
@@ -1916,7 +1917,7 @@ local LocalPlayer = Players.LocalPlayer
 
 local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
 
-Tabs.Settings:AddToggle("MaxZoom", {
+Tabs.Misc:AddToggle("MaxZoom", {
     Title = "Max Zoom",
     Default = false,
 
@@ -1962,7 +1963,7 @@ end
 local running = false
 local startTime = 0
 
-Tabs.Settings:AddToggle("AntiAFK", {
+Tabs.Misc:AddToggle("AntiAFK", {
     Title = "Anti AFK",
     Default = false,
     Callback = function(v)
@@ -2071,7 +2072,7 @@ local function applyOptimize(state)
 end
 
 -- FPS Toggle
-Tabs.Settings:AddToggle("FPSBoost", {
+Tabs.Misc:AddToggle("FPSBoost", {
     Title = "FPS Boost",
     Default = false
 }):OnChanged(function(v)
@@ -2275,7 +2276,7 @@ LogService.MessageOut:Connect(function(message, messageType)
 end)
 
 --// TOGGLE
-Tabs.Settings:AddToggle("Console", {
+Tabs.Misc:AddToggle("Console", {
 	Title = "Console",
 	Default = false,
 
