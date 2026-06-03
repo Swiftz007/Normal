@@ -1125,13 +1125,13 @@ local canClick = true
 
 Tabs.Credit:AddButton({
     Title = "Discord",
-    Description = "https://discord.gg/HfRpS7fepm",
+    Description = "https://discord.gg/RPVTDFZyhw",
     Callback = function()
 
         if not canClick then return end
         canClick = false
 
-        local link = "https://discord.gg/HfRpS7fepm"
+        local link = "https://discord.gg/RPVTDFZyhw"
         setclipboard(link)
 
         local gui = Instance.new("ScreenGui")
