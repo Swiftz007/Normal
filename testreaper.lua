@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 14
+-- Lib Load Screen Reaper Hub 15
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -1835,43 +1835,6 @@ WallCheckToggle:OnChanged(function(Value)
     AimbotSettings.WallCheck = Value
 end)
 
-
---=========================
--- 🛠 OPTIMIZED SENSITIVITY (AUTO-RESET)
---=========================
-local GameSettings = UserSettings():GetService("UserGameSettings")
-local OriginalSens = GameSettings.MouseSensitivity -- เก็บค่าเดิมไว้ทันทีที่รัน
-local CustomSensValue = 1
-local IsSensEnabled = false
-
--- Slider อยู่บนตามลำดับการแสดงผลใน UI
-Tabs.Misc:AddSlider("SensSlider", {
-    Title = "Sensitivity Level",
-    Default = 1,
-    Min = 0.1,
-    Max = 200,
-    Rounding = 1,
-    Callback = function(Value)
-        CustomSensValue = Value
-        if IsSensEnabled then
-            GameSettings.MouseSensitivity = Value
-        end
-    end
-})
-
--- Toggle อยู่ล่าง เพื่อเปิด/ปิดระบบ
-Tabs.Misc:AddToggle("EnableCustomSens", {
-    Title = "Sensitivity",
-    Default = false,
-    Callback = function(Value)
-        IsSensEnabled = Value
-        if IsSensEnabled then
-            GameSettings.MouseSensitivity = CustomSensValue
-        else
-            GameSettings.MouseSensitivity = OriginalSens
-        end
-    end
-})
 
 
 -- Safe Mode
