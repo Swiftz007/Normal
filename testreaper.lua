@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 16
+-- Lib Load Screen Reaper Hub 17
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 19.9",
+SubTitle = "lib Beta 19.8",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1835,51 +1835,6 @@ WallCheckToggle:OnChanged(function(Value)
     AimbotSettings.WallCheck = Value
 end)
 
-
---=========================
--- 🛠 OPTIMIZED SENSITIVITY (FIXED)
---=========================
-local UserGameSettings = UserSettings().GameSettings -- แก้ตรงนี้!
-local OriginalSens = 1
-
--- ใช้ pcall กันเหนียว เผื่อ Executor บางตัวบล็อกการเข้าถึง Settings
-pcall(function()
-    OriginalSens = UserGameSettings.MouseSensitivity
-end)
-
-local CustomSensValue = 1
-local IsSensEnabled = false
-
-Tabs.Misc:AddSlider("SensSlider", {
-    Title = "Sensitivity Level",
-    Default = 1,
-    Min = 0.1,
-    Max = 200,
-    Rounding = 1,
-    Callback = function(Value)
-        CustomSensValue = Value
-        if IsSensEnabled then
-            pcall(function()
-                UserGameSettings.MouseSensitivity = Value
-            end)
-        end
-    end
-})
-
-Tabs.Misc:AddToggle("EnableCustomSens", {
-    Title = "Sensitivity",
-    Default = false,
-    Callback = function(Value)
-        IsSensEnabled = Value
-        pcall(function()
-            if IsSensEnabled then
-                UserGameSettings.MouseSensitivity = CustomSensValue
-            else
-                UserGameSettings.MouseSensitivity = OriginalSens
-            end
-        end)
-    end
-})
 
 
 -- Safe Mode
