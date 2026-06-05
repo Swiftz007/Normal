@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 19.8",
+SubTitle = "lib Beta 19.9",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -52,7 +52,8 @@ local State = {
     JP = false,
     INFJ = false,
     NC = false,
-    ESP = false
+    ESP = false,
+	MemClean = false
 }
 
 local WSValue = 16
@@ -1835,6 +1836,34 @@ WallCheckToggle:OnChanged(function(Value)
     AimbotSettings.WallCheck = Value
 end)
 
+
+-- Memmory clear
+--=========================
+-- 🔥 MEMORY CLEANER LOGIC
+--=========================
+local function StartCleanLoop()
+    local threshold = 200 * 1024 -- 200MB
+    task.spawn(function()
+        while State.MemClean do
+            if gcinfo() > threshold then
+                collectgarbage("collect")
+            end
+            task.wait(60) -- เช็คทุก 60 วินาที
+        end
+    end)
+end
+
+-- Memory Cleanup Toggle (No Notification)
+Tabs.Misc:AddToggle("MemCleanup", {
+    Title = "Memory Clean",
+    Default = false,
+    Callback = function(Value)
+        State.MemClean = Value
+        if Value then
+            StartCleanLoop()
+        end
+    end
+})
 
 
 -- Safe Mode
