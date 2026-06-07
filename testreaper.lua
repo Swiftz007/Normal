@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 17
+-- Lib Load Screen Reaper Hub 18
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -1819,8 +1819,8 @@ Tabs.Main:AddDropdown("FireMode", {
             AF_Delay = 0.05 -- ปรับให้ปลอดภัยต่อระบบหันหน้าจอ
             AF_HoldTime = 0.02
         elseif val == "Rapid Click" then
-            AF_Delay = 0.001
-            AF_HoldTime = 0.002
+            AF_Delay = 0
+            AF_HoldTime = 0
         end
         SpawnNotify("เปลี่ยนเป็นโหมด: " .. val)
     end
