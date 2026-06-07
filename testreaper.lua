@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 19.9",
+SubTitle = "lib Beta 20.0",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1808,7 +1808,7 @@ Tabs.Main:AddToggle("AutoFireV3", {
 
 Tabs.Main:AddDropdown("FireMode", {
     Title = "Fire Mode",
-    Values = {"Normal", "Spam"},
+    Values = {"Normal", "Spam", "Rapid Click"},
     Default = "Normal",
     Callback = function(val)
         AF_Mode = val
@@ -1818,6 +1818,9 @@ Tabs.Main:AddDropdown("FireMode", {
         elseif val == "Spam" then
             AF_Delay = 0.05 -- ปรับให้ปลอดภัยต่อระบบหันหน้าจอ
             AF_HoldTime = 0.02
+        elseif val == "Rapid Click" then
+            AF_Delay = 0.001
+            AF_HoldTime = 0.002
         end
         SpawnNotify("เปลี่ยนเป็นโหมด: " .. val)
     end
