@@ -1,4 +1,4 @@
--- Lib Load Screen Reaper Hub 18
+-- Lib Load Screen Reaper Hub 19
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 
@@ -1673,7 +1673,7 @@ local function SpawnNotify(msg)
         if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
         local gui = Instance.new("ScreenGui", CoreGui)
         gui.Name = "ReaperNotify"
-        gui.DisplayOrder = 999999
+        gui.DisplayOrder = 555555
         local frame = Instance.new("Frame", gui)
         frame.Size = UDim2.new(0, 280, 0, 70)
         frame.Position = UDim2.new(1, 300, 0, 20)
