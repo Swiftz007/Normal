@@ -1,7 +1,8 @@
--- Lib Load Screen Reaper Hub 19
+--=========================
+-- 🔥 Lib Load Screen Reaper Hub 20
+--=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
-
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/InterfaceManager.lua"))()
@@ -13,7 +14,6 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-
 local LP = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
@@ -31,7 +31,9 @@ MinimizeKey = Enum.KeyCode.RightControl
 
 local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Icon.lua"))()
 
--- Tab
+--=========================
+-- 🔥Tab
+--=========================
 local Tabs = {
 Status = Window:AddTab({ Title = "Status", Icon = "signal-high" }),
 Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
@@ -64,8 +66,6 @@ local DefaultJP = 50
 
 local initialized = false
 
-
--- Noclip
 --=========================
 -- 🔥 NOCLIP LOGIC
 --=========================
