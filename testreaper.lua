@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 23
+-- 🔥 Lib Load Screen Reaper Hub 24
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1842,12 +1842,12 @@ end)
 
 -- Music
 --=========================
--- 🔥 PRIVATE MUSIC SYSTEM (ULTRA OPTIMIZED)
+-- 🔥 PRIVATE MUSIC SYSTEM (CLEAN VERSION - NO NOTIFY)
 --=========================
 local CurrentPrivateSound = nil
 local PrivateMusicVolume = 0.5
 local PrivateMusicID = ""
-local MusicToggle = nil -- ประกาศรอไว้ให้ Input เรียกใช้
+local MusicToggle = nil -- ประกาศตัวแปรไว้ก่อนเพื่อกัน Nil
 
 -- 1. ช่องใส่ ID เพลง
 Tabs.Misc:AddInput("MusicIDInput", {
@@ -1858,7 +1858,7 @@ Tabs.Misc:AddInput("MusicIDInput", {
     Callback = function(Value)
         PrivateMusicID = Value:match("%d+") or ""
         
-        -- ถ้าเปิด Toggle อยู่ ให้เปลี่ยนเพลงทันที (กินทรัพยากรน้อยมาก แค่สร้าง Object ใหม่)
+        -- ถ้าเปิด Toggle อยู่ ให้เปลี่ยนเพลงทันที
         if MusicToggle and MusicToggle.Value and PrivateMusicID ~= "" then
             if CurrentPrivateSound then CurrentPrivateSound:Destroy() end
             CurrentPrivateSound = Instance.new("Sound")
@@ -1878,26 +1878,23 @@ MusicToggle = Tabs.Misc:AddToggle("MusicToggle", {
     Default = false,
     Callback = function(Value)
         if Value then
+            -- เล่นเพลงเฉพาะเมื่อมี ID
             if PrivateMusicID ~= "" then
                 if CurrentPrivateSound then CurrentPrivateSound:Destroy() end
                 CurrentPrivateSound = Instance.new("Sound")
-                CurrentPrivateSound.Name = "ReaperPrivateMusic"
                 CurrentPrivateSound.SoundId = "rbxassetid://" .. PrivateMusicID
                 CurrentPrivateSound.Volume = PrivateMusicVolume
                 CurrentPrivateSound.Looped = true
                 CurrentPrivateSound.Parent = game:GetService("SoundService")
                 CurrentPrivateSound:Play()
             else
-                -- ใช้ Fluent Notify โดยตรงเพื่อกัน Error Nil 100%
-                Fluent:Notify({
-                    Title = "Reaper Music",
-                    Content = "Enter the song ID before opening!",
-                    Duration = 3
-                })
-                -- ดีดปุ่มกลับเป็นปิดแบบปลอดภัย
-                task.defer(function() MusicToggle:SetValue(false) end)
+                -- ถ้าไม่มี ID ให้ดีดปุ่มกลับเป็นปิด (ไม่ต้องแจ้งเตือน)
+                task.defer(function()
+                    MusicToggle:SetValue(false)
+                end)
             end
         else
+            -- ปิดเพลง
             if CurrentPrivateSound then
                 CurrentPrivateSound:Stop()
                 CurrentPrivateSound:Destroy()
@@ -1910,7 +1907,6 @@ MusicToggle = Tabs.Misc:AddToggle("MusicToggle", {
 -- 3. Slider ปรับระดับเสียง
 Tabs.Misc:AddSlider("MusicVolume", {
     Title = "Music Volume",
-    Description = "",
     Default = 0.5,
     Min = 0,
     Max = 2,
@@ -1922,6 +1918,7 @@ Tabs.Misc:AddSlider("MusicVolume", {
         end
     end
 })
+
 
 
 
