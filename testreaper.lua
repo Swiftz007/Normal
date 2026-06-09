@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 22
+-- 🔥 Lib Load Screen Reaper Hub 23
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1842,12 +1842,12 @@ end)
 
 -- Music
 --=========================
--- 🔥 PRIVATE MUSIC SYSTEM (REAPER HUB FIXED)
+-- 🔥 PRIVATE MUSIC SYSTEM (ULTRA OPTIMIZED)
 --=========================
 local CurrentPrivateSound = nil
 local PrivateMusicVolume = 0.5
 local PrivateMusicID = ""
-local MusicToggle -- ประกาศไว้ก่อน (Forward Declaration)
+local MusicToggle = nil -- ประกาศรอไว้ให้ Input เรียกใช้
 
 -- 1. ช่องใส่ ID เพลง
 Tabs.Misc:AddInput("MusicIDInput", {
@@ -1858,7 +1858,7 @@ Tabs.Misc:AddInput("MusicIDInput", {
     Callback = function(Value)
         PrivateMusicID = Value:match("%d+") or ""
         
-        -- เปลี่ยนเพลงทันทีถ้า Toggle เปิดอยู่
+        -- ถ้าเปิด Toggle อยู่ ให้เปลี่ยนเพลงทันที (กินทรัพยากรน้อยมาก แค่สร้าง Object ใหม่)
         if MusicToggle and MusicToggle.Value and PrivateMusicID ~= "" then
             if CurrentPrivateSound then CurrentPrivateSound:Destroy() end
             CurrentPrivateSound = Instance.new("Sound")
@@ -1871,7 +1871,7 @@ Tabs.Misc:AddInput("MusicIDInput", {
     end
 })
 
--- 2. Toggle เปิด/ปิด (เก็บใส่ตัวแปร MusicToggle)
+-- 2. Toggle เปิด/ปิด
 MusicToggle = Tabs.Misc:AddToggle("MusicToggle", {
     Title = "Play Music",
     Description = "Client Only",
@@ -1888,13 +1888,14 @@ MusicToggle = Tabs.Misc:AddToggle("MusicToggle", {
                 CurrentPrivateSound.Parent = game:GetService("SoundService")
                 CurrentPrivateSound:Play()
             else
-                -- เรียกใช้ SpawnNotify ที่คุณประกาศไว้ในสคริปต์หลัก
-                if SpawnNotify then 
-                    SpawnNotify("กรุณาใส่ ID เพลงก่อนเปิด!") 
-                end
-                -- ดีดปุ่มกลับเป็นปิด
-                task.wait(0.1)
-                MusicToggle:SetValue(false)
+                -- ใช้ Fluent Notify โดยตรงเพื่อกัน Error Nil 100%
+                Fluent:Notify({
+                    Title = "Reaper Music",
+                    Content = "Enter the song ID before opening!",
+                    Duration = 3
+                })
+                -- ดีดปุ่มกลับเป็นปิดแบบปลอดภัย
+                task.defer(function() MusicToggle:SetValue(false) end)
             end
         else
             if CurrentPrivateSound then
@@ -1913,7 +1914,7 @@ Tabs.Misc:AddSlider("MusicVolume", {
     Default = 0.5,
     Min = 0,
     Max = 2,
-    Rounding = 1, -- ปรับให้เลื่อนได้ละเอียด 0.1, 0.2...
+    Rounding = 1,
     Callback = function(Value)
         PrivateMusicVolume = Value
         if CurrentPrivateSound then
@@ -1921,6 +1922,7 @@ Tabs.Misc:AddSlider("MusicVolume", {
         end
     end
 })
+
 
 
 
