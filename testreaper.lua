@@ -1842,7 +1842,7 @@ end)
 
 -- Music
 --=========================
--- 🔥 PRIVATE MUSIC SYSTEM (REAPER GOD VERSION)
+-- 🔥 PRIVATE MUSIC SYSTEM (REAPER FINAL FIXED)
 --=========================
 local CurrentPrivateSound = nil
 local PrivateMusicVolume = 0.5
@@ -1857,10 +1857,9 @@ Tabs.Misc:AddInput("MusicIDInput", {
     Callback = function(Value)
         PrivateMusicID = Value:match("%d+") or ""
         
-        -- ตรวจสอบผ่าน Fluent.Options เพื่อกัน Error Nil Value
-        local isEnabled = Fluent.Options.MusicToggleKey and Fluent.Options.MusicToggleKey.Value
-        
-        if isEnabled and PrivateMusicID ~= "" then
+        -- ตรวจสอบผ่าน Options เพื่อป้องกัน Error Nil 
+        local ToggleOption = Fluent.Options.MusicToggleKey
+        if ToggleOption and ToggleOption.Value and PrivateMusicID ~= "" then
             if CurrentPrivateSound then CurrentPrivateSound:Destroy() end
             CurrentPrivateSound = Instance.new("Sound")
             CurrentPrivateSound.SoundId = "rbxassetid://" .. PrivateMusicID
@@ -1872,7 +1871,7 @@ Tabs.Misc:AddInput("MusicIDInput", {
     end
 })
 
--- 2. Toggle เปิด/ปิด (ระบุ Key ให้ชัดเจนเพื่อเรียกใช้ผ่าน Options)
+-- 2. Toggle เปิด/ปิด (ระบุ Key ว่า MusicToggleKey)
 Tabs.Misc:AddToggle("MusicToggleKey", {
     Title = "Play Music",
     Description = "Client Only",
@@ -1888,7 +1887,7 @@ Tabs.Misc:AddToggle("MusicToggleKey", {
                 CurrentPrivateSound.Parent = game:GetService("SoundService")
                 CurrentPrivateSound:Play()
             else
-                -- ถ้าไม่มี ID ให้ดีดปุ่มกลับ โดยเช็คก่อนว่า Object มีอยู่จริง
+                -- ถ้าไม่มี ID ให้ดีดปุ่มกลับ โดยไม่ใช้ Notify เพื่อกัน Error
                 task.defer(function()
                     if Fluent.Options.MusicToggleKey then
                         Fluent.Options.MusicToggleKey:SetValue(false)
@@ -1919,6 +1918,7 @@ Tabs.Misc:AddSlider("MusicVolumeSlider", {
         end
     end
 })
+
 
 
 
