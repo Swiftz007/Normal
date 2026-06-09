@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.0",
+SubTitle = "lib Beta 20.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1838,6 +1838,90 @@ local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
 WallCheckToggle:OnChanged(function(Value)
     AimbotSettings.WallCheck = Value
 end)
+
+
+-- Music
+--=========================
+-- 🔥 PRIVATE MUSIC SYSTEM (REAPER HUB FIXED)
+--=========================
+local CurrentPrivateSound = nil
+local PrivateMusicVolume = 0.5
+local PrivateMusicID = ""
+local MusicToggle -- ประกาศไว้ก่อน (Forward Declaration)
+
+-- 1. ช่องใส่ ID เพลง
+Tabs.Misc:AddInput("MusicIDInput", {
+    Title = "Music ID",
+    Default = "",
+    Placeholder = "Enter ID here...",
+    NumericOnly = true,
+    Callback = function(Value)
+        PrivateMusicID = Value:match("%d+") or ""
+        
+        -- เปลี่ยนเพลงทันทีถ้า Toggle เปิดอยู่
+        if MusicToggle and MusicToggle.Value and PrivateMusicID ~= "" then
+            if CurrentPrivateSound then CurrentPrivateSound:Destroy() end
+            CurrentPrivateSound = Instance.new("Sound")
+            CurrentPrivateSound.SoundId = "rbxassetid://" .. PrivateMusicID
+            CurrentPrivateSound.Volume = PrivateMusicVolume
+            CurrentPrivateSound.Looped = true
+            CurrentPrivateSound.Parent = game:GetService("SoundService")
+            CurrentPrivateSound:Play()
+        end
+    end
+})
+
+-- 2. Toggle เปิด/ปิด (เก็บใส่ตัวแปร MusicToggle)
+MusicToggle = Tabs.Misc:AddToggle("MusicToggle", {
+    Title = "Play Music",
+    Description = "Client Only",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            if PrivateMusicID ~= "" then
+                if CurrentPrivateSound then CurrentPrivateSound:Destroy() end
+                CurrentPrivateSound = Instance.new("Sound")
+                CurrentPrivateSound.Name = "ReaperPrivateMusic"
+                CurrentPrivateSound.SoundId = "rbxassetid://" .. PrivateMusicID
+                CurrentPrivateSound.Volume = PrivateMusicVolume
+                CurrentPrivateSound.Looped = true
+                CurrentPrivateSound.Parent = game:GetService("SoundService")
+                CurrentPrivateSound:Play()
+            else
+                -- เรียกใช้ SpawnNotify ที่คุณประกาศไว้ในสคริปต์หลัก
+                if SpawnNotify then 
+                    SpawnNotify("กรุณาใส่ ID เพลงก่อนเปิด!") 
+                end
+                -- ดีดปุ่มกลับเป็นปิด
+                task.wait(0.1)
+                MusicToggle:SetValue(false)
+            end
+        else
+            if CurrentPrivateSound then
+                CurrentPrivateSound:Stop()
+                CurrentPrivateSound:Destroy()
+                CurrentPrivateSound = nil
+            end
+        end
+    end
+})
+
+-- 3. Slider ปรับระดับเสียง
+Tabs.Misc:AddSlider("MusicVolume", {
+    Title = "Music Volume",
+    Description = "",
+    Default = 0.5,
+    Min = 0,
+    Max = 2,
+    Rounding = 1, -- ปรับให้เลื่อนได้ละเอียด 0.1, 0.2...
+    Callback = function(Value)
+        PrivateMusicVolume = Value
+        if CurrentPrivateSound then
+            CurrentPrivateSound.Volume = Value
+        end
+    end
+})
+
 
 
 -- Memmory clear
