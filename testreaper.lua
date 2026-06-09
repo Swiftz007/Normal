@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 26
+-- 🔥 Lib Load Screen Reaper Hub 27
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1842,11 +1842,12 @@ end)
 
 -- Music
 --=========================
--- 🔥 PRIVATE MUSIC SYSTEM (REAPER FINAL FIXED)
+-- 🔥 PRIVATE MUSIC SYSTEM (REAPER ULTIMATE FIXED)
 --=========================
 local CurrentPrivateSound = nil
 local PrivateMusicVolume = 0.5
 local PrivateMusicID = ""
+local MusicToggleObject = nil -- สร้างตัวแปรไว้เก็บค่า Object โดยตรง
 
 -- 1. ช่องใส่ ID เพลง
 Tabs.Misc:AddInput("MusicIDInput", {
@@ -1857,9 +1858,8 @@ Tabs.Misc:AddInput("MusicIDInput", {
     Callback = function(Value)
         PrivateMusicID = Value:match("%d+") or ""
         
-        -- ตรวจสอบผ่าน Options เพื่อป้องกัน Error Nil 
-        local ToggleOption = Fluent.Options.MusicToggleKey
-        if ToggleOption and ToggleOption.Value and PrivateMusicID ~= "" then
+        -- เช็คผ่านตัวแปรตรงๆ ไม่ผ่าน Table Options เพื่อกัน Error Nil
+        if MusicToggleObject and MusicToggleObject.Value and PrivateMusicID ~= "" then
             if CurrentPrivateSound then CurrentPrivateSound:Destroy() end
             CurrentPrivateSound = Instance.new("Sound")
             CurrentPrivateSound.SoundId = "rbxassetid://" .. PrivateMusicID
@@ -1871,8 +1871,8 @@ Tabs.Misc:AddInput("MusicIDInput", {
     end
 })
 
--- 2. Toggle เปิด/ปิด (ระบุ Key ว่า MusicToggleKey)
-Tabs.Misc:AddToggle("MusicToggleKey", {
+-- 2. Toggle เปิด/ปิด (เก็บค่าเข้าตัวแปร MusicToggleObject)
+MusicToggleObject = Tabs.Misc:AddToggle("MusicToggleKey", {
     Title = "Play Music",
     Description = "Client Only",
     Default = false,
@@ -1887,10 +1887,10 @@ Tabs.Misc:AddToggle("MusicToggleKey", {
                 CurrentPrivateSound.Parent = game:GetService("SoundService")
                 CurrentPrivateSound:Play()
             else
-                -- ถ้าไม่มี ID ให้ดีดปุ่มกลับ โดยไม่ใช้ Notify เพื่อกัน Error
+                -- ถ้าไม่มี ID ให้ดีดปุ่มกลับ โดยเช็คว่า Object มีอยู่จริงก่อนสั่ง SetValue
                 task.defer(function()
-                    if Fluent.Options.MusicToggleKey then
-                        Fluent.Options.MusicToggleKey:SetValue(false)
+                    if MusicToggleObject then
+                        MusicToggleObject:SetValue(false)
                     end
                 end)
             end
@@ -1918,6 +1918,7 @@ Tabs.Misc:AddSlider("MusicVolumeSlider", {
         end
     end
 })
+
 
 
 
