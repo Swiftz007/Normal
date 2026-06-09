@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 29
+-- 🔥 Lib Load Screen Reaper Hub 30
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1841,74 +1841,7 @@ end)
 
 
 -- Music
---=========================
--- 🔥 PRIVATE MUSIC SYSTEM (REAPER CLEAN & NO ERROR)
---=========================
-local CurrentPrivateSound = nil
-local PrivateMusicVolume = 0.5
-local PrivateMusicID = ""
 
--- ฟังก์ชันรันเพลง (แยกออกมาเพื่อให้เรียกใช้ได้จากทุกที่)
-local function RefreshReaperMusic()
-    -- เช็คสถานะจาก Options ของ Fluent โดยตรง (กัน Nil 100%)
-    local IsEnabled = false
-    if Fluent.Options.MusicToggleKey then
-        IsEnabled = Fluent.Options.MusicToggleKey.Value
-    end
-
-    if IsEnabled and PrivateMusicID ~= "" then
-        if CurrentPrivateSound then CurrentPrivateSound:Destroy() end
-        CurrentPrivateSound = Instance.new("Sound")
-        CurrentPrivateSound.SoundId = "rbxassetid://" .. PrivateMusicID
-        CurrentPrivateSound.Volume = PrivateMusicVolume
-        CurrentPrivateSound.Looped = true
-        CurrentPrivateSound.Parent = game:GetService("SoundService")
-        CurrentPrivateSound:Play()
-    else
-        if CurrentPrivateSound then
-            CurrentPrivateSound:Stop()
-            CurrentPrivateSound:Destroy()
-            CurrentPrivateSound = nil
-        end
-    end
-end
-
--- 1. ช่องใส่ ID เพลง
-Tabs.Misc:AddInput("MusicIDInput", {
-    Title = "Music ID",
-    Default = "",
-    Placeholder = "Enter ID here...",
-    NumericOnly = true,
-    Callback = function(Value)
-        PrivateMusicID = Value:match("%d+") or ""
-        RefreshReaperMusic()
-    end
-})
-
--- 2. Toggle เปิด/ปิด (ระบุ Key: MusicToggleKey)
-Tabs.Misc:AddToggle("MusicToggleKey", {
-    Title = "Play Music",
-    Description = "Client Only",
-    Default = false,
-    Callback = function()
-        RefreshReaperMusic()
-    end
-})
-
--- 3. Slider ปรับระดับเสียง
-Tabs.Misc:AddSlider("MusicVolumeSlider", {
-    Title = "Music Volume",
-    Default = 0.5,
-    Min = 0,
-    Max = 2,
-    Rounding = 1,
-    Callback = function(Value)
-        PrivateMusicVolume = Value
-        if CurrentPrivateSound then
-            CurrentPrivateSound.Volume = Value
-        end
-    end
-})
 
 
 
