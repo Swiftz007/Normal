@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 34
+-- 🔥 Lib Load Screen Reaper Hub 35
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1847,7 +1847,7 @@ end)
 local SoundService = game:GetService("SoundService")
 local UIS = game:GetService("UserInputService")
 
--- สร้างตัวแปร Sound รอไว้ (ดัก Nil)
+-- สร้าง Sound รอไว้แบบ Global ใน Scope นี้
 local LocalMusic = SoundService:FindFirstChild("ReaperClientMusic")
 if not LocalMusic then
     LocalMusic = Instance.new("Sound")
@@ -1858,7 +1858,7 @@ LocalMusic.Looped = true
 
 local MusicUI = nil
 
--- ปรับปรุงระบบลาก (Safe Drag)
+-- Function ลาก UI (ดัก Nil สำหรับ Mobile/PC)
 local function MakeDraggable(frame, handle)
     local dragging, dragInput, dragStart, startPos
     handle.InputBegan:Connect(function(input)
@@ -1879,18 +1879,19 @@ local function MakeDraggable(frame, handle)
     end)
 end
 
+-- Function สร้าง UI
 local function CreateMusicPlayerUI()
-    -- ตรวจสอบว่ามีอยู่แล้วหรือไม่
-    local existing = game.CoreGui:FindFirstChild("ReaperMusicGui")
-    if existing then existing:Destroy() end
+    if game.CoreGui:FindFirstChild("ReaperMusicGui") then 
+        game.CoreGui.ReaperMusicGui:Destroy() 
+    end
     
     local sg = Instance.new("ScreenGui", game.CoreGui)
     sg.Name = "ReaperMusicGui"
     MusicUI = sg
 
     local main = Instance.new("Frame", sg)
-    main.Size = UDim2.fromOffset(260, 190)
-    main.Position = UDim2.new(0.5, -130, 0.5, -95)
+    main.Size = UDim2.fromOffset(260, 180)
+    main.Position = UDim2.new(0.5, -130, 0.5, -90)
     main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
     main.BorderSizePixel = 0
     Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
@@ -1917,7 +1918,7 @@ local function CreateMusicPlayerUI()
     idBox.Size = UDim2.new(0.9, 0, 0, 35)
     idBox.Position = UDim2.new(0.05, 0, 0, 50)
     idBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    idBox.PlaceholderText = "ใส่ ID เพลงที่นี่..."
+    idBox.PlaceholderText = "Paste Sound ID..."
     idBox.Text = ""
     idBox.TextColor3 = Color3.new(1, 1, 1)
     Instance.new("UICorner", idBox)
@@ -1934,9 +1935,9 @@ local function CreateMusicPlayerUI()
     MakeDraggable(main, titleBar)
 
     playBtn.MouseButton1Click:Connect(function()
-        if LocalMusic.IsPlaying then
+        if LocalMusic and LocalMusic.IsPlaying then
             LocalMusic:Stop()
-        else
+        elseif LocalMusic then
             local id = idBox.Text:gsub("%D", "")
             if id ~= "" then
                 LocalMusic.SoundId = "rbxassetid://" .. id
@@ -1946,20 +1947,28 @@ local function CreateMusicPlayerUI()
     end)
 end
 
--- เพิ่มเข้า Tab Misc (แก้ไข Callback เป็น OnChanged เพื่อความชัวร์ใน Fluent)
-local MusicToggle = Tabs.Misc:AddToggle("MusicPlayerToggle", {
+--=========================
+-- 🔥 การเพิ่ม Toggle (แก้จุดที่พัง)
+--=========================
+-- ใช้ Callback ภายใน AddToggle เลย เพื่อป้องกัน Error "attempt to call a nil value" จากการใช้ :OnChanged
+Tabs.Misc:AddToggle("MusicPlayerToggle", {
     Title = "Music Client",
-    Default = false
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            CreateMusicPlayerUI()
+        else
+            if MusicUI then 
+                MusicUI:Destroy() 
+                MusicUI = nil 
+            end
+            if LocalMusic then 
+                LocalMusic:Stop() 
+            end
+        end
+    end
 })
 
-MusicToggle:OnChanged(function(Value)
-    if Value then
-        CreateMusicPlayerUI()
-    else
-        if MusicUI then MusicUI:Destroy() MusicUI = nil end
-        if LocalMusic then LocalMusic:Stop() end
-    end
-end)
 
 
 
