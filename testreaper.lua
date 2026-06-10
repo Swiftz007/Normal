@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 32
+-- 🔥 Lib Load Screen Reaper Hub 33
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1842,18 +1842,20 @@ end)
 
 -- Music
 --=========================
--- 🔥 CLIENT MUSIC PLAYER (FIXED)
+-- 🔥 FIXED CLIENT MUSIC PLAYER
 --=========================
 local SoundService = game:GetService("SoundService")
-local LocalMusic = Instance.new("Sound")
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local LocalMusic = SoundService:FindFirstChild("ReaperClientMusic") or Instance.new("Sound")
 LocalMusic.Name = "ReaperClientMusic"
 LocalMusic.Parent = SoundService
 LocalMusic.Looped = true
 
 local MusicUI = nil
-local MusicMiniBtn = nil
 
--- Function: Drag Logic
+-- Function: Drag Logic (Fixed Nil UIS)
 local function MakeDraggable(frame, handle)
     local dragging, dragInput, dragStart, startPos
     handle.InputBegan:Connect(function(input)
@@ -1877,23 +1879,15 @@ local function MakeDraggable(frame, handle)
     end)
 end
 
--- Function: Create Music UI
 local function CreateMusicPlayerUI()
+    if game.CoreGui:FindFirstChild("ReaperMusicGui") then return end
+    
     local sg = Instance.new("ScreenGui", game.CoreGui)
     sg.Name = "ReaperMusicGui"
     MusicUI = sg
 
-    local mini = Instance.new("ImageButton", sg)
-    mini.Size = UDim2.fromOffset(45, 45)
-    mini.Position = UDim2.new(0, 10, 0.5, 0)
-    mini.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    mini.Image = "rbxassetid://10650505193"
-    mini.Visible = false
-    Instance.new("UICorner", mini).CornerRadius = UDim.new(0, 10)
-    Instance.new("UIStroke", mini).Color = Color3.fromRGB(255, 0, 0)
-    MusicMiniBtn = mini
-
     local main = Instance.new("Frame", sg)
+    main.Name = "MainFrame"
     main.Size = UDim2.fromOffset(260, 190)
     main.Position = UDim2.new(0.5, -130, 0.5, -95)
     main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
@@ -1916,14 +1910,6 @@ local function CreateMusicPlayerUI()
     titleText.Font = Enum.Font.GothamBold
     titleText.TextSize = 14
     titleText.TextXAlignment = Enum.TextXAlignment.Left
-
-    local closeBtn = Instance.new("TextButton", titleBar)
-    closeBtn.Size = UDim2.fromOffset(30, 30)
-    closeBtn.Position = UDim2.new(1, -35, 0, 2)
-    closeBtn.BackgroundTransparency = 1
-    closeBtn.Text = "×"
-    closeBtn.TextColor3 = Color3.new(1, 0, 0)
-    closeBtn.TextSize = 24
 
     local idBox = Instance.new("TextBox", main)
     idBox.Size = UDim2.new(0.9, 0, 0, 35)
@@ -1952,7 +1938,6 @@ local function CreateMusicPlayerUI()
     volLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
     volLabel.Font = Enum.Font.Gotham
     volLabel.TextSize = 12
-    volLabel.TextXAlignment = Enum.TextXAlignment.Left
 
     local sliderBg = Instance.new("Frame", main)
     sliderBg.Size = UDim2.new(0.9, 0, 0, 6)
@@ -1966,16 +1951,6 @@ local function CreateMusicPlayerUI()
     Instance.new("UICorner", sliderFill)
 
     MakeDraggable(main, titleBar)
-
-    closeBtn.MouseButton1Click:Connect(function()
-        main.Visible = false
-        mini.Visible = true
-    end)
-
-    mini.MouseButton1Click:Connect(function()
-        main.Visible = true
-        mini.Visible = false
-    end)
 
     local isPlaying = false
     playBtn.MouseButton1Click:Connect(function()
@@ -1996,6 +1971,7 @@ local function CreateMusicPlayerUI()
         end
     end)
 
+    -- Fixed Volume Slider logic
     local function UpdateVolume(input)
         local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
@@ -2006,12 +1982,13 @@ local function CreateMusicPlayerUI()
     sliderBg.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             UpdateVolume(input)
-            local moveCon, endCon
+            local moveCon
             moveCon = UIS.InputChanged:Connect(function(move)
                 if move.UserInputType == Enum.UserInputType.MouseMovement or move.UserInputType == Enum.UserInputType.Touch then
                     UpdateVolume(move)
                 end
             end)
+            local endCon
             endCon = UIS.InputEnded:Connect(function(ended)
                 if ended.UserInputType == Enum.UserInputType.MouseButton1 or ended.UserInputType == Enum.UserInputType.Touch then
                     moveCon:Disconnect()
@@ -2020,29 +1997,28 @@ local function CreateMusicPlayerUI()
             end)
         end
     end)
-    return sg
 end
 
 --=========================
--- 🔥 ADD TO MISC TAB (Fluent)
+-- 🔥 ADD TO MISC TAB (Fixed Callback)
 --=========================
 Tabs.Misc:AddToggle("MusicPlayerToggle", {
     Title = "Show Music Player",
     Default = false,
     Callback = function(Value)
         if Value then
-            if not MusicUI then
-                CreateMusicPlayerUI()
-            else
-                MusicUI.Enabled = true
-            end
+            CreateMusicPlayerUI()
+            if MusicUI then MusicUI.Enabled = true end
         else
-            if MusicUI then MusicUI:Destroy() MusicUI = nil end
-            if MusicMiniBtn then MusicMiniBtn:Destroy() MusicMiniBtn = nil end
-            LocalMusic:Stop()
+            if MusicUI then 
+                MusicUI:Destroy() 
+                MusicUI = nil 
+            end
+            if LocalMusic then LocalMusic:Stop() end
         end
     end
 })
+
 
 
 
