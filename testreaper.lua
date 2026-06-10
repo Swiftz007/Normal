@@ -42,7 +42,7 @@ Player = Window:AddTab({ Title = "Player", Icon = "user" }),
 ESP = Window:AddTab({ Title = "ESP", Icon = "box" }),
 Teleport = Window:AddTab({ Title = "Teleport", Icon = "menu" }),
 Server = Window:AddTab({ Title = "Server", Icon = "server" }),
-Misc = Window:AddTab({ Title = "Misc", Icon = "hash" }),
+Misc = Window:AddTab({ Title = "Misc", Icon = "copy" }),
 Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
