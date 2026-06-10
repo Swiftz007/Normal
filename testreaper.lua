@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 36
+-- 🔥 Lib Load Screen Reaper Hub 37
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1842,42 +1842,37 @@ end)
 
 -- Music
 --=========================
--- 🔥 REBUILT MUSIC SYSTEM (MISC)
+-- 🔥 FIXED MUSIC SYSTEM (Misc Tab)
 --=========================
-local S_SoundService = game:GetService("SoundService")
-local S_UIS = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
+local UIS = game:GetService("UserInputService")
 
--- ตรวจสอบและสร้าง Sound Object
-local function GetMusicObject()
-    local s = S_SoundService:FindFirstChild("ReaperMusic")
-    if not s then
-        s = Instance.new("Sound")
-        s.Name = "ReaperMusic"
-        s.Parent = S_SoundService
-        s.Looped = true
-        s.Volume = 0.5
-    end
-    return s
+-- ตรวจสอบ/สร้าง Sound Object
+local LocalMusic = SoundService:FindFirstChild("ReaperClientMusic")
+if not LocalMusic then
+    LocalMusic = Instance.new("Sound")
+    LocalMusic.Name = "ReaperClientMusic"
+    LocalMusic.Parent = SoundService
 end
+LocalMusic.Looped = true
 
-local CurrentMusic = GetMusicObject()
-local MusicGuiObj = nil
+local MusicUI = nil
 
 -- ฟังก์ชันลาก (Safe Drag)
-local function DragUI(frame, handle)
-    local dragToggle, dragStart, startPos
+local function MakeDraggable(frame, handle)
+    local dragging, dragInput, dragStart, startPos
     handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragToggle = true
+            dragging = true
             dragStart = input.Position
             startPos = frame.Position
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragToggle = false end
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
-    S_UIS.InputChanged:Connect(function(input)
-        if dragToggle and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+    UIS.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
@@ -1885,80 +1880,89 @@ local function DragUI(frame, handle)
 end
 
 -- ฟังก์ชันสร้าง UI
-local function BuildMusicUI()
-    if game.CoreGui:FindFirstChild("ReaperMusicPlayer") then return end
+local function CreateMusicPlayerUI()
+    if game.CoreGui:FindFirstChild("ReaperMusicGui") then 
+        game.CoreGui.ReaperMusicGui:Destroy() 
+    end
     
     local sg = Instance.new("ScreenGui", game.CoreGui)
-    sg.Name = "ReaperMusicPlayer"
-    MusicGuiObj = sg
+    sg.Name = "ReaperMusicGui"
+    MusicUI = sg
 
     local main = Instance.new("Frame", sg)
-    main.Size = UDim2.fromOffset(250, 170)
-    main.Position = UDim2.new(0.5, -125, 0.5, -85)
-    main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    Instance.new("UICorner", main).CornerRadius = UDim.new(0, 8)
+    main.Size = UDim2.fromOffset(260, 180)
+    main.Position = UDim2.new(0.5, -130, 0.5, -90)
+    main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    main.BorderSizePixel = 0
+    Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
     Instance.new("UIStroke", main).Color = Color3.fromRGB(255, 0, 0)
 
-    local title = Instance.new("TextLabel", main)
-    title.Size = UDim2.new(1, 0, 0, 30)
-    title.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
-    title.Text = " MUSIC PLAYER"
-    title.TextColor3 = Color3.new(1, 1, 1)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 12
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    Instance.new("UICorner", title)
+    local titleBar = Instance.new("Frame", main)
+    titleBar.Size = UDim2.new(1, 0, 0, 35)
+    titleBar.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+    Instance.new("UICorner", titleBar)
     
-    local idInput = Instance.new("TextBox", main)
-    idInput.Size = UDim2.new(0.9, 0, 0, 35)
-    idInput.Position = UDim2.new(0.05, 0, 0, 45)
-    idInput.PlaceholderText = "Enter Sound ID..."
-    idInput.Text = ""
-    idInput.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    idInput.TextColor3 = Color3.new(1, 1, 1)
-    Instance.new("UICorner", idInput)
+    local titleText = Instance.new("TextLabel", titleBar)
+    titleText.Size = UDim2.new(1, 0, 1, 0)
+    titleText.Text = "  REAPER MUSIC PLAYER"
+    titleText.TextColor3 = Color3.new(1, 1, 1)
+    titleText.Font = Enum.Font.GothamBold
+    titleText.TextSize = 12
+    titleText.BackgroundTransparency = 1
+    titleText.TextXAlignment = Enum.TextXAlignment.Left
+
+    local idBox = Instance.new("TextBox", main)
+    idBox.Size = UDim2.new(0.9, 0, 0, 35)
+    idBox.Position = UDim2.new(0.05, 0, 0, 50)
+    idBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    idBox.PlaceholderText = "ใส่ ID เพลง..."
+    idBox.Text = ""
+    idBox.TextColor3 = Color3.new(1, 1, 1)
+    Instance.new("UICorner", idBox)
 
     local playBtn = Instance.new("TextButton", main)
     playBtn.Size = UDim2.new(0.9, 0, 0, 40)
-    playBtn.Position = UDim2.new(0.05, 0, 0, 90)
+    playBtn.Position = UDim2.new(0.05, 0, 0, 95)
     playBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
     playBtn.Text = "PLAY / STOP"
-    playBtn.TextColor3 = Color3.new(1, 1, 1)
     playBtn.Font = Enum.Font.GothamBold
+    playBtn.TextColor3 = Color3.new(1, 1, 1)
     Instance.new("UICorner", playBtn)
 
-    DragUI(main, title)
+    MakeDraggable(main, titleBar)
 
     playBtn.MouseButton1Click:Connect(function()
-        local music = GetMusicObject()
-        if music.IsPlaying then
-            music:Stop()
-        else
-            local cleanID = idInput.Text:gsub("%D", "")
-            if cleanID ~= "" then
-                music.SoundId = "rbxassetid://" .. cleanID
-                music:Play()
+        if LocalMusic and LocalMusic.IsPlaying then
+            LocalMusic:Stop()
+        elseif LocalMusic then
+            local id = idBox.Text:gsub("%D", "")
+            if id ~= "" then
+                LocalMusic.SoundId = "rbxassetid://" .. id
+                LocalMusic:Play()
             end
         end
     end)
 end
 
 --=========================
--- 🔥 แก้จุด AddToggle ที่พัง (Standardized)
+-- 🔥 FIXED TOGGLE (ไม่ใส่ ID เป็น String ตัวแรก)
 --=========================
 Tabs.Misc:AddToggle({
     Title = "Music Client",
     Default = false,
     Callback = function(Value)
         if Value then
-            pcall(BuildMusicUI)
+            pcall(CreateMusicPlayerUI)
         else
-            if MusicGuiObj then MusicGuiObj:Destroy() MusicGuiObj = nil end
-            local music = GetMusicObject()
-            if music then music:Stop() end
+            if MusicUI then 
+                MusicUI:Destroy() 
+                MusicUI = nil 
+            end
+            if LocalMusic then LocalMusic:Stop() end
         end
     end
 })
+
 
 
 
