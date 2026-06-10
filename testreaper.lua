@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 31
+-- 🔥 Lib Load Screen Reaper Hub 32
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1842,13 +1842,9 @@ end)
 
 -- Music
 --=========================
--- 🔥 CLIENT MUSIC PLAYER SYSTEM
+-- 🔥 CLIENT MUSIC PLAYER (FIXED)
 --=========================
 local SoundService = game:GetService("SoundService")
-local TweenService = game:GetService("TweenService")
-local UIS = game:GetService("UserInputService")
-
--- Create Local Sound
 local LocalMusic = Instance.new("Sound")
 LocalMusic.Name = "ReaperClientMusic"
 LocalMusic.Parent = SoundService
@@ -1857,9 +1853,7 @@ LocalMusic.Looped = true
 local MusicUI = nil
 local MusicMiniBtn = nil
 
---=========================
--- 🔥 DRAG LOGIC FUNCTION
---=========================
+-- Function: Drag Logic
 local function MakeDraggable(frame, handle)
     local dragging, dragInput, dragStart, startPos
     handle.InputBegan:Connect(function(input)
@@ -1883,105 +1877,86 @@ local function MakeDraggable(frame, handle)
     end)
 end
 
---=========================
--- 🔥 CREATE MUSIC UI
---=========================
+-- Function: Create Music UI
 local function CreateMusicPlayerUI()
-    if MusicUI then MusicUI:Destroy() end
-    if MusicMiniBtn then MusicMiniBtn:Destroy() end
-
-    -- Main ScreenGui
     local sg = Instance.new("ScreenGui", game.CoreGui)
     sg.Name = "ReaperMusicGui"
     MusicUI = sg
 
-    -- Mini Open Button (ปุ่มเล็กๆ ไว้เปิดตอนปิด UI)
     local mini = Instance.new("ImageButton", sg)
-    mini.Size = UDim2.fromOffset(40, 40)
-    mini.Position = UDim2.new(0, 20, 0.5, 0)
-    mini.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
-    mini.Image = "rbxassetid://10650505193" -- Music Icon
+    mini.Size = UDim2.fromOffset(45, 45)
+    mini.Position = UDim2.new(0, 10, 0.5, 0)
+    mini.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    mini.Image = "rbxassetid://10650505193"
     mini.Visible = false
-    Instance.new("UICorner", mini).CornerRadius = UDim.new(0, 8)
-    local miniStroke = Instance.new("UIStroke", mini)
-    miniStroke.Color = Color3.fromRGB(255, 0, 0)
-    miniStroke.Thickness = 1.5
+    Instance.new("UICorner", mini).CornerRadius = UDim.new(0, 10)
+    Instance.new("UIStroke", mini).Color = Color3.fromRGB(255, 0, 0)
     MusicMiniBtn = mini
 
-    -- Main Player Frame
     local main = Instance.new("Frame", sg)
-    main.Size = UDim2.fromOffset(250, 180)
-    main.Position = UDim2.new(0.5, -125, 0.5, -90)
+    main.Size = UDim2.fromOffset(260, 190)
+    main.Position = UDim2.new(0.5, -130, 0.5, -95)
     main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-    main.BorderSizePixel = 0
-    main.ClipsDescendants = true
     Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
-    
     local mainStroke = Instance.new("UIStroke", main)
     mainStroke.Color = Color3.fromRGB(100, 0, 0)
     mainStroke.Thickness = 2
 
-    -- Title Bar (Handle for Drag)
     local titleBar = Instance.new("Frame", main)
-    titleBar.Size = UDim2.new(1, 0, 0, 30)
-    titleBar.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+    titleBar.Size = UDim2.new(1, 0, 0, 35)
+    titleBar.BackgroundColor3 = Color3.fromRGB(35, 0, 0)
+    Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 10)
     
     local titleText = Instance.new("TextLabel", titleBar)
     titleText.Size = UDim2.new(1, -40, 1, 0)
     titleText.Position = UDim2.fromOffset(10, 0)
     titleText.BackgroundTransparency = 1
-    titleText.Text = "REAPER MUSIC PLAYER"
+    titleText.Text = "REAPER MUSIC"
     titleText.TextColor3 = Color3.new(1, 1, 1)
     titleText.Font = Enum.Font.GothamBold
-    titleText.TextSize = 12
+    titleText.TextSize = 14
     titleText.TextXAlignment = Enum.TextXAlignment.Left
 
     local closeBtn = Instance.new("TextButton", titleBar)
     closeBtn.Size = UDim2.fromOffset(30, 30)
-    closeBtn.Position = UDim2.new(1, -30, 0, 0)
+    closeBtn.Position = UDim2.new(1, -35, 0, 2)
     closeBtn.BackgroundTransparency = 1
     closeBtn.Text = "×"
     closeBtn.TextColor3 = Color3.new(1, 0, 0)
     closeBtn.TextSize = 24
 
-    -- Input ID
     local idBox = Instance.new("TextBox", main)
-    idBox.Size = UDim2.new(0.9, 0, 0, 30)
-    idBox.Position = UDim2.new(0.05, 0, 0, 45)
+    idBox.Size = UDim2.new(0.9, 0, 0, 35)
+    idBox.Position = UDim2.new(0.05, 0, 0, 50)
     idBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    idBox.PlaceholderText = "Paste Sound ID Here..."
+    idBox.PlaceholderText = "Paste Sound ID..."
     idBox.Text = ""
     idBox.TextColor3 = Color3.new(1, 1, 1)
     idBox.Font = Enum.Font.Gotham
-    idBox.TextSize = 12
     Instance.new("UICorner", idBox).CornerRadius = UDim.new(0, 6)
 
-    -- Play/Stop Toggle Button
     local playBtn = Instance.new("TextButton", main)
-    playBtn.Size = UDim2.new(0.9, 0, 0, 35)
-    playBtn.Position = UDim2.new(0.05, 0, 0, 85)
-    playBtn.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+    playBtn.Size = UDim2.new(0.9, 0, 0, 40)
+    playBtn.Position = UDim2.new(0.05, 0, 0, 95)
+    playBtn.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
     playBtn.Text = "PLAY"
     playBtn.TextColor3 = Color3.new(1, 1, 1)
     playBtn.Font = Enum.Font.GothamBold
-    playBtn.TextSize = 14
     Instance.new("UICorner", playBtn).CornerRadius = UDim.new(0, 6)
 
-    -- Volume Slider Label
     local volLabel = Instance.new("TextLabel", main)
     volLabel.Size = UDim2.new(0.9, 0, 0, 20)
-    volLabel.Position = UDim2.new(0.05, 0, 0, 125)
+    volLabel.Position = UDim2.new(0.05, 0, 0, 140)
     volLabel.BackgroundTransparency = 1
     volLabel.Text = "Volume: 50%"
     volLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
     volLabel.Font = Enum.Font.Gotham
-    volLabel.TextSize = 10
+    volLabel.TextSize = 12
     volLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Volume Slider Background
     local sliderBg = Instance.new("Frame", main)
     sliderBg.Size = UDim2.new(0.9, 0, 0, 6)
-    sliderBg.Position = UDim2.new(0.05, 0, 0, 150)
+    sliderBg.Position = UDim2.new(0.05, 0, 0, 165)
     sliderBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     Instance.new("UICorner", sliderBg)
 
@@ -1990,10 +1965,8 @@ local function CreateMusicPlayerUI()
     sliderFill.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     Instance.new("UICorner", sliderFill)
 
-    -- Logic: Draggable
     MakeDraggable(main, titleBar)
 
-    -- Logic: Close UI to Mini Button
     closeBtn.MouseButton1Click:Connect(function()
         main.Visible = false
         mini.Visible = true
@@ -2004,27 +1977,25 @@ local function CreateMusicPlayerUI()
         mini.Visible = false
     end)
 
-    -- Logic: Play/Stop
     local isPlaying = false
     playBtn.MouseButton1Click:Connect(function()
         if not isPlaying then
-            local id = idBox.Text:gsub("%D", "") -- กรองเอาแต่ตัวเลข
+            local id = idBox.Text:gsub("%D", "")
             if id ~= "" then
                 LocalMusic.SoundId = "rbxassetid://" .. id
                 LocalMusic:Play()
                 isPlaying = true
                 playBtn.Text = "STOP"
-                playBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+                playBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             end
         else
             LocalMusic:Stop()
             isPlaying = false
             playBtn.Text = "PLAY"
-            playBtn.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+            playBtn.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
         end
     end)
 
-    -- Logic: Volume Slider
     local function UpdateVolume(input)
         local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
@@ -2035,13 +2006,12 @@ local function CreateMusicPlayerUI()
     sliderBg.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             UpdateVolume(input)
-            local moveCon
+            local moveCon, endCon
             moveCon = UIS.InputChanged:Connect(function(move)
                 if move.UserInputType == Enum.UserInputType.MouseMovement or move.UserInputType == Enum.UserInputType.Touch then
                     UpdateVolume(move)
                 end
             end)
-            local endCon
             endCon = UIS.InputEnded:Connect(function(ended)
                 if ended.UserInputType == Enum.UserInputType.MouseButton1 or ended.UserInputType == Enum.UserInputType.Touch then
                     moveCon:Disconnect()
@@ -2050,20 +2020,22 @@ local function CreateMusicPlayerUI()
             end)
         end
     end)
-
     return sg
 end
 
 --=========================
--- 🔥 ADD TO MISC TAB
+-- 🔥 ADD TO MISC TAB (Fluent)
 --=========================
-Tabs.Misc:AddToggle("ClientMusicPlayer", {
-    Title = "Music Player (Client)",
+Tabs.Misc:AddToggle("MusicPlayerToggle", {
+    Title = "Show Music Player",
     Default = false,
     Callback = function(Value)
         if Value then
-            local ui = CreateMusicPlayerUI()
-            ui.Enabled = true
+            if not MusicUI then
+                CreateMusicPlayerUI()
+            else
+                MusicUI.Enabled = true
+            end
         else
             if MusicUI then MusicUI:Destroy() MusicUI = nil end
             if MusicMiniBtn then MusicMiniBtn:Destroy() MusicMiniBtn = nil end
