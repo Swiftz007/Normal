@@ -1,8 +1,3 @@
-if _G.Script_Language == "Thai" then
-    -- โหลดสคริปต์เฉพาะตอนที่เป็น Thai เท่านั้น
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/Thai.lua"))()
-else
-
 --=========================
 -- 🔥 Lib Load Screen Reaper Hub 37
 --=========================
