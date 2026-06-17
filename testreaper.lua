@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 38
+-- 🔥 Lib Load Screen Reaper Hub 39
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2132,24 +2132,7 @@ end)
 -- 🔥 FPS CAP SYSTEM (FIXED & NO NOTIFY)
 --=========================
 local SelectedFPS = 60 
-local FPSLoopActive = false
 
--- ระบบจัดการ FPS ให้คงที่ (ทำงานเบื้องหลัง)
-local function StartFPSManager()
-    if FPSLoopActive then return end
-    FPSLoopActive = true
-    
-    task.spawn(function()
-        while FPSLoopActive do
-            if setfpscap then
-                -- ถ้าเลื่อนสุด (240) จะทำการ Unlock เป็น 999
-                local finalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
-                setfpscap(finalFPS)
-            end
-            task.wait(5) -- ย้ำค่าทุก 5 วินาที กันเกมดีดกลับไป 60
-        end
-    end)
-end
 
 -- 1. Slider สำหรับเลือกระดับ FPS
 Tabs.Misc:AddSlider("FPSCapSlider", {
