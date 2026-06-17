@@ -1,7 +1,6 @@
 --=========================
 -- 🔥 Lib Load Screen Reaper Hub 37
 --=========================
-local webhook = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Libwebhook.lua"))() --webhook
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -2580,3 +2579,6 @@ end)
 -- Load Success 
 task.wait(2)
 print("Reaper Hub Loaded")
+
+task.wait(2)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Libwebhook.lua"))() --webhook
