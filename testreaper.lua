@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 37
+-- 🔥 Lib Load Screen Reaper Hub 38
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2129,9 +2129,27 @@ Tabs.Misc:AddToggle("FPSBoost", {
 end)
 
 --=========================
--- 🔥 FPS CAP SYSTEM (NO NOTIFY)
+-- 🔥 FPS CAP SYSTEM (FIXED & NO NOTIFY)
 --=========================
-local SelectedFPS = 60 -- ค่าเริ่มต้น
+local SelectedFPS = 60 
+local FPSLoopActive = false
+
+-- ระบบจัดการ FPS ให้คงที่ (ทำงานเบื้องหลัง)
+local function StartFPSManager()
+    if FPSLoopActive then return end
+    FPSLoopActive = true
+    
+    task.spawn(function()
+        while FPSLoopActive do
+            if setfpscap then
+                -- ถ้าเลื่อนสุด (240) จะทำการ Unlock เป็น 999
+                local finalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
+                setfpscap(finalFPS)
+            end
+            task.wait(5) -- ย้ำค่าทุก 5 วินาที กันเกมดีดกลับไป 60
+        end
+    end)
+end
 
 -- 1. Slider สำหรับเลือกระดับ FPS
 Tabs.Misc:AddSlider("FPSCapSlider", {
@@ -2146,19 +2164,19 @@ Tabs.Misc:AddSlider("FPSCapSlider", {
     end
 })
 
--- 2. Button สำหรับเปลี่ยน FPS (ไม่มี Pop-up แจ้งเตือน)
--- ปรับปรุงส่วนปุ่ม Change FPS ให้รองรับการ Unlock อัตโนมัติถ้าเลือก Max
+-- 2. Button สำหรับเริ่มการล็อค FPS (ลบการแจ้งเตือนออกแล้ว)
 Tabs.Misc:AddButton({
     Title = "Set FPS",
     Description = "",
     Callback = function()
         if setfpscap then
-            -- Unlock Limit
-            local finalFPS = (SelectedFPS == 240) and 999 or SelectedFPS
+            local finalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
             setfpscap(finalFPS)
+            StartFPSManager() -- รันระบบ Loop ย้ำค่าทันที
         end
     end
 })
+
 
 
 
