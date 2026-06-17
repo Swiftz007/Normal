@@ -23,7 +23,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.0",
+SubTitle = "lib Beta 20.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -2129,6 +2129,37 @@ Tabs.Misc:AddToggle("FPSBoost", {
     applyOptimize(v)
 end)
 
+--=========================
+-- 🔥 FPS CAP SYSTEM (NO NOTIFY)
+--=========================
+local SelectedFPS = 60 -- ค่าเริ่มต้น
+
+-- 1. Slider สำหรับเลือกระดับ FPS
+Tabs.Misc:AddSlider("FPSCapSlider", {
+    Title = "FPS Cap",
+    Description = "",
+    Default = 60,
+    Min = 30,
+    Max = 240,
+    Rounding = 0,
+    Callback = function(Value)
+        SelectedFPS = Value
+    end
+})
+
+-- 2. Button สำหรับเปลี่ยน FPS (ไม่มี Pop-up แจ้งเตือน)
+-- ปรับปรุงส่วนปุ่ม Change FPS ให้รองรับการ Unlock อัตโนมัติถ้าเลือก Max
+Tabs.Misc:AddButton({
+    Title = "Set FPS",
+    Description = "",
+    Callback = function()
+        if setfpscap then
+            -- Unlock Limit
+            local finalFPS = (SelectedFPS == 240) and 999 or SelectedFPS
+            setfpscap(finalFPS)
+        end
+    end
+})
 
 
 
