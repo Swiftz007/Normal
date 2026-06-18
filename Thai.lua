@@ -2126,37 +2126,58 @@ Tabs.Misc:AddToggle("FPSBoost", {
     applyOptimize(v)
 end)
 
---=========================
--- 🔥 FPS CAP SYSTEM (FIXED & NO NOTIFY)
---=========================
-local SelectedFPS = 60 
 
 
--- 1. Slider สำหรับเลือกระดับ FPS
+--=========================
+-- 🔥 FPS CAP SYSTEM (FIXED)
+--=========================
+
+local SelectedFPS = 60
+
+-- Slider
 Tabs.Misc:AddSlider("FPSCapSlider", {
-    Title = "ตั้งค่าจำนวนเฟรมเรท",
+    Title = "FPS Cap",
     Description = "",
     Default = 60,
     Min = 30,
     Max = 240,
     Rounding = 0,
+
     Callback = function(Value)
-        SelectedFPS = Value
+        SelectedFPS = tonumber(Value) or 60
     end
 })
 
--- 2. Button สำหรับเริ่มการล็อค FPS (ลบการแจ้งเตือนออกแล้ว)
+-- Button
 Tabs.Misc:AddButton({
-    Title = "บันทึกเฟรมเรท",
+    Title = "Set FPS",
     Description = "",
+
     Callback = function()
-        if setfpscap then
-            local finalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
-            setfpscap(finalFPS)
-            StartFPSManager() -- รันระบบ Loop ย้ำค่าทันที
+        local Success, Error = pcall(function()
+
+            if not setfpscap then
+                warn("setfpscap is not supported by this executor.")
+                return
+            end
+
+            local FinalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
+
+            setfpscap(FinalFPS)
+
+            if typeof(StartFPSManager) == "function" then
+                StartFPSManager()
+            end
+
+        end)
+
+        if not Success then
+            warn("[FPS Cap Error]:", Error)
         end
     end
 })
+
+
 
 
 
