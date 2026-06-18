@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 40
+-- 🔥 Lib Load Screen Reaper Hub 41
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.2",
+SubTitle = "lib Beta 20.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -2130,43 +2130,51 @@ end)
 
 
 
-local SelectedFPS = 60 
+--=========================
+-- 🔥 FPS CAP SYSTEM (FIXED)
+--=========================
 
-local function StartFPSManager()
-    task.spawn(function()
-        while true do
-            if setfpscap then
-                local finalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
-                setfpscap(finalFPS)
-            end
-            task.wait(5)
-        end
-    end)
-end
+local SelectedFPS = 60
 
--- 1. Slider สำหรับเลือกระดับ FPS (ลบ Description ออก)
+-- Slider
 Tabs.Misc:AddSlider("FPSCapSlider", {
     Title = "FPS Cap",
+    Description = "",
     Default = 60,
     Min = 30,
     Max = 240,
     Rounding = 0,
+
     Callback = function(Value)
-        SelectedFPS = Value
+        SelectedFPS = tonumber(Value) or 60
     end
 })
 
--- 2. Button สำหรับเริ่มการล็อค FPS (ลบ Description และ Print ออก)
+-- Button
 Tabs.Misc:AddButton({
     Title = "Set FPS",
+    Description = "",
+
     Callback = function()
-        if setfpscap then
-            local finalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
-            setfpscap(finalFPS)
-            
-            pcall(function()
+        local Success, Error = pcall(function()
+
+            if not setfpscap then
+                warn("setfpscap is not supported by this executor.")
+                return
+            end
+
+            local FinalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
+
+            setfpscap(FinalFPS)
+
+            if typeof(StartFPSManager) == "function" then
                 StartFPSManager()
-            end)
+            end
+
+        end)
+
+        if not Success then
+            warn("[FPS Cap Error]:", Error)
         end
     end
 })
