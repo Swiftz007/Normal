@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 39
+-- 🔥 Lib Load Screen Reaper Hub 40
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.1",
+SubTitle = "lib Beta 20.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -2128,16 +2128,25 @@ Tabs.Misc:AddToggle("FPSBoost", {
     applyOptimize(v)
 end)
 
---=========================
--- 🔥 FPS CAP SYSTEM (FIXED & NO NOTIFY)
---=========================
+
+
 local SelectedFPS = 60 
 
+local function StartFPSManager()
+    task.spawn(function()
+        while true do
+            if setfpscap then
+                local finalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
+                setfpscap(finalFPS)
+            end
+            task.wait(5)
+        end
+    end)
+end
 
--- 1. Slider สำหรับเลือกระดับ FPS
+-- 1. Slider สำหรับเลือกระดับ FPS (ลบ Description ออก)
 Tabs.Misc:AddSlider("FPSCapSlider", {
     Title = "FPS Cap",
-    Description = "",
     Default = 60,
     Min = 30,
     Max = 240,
@@ -2147,18 +2156,21 @@ Tabs.Misc:AddSlider("FPSCapSlider", {
     end
 })
 
--- 2. Button สำหรับเริ่มการล็อค FPS (ลบการแจ้งเตือนออกแล้ว)
+-- 2. Button สำหรับเริ่มการล็อค FPS (ลบ Description และ Print ออก)
 Tabs.Misc:AddButton({
     Title = "Set FPS",
-    Description = "",
     Callback = function()
         if setfpscap then
             local finalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
             setfpscap(finalFPS)
-            StartFPSManager() -- รันระบบ Loop ย้ำค่าทันที
+            
+            pcall(function()
+                StartFPSManager()
+            end)
         end
     end
 })
+
 
 
 
