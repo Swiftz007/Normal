@@ -1,6 +1,3 @@
---=========================
--- 🔥 Lib Load Screen Reaper Hub 37
---=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1047,7 +1044,7 @@ local PingLabel = Tabs.Status:AddParagraph({
 })
 
 local FPSLabel = Tabs.Status:AddParagraph({
-    Title = "FPS",
+    Title = "เฟรมต่อวินาที",
     Content = "Loading..."
 })
 
@@ -1111,8 +1108,8 @@ end)
 
 -- Credit
 Tabs.Credit:AddParagraph({
-    Title = "Credit",
-    Content = "Made by x2sxqz"
+    Title = "เครดิต",
+    Content = "สร้างโดย x2sxqz"
 })
 
 Tabs.Credit:AddParagraph({
@@ -1287,7 +1284,7 @@ local Camera = workspace.CurrentCamera
 -- SPECTATE TOGGLE
 -- =========================
 Tabs.Teleport:AddToggle("spec", {
-    Title = "ดูผู้เล่น",
+    Title = "มองผู้เล่น",
     Default = false
 }):OnChanged(function(state)
     spectating = state
@@ -1600,7 +1597,7 @@ end)
 
 -- [เพิ่มใหม่] Multi-Select Dropdown สำหรับ Ignore List (Random Mode)
 local IgnoreDropdown = Tabs.Main:AddDropdown("IgnoreDropdown", {
-    Title = "ไม่สนใจผู้เล่น",
+    Title = "เลือกผู้เล่นที่ไม่สนใจ",
     Description = "",
     Values = getPlayerNames(),
     Multi = true, -- เปิดใช้งานเลือกได้หลายคน
@@ -1629,7 +1626,7 @@ Tabs.Main:AddButton({
 
 -- ตั้งค่าอื่นๆ
 local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
-    Title = "เลือกส่วนล็อกเป้า",
+    Title = "เลือกประเภทล็อกเป้า",
     Values = {"Head", "Body", "Leg"},
     Multi = false,
     Default = 1,
@@ -1832,7 +1829,7 @@ Tabs.Main:AddDropdown("FireMode", {
 
 -- wall Check
 local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
-    Title = "ตรวจสอบกำแพง",
+    Title = "เช็คกำแพง",
     Default = true
 })
 WallCheckToggle:OnChanged(function(Value)
@@ -2013,7 +2010,8 @@ local running = false
 local startTime = 0
 
 Tabs.Misc:AddToggle("AntiAFK", {
-    Title = "ป้องกัน AFK",
+    Title = "ป้องกันโดนเตะ",
+	Description = "กันโดนเตะเมื่อนิ่ง20นาที",
     Default = false,
     Callback = function(v)
         if v then
@@ -2122,12 +2120,43 @@ end
 
 -- FPS Toggle
 Tabs.Misc:AddToggle("FPSBoost", {
-    Title = "FPS BOOST",
+    Title = "เพิ่มประสิทธิภาพเฟรมเรท",
     Default = false
 }):OnChanged(function(v)
     applyOptimize(v)
 end)
 
+--=========================
+-- 🔥 FPS CAP SYSTEM (FIXED & NO NOTIFY)
+--=========================
+local SelectedFPS = 60 
+
+
+-- 1. Slider สำหรับเลือกระดับ FPS
+Tabs.Misc:AddSlider("FPSCapSlider", {
+    Title = "ตั้งค่าจำนวนเฟรมเรท",
+    Description = "",
+    Default = 60,
+    Min = 30,
+    Max = 240,
+    Rounding = 0,
+    Callback = function(Value)
+        SelectedFPS = Value
+    end
+})
+
+-- 2. Button สำหรับเริ่มการล็อค FPS (ลบการแจ้งเตือนออกแล้ว)
+Tabs.Misc:AddButton({
+    Title = "บันทึกเฟรมเรท",
+    Description = "",
+    Callback = function()
+        if setfpscap then
+            local finalFPS = (SelectedFPS >= 240) and 999 or SelectedFPS
+            setfpscap(finalFPS)
+            StartFPSManager() -- รันระบบ Loop ย้ำค่าทันที
+        end
+    end
+})
 
 
 
@@ -2168,7 +2197,7 @@ Instance.new("UICorner", header).CornerRadius = UDim.new(0,10)
 local title = Instance.new("TextLabel", header)
 title.Size = UDim2.new(1,0,1,0)
 title.BackgroundTransparency = 1
-title.Text = "Reaper Console"
+title.Text = "รีเปอร์คอนโซล"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 14
 title.TextColor3 = Color3.new(1,1,1)
@@ -2200,7 +2229,7 @@ bottom.BackgroundColor3 = Color3.fromRGB(24,24,30)
 local clear = Instance.new("TextButton", bottom)
 clear.Size = UDim2.new(0,70,0,24)
 clear.Position = UDim2.new(1,-80,0.5,-12)
-clear.Text = "Clear"
+clear.Text = "ล้าง"
 clear.Font = Enum.Font.Gotham
 clear.TextSize = 13
 clear.BackgroundColor3 = Color3.fromRGB(40,40,50)
@@ -2241,7 +2270,7 @@ local function createLog(text, msgType)
 
 	elseif msgType == Enum.MessageType.MessageWarning then
 
-		prefix = "[เตือน]"
+		prefix = "[คำเตือน]"
 		color = Color3.fromRGB(255,200,0)
 		bg = Color3.fromRGB(55,50,20)
 	end
@@ -2326,7 +2355,7 @@ end)
 
 --// TOGGLE
 Tabs.Misc:AddToggle("Console", {
-	Title = "Console",
+	Title = "คอนโซล",
 	Default = false,
 
 	Callback = function(v)
