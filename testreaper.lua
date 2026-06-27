@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 44
+-- 🔥 Lib Load Screen Reaper Hub 45
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1841,7 +1841,36 @@ end)
 
 
 -- Fake Name
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
+local FakeNameEnabled = false
+local FakeName = "ReaperUser"
+
+local mt = getrawmetatable(game)
+local old = mt.__index
+
+setreadonly(mt, false)
+
+mt.__index = newcclosure(function(self, key)
+    if self == LocalPlayer
+        and FakeNameEnabled
+        and (key == "Name" or key == "DisplayName") then
+        return FakeName
+    end
+
+    return old(self, key)
+end)
+
+setreadonly(mt, true)
+
+Tabs.Misc:AddToggle("FakeNameToggle", {
+    Title = "Fake Name",
+    Default = false,
+    Callback = function(Value)
+        FakeNameEnabled = Value
+    end
+})
 
 
 
