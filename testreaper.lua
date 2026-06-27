@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.1",
+SubTitle = "lib Beta 20.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1840,20 +1840,71 @@ WallCheckToggle:OnChanged(function(Value)
 end)
 
 
--- Music
+-- Fake Name
+State.FakeName = false
+local FakeNameValue = "ReaperUser"
+local RealName = LP.Name
+local RealDisplayName = LP.DisplayName
 
+--=========================
+-- 🔥 OPTIMIZED FAKE NAME LOGIC
+--=========================
+local mt = getrawmetatable(game)
+local oldIndex = mt.__index
+setreadonly(mt, false)
 
+mt.__index = newcclosure(function(self, idx)
+    if State.FakeName and self == LP then
+        if idx == "Name" or idx == "DisplayName" then
+            return FakeNameValue
+        end
+    end
+    return oldIndex(self, idx)
+end)
+setreadonly(mt, true)
 
+-- ฟังก์ชันเปลี่ยนชื่อบน UI แบบเจาะจง (ไม่หน่วงเครื่อง)
+local function RefreshNameUI()
+    if not State.FakeName then return end
+    
+    local targets = {LP:FindFirstChild("PlayerGui"), game.CoreGui}
+    for _, folder in pairs(targets) do
+        if folder then
+            for _, v in pairs(folder:GetDescendants()) do
+                if v:IsA("TextLabel") or v:IsA("TextButton") then
+                    v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
+                end
+            end
+        end
+    end
+end
 
-
-
-
-
-
-
-
-
-
+--=========================
+-- 🔥 FAKE NAME TOGGLE
+--=========================
+Tabs.Misc:AddToggle("FakeNameToggle", {
+    Title = "Fake Name",
+    Default = false,
+    Callback = function(Value)
+        State.FakeName = Value
+        if Value then
+            RefreshNameUI()
+            -- ดักจับ UI ใหม่ๆ ที่แอปขึ้นมา (เช่น หน้าต่าง Trade หรือ Chat)
+            local uiConn = game.DescendantAdded:Connect(function(v)
+                if State.FakeName and (v:IsA("TextLabel") or v:IsA("TextButton")) then
+                    task.wait(0.1) -- รอให้ข้อความเดิมโหลดเสร็จ
+                    v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
+                end
+            end)
+            
+            -- ปิด Connection เมื่อ Toggle ถูกปิด
+            task.spawn(function()
+                repeat task.wait(1) until not State.FakeName
+                uiConn:Disconnect()
+            end)
+        end
+    end
+})
 
 
 -- Memmory clear
