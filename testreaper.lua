@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 42
+-- 🔥 Lib Load Screen Reaper Hub 43
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1842,25 +1842,49 @@ end)
 
 -- Fake Name
 --=========================
--- 🔥 FAKE NAME SYSTEM (LOCKED & FIXED)
+-- 🔥 FAKE NAME SYSTEM (UNIVERSAL FIX)
 --=========================
 State.FakeName = false
-local FakeNameValue = "ReaperUser" -- ล็อกชื่อไว้ที่นี่
-local RealName = LP.Name
-local RealDisplayName = LP.DisplayName
+local FakeNameValue = "ReaperUser"
+local RealName = LP.Name or game:GetService("Players").LocalPlayer.Name
+local RealDisplayName = LP.DisplayName or game:GetService("Players").LocalPlayer.DisplayName
 
--- Hook Metamethod (วิธีที่ปลอดภัยและกัน Error Nil ที่สุด)
+-- ฟังก์ชัน Hook แบบปลอดภัยสูงสุด
 local oldIndex
-oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, idx)
-    if State.FakeName and self == LP then
-        if idx == "Name" or idx == "DisplayName" then
-            return FakeNameValue
+local success, err = pcall(function()
+    local mt = getrawmetatable(game)
+    setreadonly(mt, false)
+    oldIndex = mt.__index
+    
+    mt.__index = newcclosure(function(self, idx)
+        if State.FakeName and self == LP then
+            if idx == "Name" or idx == "DisplayName" then
+                return FakeNameValue
+            end
         end
-    end
-    return oldIndex(self, idx)
-end))
+        if oldIndex then
+            return oldIndex(self, idx)
+        end
+        return nil
+    end)
+    setreadonly(mt, true)
+end)
 
--- ฟังก์ชันแก้ชื่อบน UI (Chat/Leaderboard/Trade)
+-- ถ้าวิธีแรกพัง ให้ใช้ hookmetamethod เป็นตัวสำรอง
+if not success or not oldIndex then
+    pcall(function()
+        oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, idx)
+            if State.FakeName and self == LP then
+                if idx == "Name" or idx == "DisplayName" then
+                    return FakeNameValue
+                end
+            end
+            return oldIndex(self, idx)
+        end))
+    end)
+end
+
+-- ฟังก์ชันแก้ชื่อบน UI
 local function RefreshNameUI()
     if not State.FakeName then return end
     local targets = {LP:FindFirstChild("PlayerGui"), game:GetService("CoreGui")}
@@ -1869,7 +1893,11 @@ local function RefreshNameUI()
             for _, v in pairs(folder:GetDescendants()) do
                 pcall(function()
                     if v:IsA("TextLabel") or v:IsA("TextButton") then
-                        v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
+                        -- ใช้ string.gsub แบบปลอดภัย
+                        local t = v.Text
+                        t = t:gsub(RealName, FakeNameValue)
+                        t = t:gsub(RealDisplayName, FakeNameValue)
+                        v.Text = t
                     end
                 end)
             end
@@ -1887,20 +1915,24 @@ Tabs.Misc:AddToggle("FakeNameToggle", {
         State.FakeName = Value
         if Value then
             RefreshNameUI()
-            -- ดักจับ UI ที่จะเกิดใหม่ในอนาคต
+            -- ดักจับ UI ใหม่
             local uiConn
             uiConn = game.DescendantAdded:Connect(function(v)
-                if not State.FakeName then uiConn:Disconnect() return end
-                if v:IsA("TextLabel") or v:IsA("TextButton") then
-                    task.wait(0.1)
-                    pcall(function()
-                        v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
-                    end)
+                if not State.FakeName then 
+                    uiConn:Disconnect() 
+                    return 
                 end
+                task.wait(0.1)
+                pcall(function()
+                    if v:IsA("TextLabel") or v:IsA("TextButton") then
+                        v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
+                    end
+                end)
             end)
         end
     end
 })
+
 
 
 
