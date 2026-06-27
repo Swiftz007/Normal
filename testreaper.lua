@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 41
+-- 🔥 Lib Load Screen Reaper Hub 42
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1841,46 +1841,44 @@ end)
 
 
 -- Fake Name
+--=========================
+-- 🔥 FAKE NAME SYSTEM (LOCKED & FIXED)
+--=========================
 State.FakeName = false
-local FakeNameValue = "ReaperUser"
+local FakeNameValue = "ReaperUser" -- ล็อกชื่อไว้ที่นี่
 local RealName = LP.Name
 local RealDisplayName = LP.DisplayName
 
---=========================
--- 🔥 OPTIMIZED FAKE NAME LOGIC
---=========================
-local mt = getrawmetatable(game)
-local oldIndex = mt.__index
-setreadonly(mt, false)
-
-mt.__index = newcclosure(function(self, idx)
+-- Hook Metamethod (วิธีที่ปลอดภัยและกัน Error Nil ที่สุด)
+local oldIndex
+oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, idx)
     if State.FakeName and self == LP then
         if idx == "Name" or idx == "DisplayName" then
             return FakeNameValue
         end
     end
     return oldIndex(self, idx)
-end)
-setreadonly(mt, true)
+end))
 
--- ฟังก์ชันเปลี่ยนชื่อบน UI แบบเจาะจง (ไม่หน่วงเครื่อง)
+-- ฟังก์ชันแก้ชื่อบน UI (Chat/Leaderboard/Trade)
 local function RefreshNameUI()
     if not State.FakeName then return end
-    
-    local targets = {LP:FindFirstChild("PlayerGui"), game.CoreGui}
+    local targets = {LP:FindFirstChild("PlayerGui"), game:GetService("CoreGui")}
     for _, folder in pairs(targets) do
         if folder then
             for _, v in pairs(folder:GetDescendants()) do
-                if v:IsA("TextLabel") or v:IsA("TextButton") then
-                    v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
-                end
+                pcall(function()
+                    if v:IsA("TextLabel") or v:IsA("TextButton") then
+                        v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
+                    end
+                end)
             end
         end
     end
 end
 
 --=========================
--- 🔥 FAKE NAME TOGGLE
+-- 🔥 UI TOGGLE
 --=========================
 Tabs.Misc:AddToggle("FakeNameToggle", {
     Title = "Fake Name",
@@ -1889,22 +1887,21 @@ Tabs.Misc:AddToggle("FakeNameToggle", {
         State.FakeName = Value
         if Value then
             RefreshNameUI()
-            -- ดักจับ UI ใหม่ๆ ที่แอปขึ้นมา (เช่น หน้าต่าง Trade หรือ Chat)
-            local uiConn = game.DescendantAdded:Connect(function(v)
-                if State.FakeName and (v:IsA("TextLabel") or v:IsA("TextButton")) then
-                    task.wait(0.1) -- รอให้ข้อความเดิมโหลดเสร็จ
-                    v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
+            -- ดักจับ UI ที่จะเกิดใหม่ในอนาคต
+            local uiConn
+            uiConn = game.DescendantAdded:Connect(function(v)
+                if not State.FakeName then uiConn:Disconnect() return end
+                if v:IsA("TextLabel") or v:IsA("TextButton") then
+                    task.wait(0.1)
+                    pcall(function()
+                        v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
+                    end)
                 end
-            end)
-            
-            -- ปิด Connection เมื่อ Toggle ถูกปิด
-            task.spawn(function()
-                repeat task.wait(1) until not State.FakeName
-                uiConn:Disconnect()
             end)
         end
     end
 })
+
 
 
 -- Memmory clear
