@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.2",
+SubTitle = "lib Beta 20.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1840,30 +1840,7 @@ WallCheckToggle:OnChanged(function(Value)
 end)
 
 
--- Fake Name
-local FakeName = "ReaperUser"
-local FakeNameEnabled = false
 
-local old
-old = hookmetamethod(game, "__index", function(self, key)
-    if not checkcaller() then
-        if self == LocalPlayer and FakeNameEnabled then
-            if key == "Name" or key == "DisplayName" then
-                return FakeName
-            end
-        end
-    end
-
-    return old(self, key)
-end)
-
-Tabs.Misc:AddToggle("FakeNameToggle", {
-    Title = "Fake Name",
-    Default = false,
-    Callback = function(Value)
-        FakeNameEnabled = Value
-    end
-})
 
 
 
