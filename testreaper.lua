@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 43
+-- 🔥 Lib Load Screen Reaper Hub 44
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1841,97 +1841,7 @@ end)
 
 
 -- Fake Name
---=========================
--- 🔥 FAKE NAME SYSTEM (UNIVERSAL FIX)
---=========================
-State.FakeName = false
-local FakeNameValue = "ReaperUser"
-local RealName = LP.Name or game:GetService("Players").LocalPlayer.Name
-local RealDisplayName = LP.DisplayName or game:GetService("Players").LocalPlayer.DisplayName
 
--- ฟังก์ชัน Hook แบบปลอดภัยสูงสุด
-local oldIndex
-local success, err = pcall(function()
-    local mt = getrawmetatable(game)
-    setreadonly(mt, false)
-    oldIndex = mt.__index
-    
-    mt.__index = newcclosure(function(self, idx)
-        if State.FakeName and self == LP then
-            if idx == "Name" or idx == "DisplayName" then
-                return FakeNameValue
-            end
-        end
-        if oldIndex then
-            return oldIndex(self, idx)
-        end
-        return nil
-    end)
-    setreadonly(mt, true)
-end)
-
--- ถ้าวิธีแรกพัง ให้ใช้ hookmetamethod เป็นตัวสำรอง
-if not success or not oldIndex then
-    pcall(function()
-        oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, idx)
-            if State.FakeName and self == LP then
-                if idx == "Name" or idx == "DisplayName" then
-                    return FakeNameValue
-                end
-            end
-            return oldIndex(self, idx)
-        end))
-    end)
-end
-
--- ฟังก์ชันแก้ชื่อบน UI
-local function RefreshNameUI()
-    if not State.FakeName then return end
-    local targets = {LP:FindFirstChild("PlayerGui"), game:GetService("CoreGui")}
-    for _, folder in pairs(targets) do
-        if folder then
-            for _, v in pairs(folder:GetDescendants()) do
-                pcall(function()
-                    if v:IsA("TextLabel") or v:IsA("TextButton") then
-                        -- ใช้ string.gsub แบบปลอดภัย
-                        local t = v.Text
-                        t = t:gsub(RealName, FakeNameValue)
-                        t = t:gsub(RealDisplayName, FakeNameValue)
-                        v.Text = t
-                    end
-                end)
-            end
-        end
-    end
-end
-
---=========================
--- 🔥 UI TOGGLE
---=========================
-Tabs.Misc:AddToggle("FakeNameToggle", {
-    Title = "Fake Name",
-    Default = false,
-    Callback = function(Value)
-        State.FakeName = Value
-        if Value then
-            RefreshNameUI()
-            -- ดักจับ UI ใหม่
-            local uiConn
-            uiConn = game.DescendantAdded:Connect(function(v)
-                if not State.FakeName then 
-                    uiConn:Disconnect() 
-                    return 
-                end
-                task.wait(0.1)
-                pcall(function()
-                    if v:IsA("TextLabel") or v:IsA("TextButton") then
-                        v.Text = v.Text:gsub(RealName, FakeNameValue):gsub(RealDisplayName, FakeNameValue)
-                    end
-                end)
-            end)
-        end
-    end
-})
 
 
 
