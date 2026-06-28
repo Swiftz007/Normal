@@ -22,7 +22,7 @@ local Camera = workspace.CurrentCamera
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.2",
+SubTitle = "lib Beta 20.1",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1841,95 +1841,6 @@ end)
 
 
 -- Fake name
-local fakeName = "ReaperUser"
-local enabled = false
-
-local originalName = player.Name
-local originalDisplayName = player.DisplayName
-
--- =========================
--- APPLY CHARACTER
--- =========================
-local function applyCharacter(char)
-    if not enabled then return end
-
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if hum then
-        pcall(function()
-            hum.DisplayName = fakeName
-        end)
-    end
-end
-
-player.CharacterAdded:Connect(applyCharacter)
-if player.Character then
-    applyCharacter(player.Character)
-end
-
--- =========================
--- UI SPOOF CORE (NO LAG)
--- =========================
-local function handleInstance(obj)
-    if not enabled then return end
-
-    if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-        if obj:IsDescendantOf(player:WaitForChild("PlayerGui")) then return end
-
-        local t = obj.Text
-        if type(t) == "string" then
-            obj.Text = t
-                :gsub(originalName, fakeName)
-                :gsub(originalDisplayName, fakeName)
-        end
-
-        obj:GetPropertyChangedSignal("Text"):Connect(function()
-            if not enabled then return end
-
-            local new = obj.Text
-            if type(new) == "string" then
-                obj.Text = new
-                    :gsub(originalName, fakeName)
-                    :gsub(originalDisplayName, fakeName)
-            end
-        end)
-    end
-end
-
--- initial scan
-task.spawn(function()
-    for _, v in ipairs(game:GetDescendants()) do
-        handleInstance(v)
-    end
-end)
-
--- new UI
-game.DescendantAdded:Connect(function(v)
-    task.defer(function()
-        handleInstance(v)
-    end)
-end)
-
--- =========================
--- FLUENT UI TOGGLE
--- =========================
-Tabs.Misc:AddToggle("FakeNameToggle", {
-    Title = "Fake Name",
-    Default = false,
-    Callback = function(Value)
-        enabled = Value
-
-        if enabled then
-            pcall(function()
-                player.DisplayName = fakeName
-            end)
-        else
-            pcall(function()
-                player.DisplayName = originalDisplayName
-            end)
-        end
-    end
-})
-
 
 
 
