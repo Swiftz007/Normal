@@ -1664,6 +1664,7 @@ local AF_Mode = "Normal"
 local AF_Delay = 0.3   
 local AF_HoldTime = 0.05 
 local IsShooting = false 
+local AF_Loaded = false
 
 --// [ระบบแจ้งเตือน REAPER STYLE - คงความสวยงามตามเดิม]
 local function SpawnNotify(msg)
@@ -1840,7 +1841,7 @@ Tabs.Main:AddDropdown("FireMode", {
     end
 })
 
-
+AF_Loaded = true
 
 
 
