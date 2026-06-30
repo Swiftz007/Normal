@@ -1664,7 +1664,6 @@ local AF_Mode = "Normal"
 local AF_Delay = 0.3   
 local AF_HoldTime = 0.05 
 local IsShooting = false 
-local AF_Loaded = false
 
 --// [ระบบแจ้งเตือน REAPER STYLE - คงความสวยงามตามเดิม]
 local function SpawnNotify(msg)
@@ -1823,7 +1822,6 @@ Tabs.Main:AddToggle("AutoFireV3", {
         else
             AnchorGui.Enabled = false
             IsShooting = false
-            SpawnNotify("ปิดระบบ Auto Fire")
         end
     end
 })
@@ -1840,9 +1838,6 @@ Tabs.Main:AddDropdown("FireMode", {
         SpawnNotify("โหมดการยิง: " .. val)
     end
 })
-
-AF_Loaded = true
-
 
 
 -- wall Check
