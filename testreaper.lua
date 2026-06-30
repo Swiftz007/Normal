@@ -16,13 +16,18 @@ local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
+local VIM = game:GetService("VirtualInputManager")
+local CoreGui = game:GetService("CoreGui")
+local GuiService = game:GetService("GuiService")
+local TweenService = game:GetService("TweenService")
+
 
 --=========================
 -- 🔥 WINDOW
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.1",
+SubTitle = "lib Beta 20.2",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1646,34 +1651,27 @@ AimbotToggle:OnChanged(function(Value)
     AimbotSettings.Enabled = Value
 end)
 
--- Auto Fire test 🔥--// [REAPER SYSTEM - FIXED CAMERA LOCK]
-local RunService = game:GetService("RunService")
-local VIM = game:GetService("VirtualInputManager")
-local TweenService = game:GetService("TweenService")
-local GuiService = game:GetService("GuiService")
-local Players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
---// Variables
+--========================================================
+-- 🔥 [NEW] AUTO FIRE - REAPER HUB PC & MOBILE
+--========================================================
 local AF_Enabled = false
+local AF_Platform = "Mobile" -- Default
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
 local AF_Mode = "Normal"
 local AF_Delay = 0.3   
 local AF_HoldTime = 0.05 
-local FirstRun = true 
-local IsShooting = false -- เพิ่มเพื่อเช็คสถานะ ป้องกัน Event ซ้อน
+local IsShooting = false 
 
---// [1. ระบบแจ้งเตือน (โลโก้เดิมของคุณ)]
+--// [ระบบแจ้งเตือน REAPER STYLE - คงความสวยงามตามเดิม]
 local function SpawnNotify(msg)
     task.spawn(function()
         if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
         local gui = Instance.new("ScreenGui", CoreGui)
         gui.Name = "ReaperNotify"
-        gui.DisplayOrder = 555555
+        gui.DisplayOrder = 999999
         local frame = Instance.new("Frame", gui)
         frame.Size = UDim2.new(0, 280, 0, 70)
         frame.Position = UDim2.new(1, 300, 0, 20)
@@ -1687,7 +1685,7 @@ local function SpawnNotify(msg)
         icon.Size = UDim2.new(0, 40, 0, 40)
         icon.Position = UDim2.new(0, 12, 0, 15)
         icon.BackgroundTransparency = 1
-        icon.Image = "rbxassetid://131279093559313"
+        icon.Image = "rbxassetid://131279093559313" -- ไอคอนเดิมของคุณ
         local text = Instance.new("TextLabel", frame)
         text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 60, 0, 0)
@@ -1698,6 +1696,7 @@ local function SpawnNotify(msg)
         text.Font = Enum.Font.SourceSansSemibold
         text.TextSize = 14
         text.RichText = true
+        
         TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(1, -300, 0, 20)}):Play()
         task.wait(2.5)
         local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint), {Position = UDim2.new(1, 300, 0, 20), BackgroundTransparency = 1})
@@ -1707,7 +1706,7 @@ local function SpawnNotify(msg)
     end)
 end
 
---// [2. ตรวจเป้าหมาย]
+--// [ระบบตรวจจับเป้าหมาย]
 local function GetHumanoid(part)
     local char = part.Parent
     while char and char ~= workspace do
@@ -1722,37 +1721,47 @@ local function CheckTarget()
     local viewportCenter = Camera.ViewportSize / 2
     local unitRay = Camera:ViewportPointToRay(viewportCenter.X, viewportCenter.Y)
     local params = RaycastParams.new()
-    params.FilterDescendantsInstances = {LocalPlayer.Character, Camera}
+    params.FilterDescendantsInstances = {LP.Character, Camera}
     params.FilterType = Enum.RaycastFilterType.Exclude
     local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, params)
     if result and result.Instance then
         local hum, char = GetHumanoid(result.Instance)
-        if hum and hum.Health > 0 and char ~= LocalPlayer.Character then return true end
+        if hum and hum.Health > 0 and char ~= LP.Character then return true end
     end
     return false
 end
 
---// [3. ระบบส่ง Input (Fixed Camera Lock)]
+--// [ระบบส่ง Input แยกตาม Platform]
 RunService.RenderStepped:Connect(function()
-    if not (AF_Enabled and AF_Saved and AF_Pos) then return end
-    
+    if not AF_Enabled then return end
+    if AF_Platform == "Mobile" and not AF_Saved then return end
+
     if CheckTarget() and not IsShooting then
         local now = tick()
         if now - AF_LastShot >= AF_Delay then
             AF_LastShot = now
-            IsShooting = true -- ล็อคไว้เพื่อไม่ให้ส่ง Event ซ้อนกัน
+            IsShooting = true 
+            
             task.spawn(function()
-                -- ใช้ ID 99 เพื่อเลี่ยงการทับซ้อนนิ้วที่หันจอ
-                VIM:SendTouchEvent(99, 0, AF_Pos.X, AF_Pos.Y, game)
-                task.wait(AF_HoldTime)
-                VIM:SendTouchEvent(99, 2, AF_Pos.X, AF_Pos.Y, game)
-                IsShooting = false -- ปลดล็อคพร้อมยิงนัดถัดไป
+                if AF_Platform == "Mobile" then
+                    -- โหมดมือถือ: ใช้พิกัดปุ่ม
+                    VIM:SendTouchEvent(99, 0, AF_Pos.X, AF_Pos.Y, game)
+                    task.wait(AF_HoldTime)
+                    VIM:SendTouchEvent(99, 2, AF_Pos.X, AF_Pos.Y, game)
+                else
+                    -- โหมด PC: ใช้คลิกเมาส์ซ้าย
+                    local mPos = UIS:GetMouseLocation()
+                    VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, true, game, 1)
+                    task.wait(AF_HoldTime)
+                    VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, false, game, 1)
+                end
+                IsShooting = false
             end)
         end
     end
 end)
 
---// [4. ระบบ Anchor UI]
+--// [UI สำหรับตั้งปุ่ม Mobile]
 local AnchorGui = Instance.new("ScreenGui", CoreGui)
 AnchorGui.Name = "ReaperAnchor"
 AnchorGui.IgnoreGuiInset = true
@@ -1781,27 +1790,39 @@ SaveBtn.MouseButton1Click:Connect(function()
     AF_Pos = Vector2.new(screenPos.X + (size.X/2), screenPos.Y + (size.Y/2) + inset.Y)
     AF_Saved = true
     AnchorGui.Enabled = false 
-    SpawnNotify("บันทึกพิกัดโหมด " .. AF_Mode .. " แล้ว!")
+    SpawnNotify("บันทึกพิกัด Mobile สำเร็จ!")
 end)
 
---// [5. UI Integration]
+--// [UI Integration]
+Tabs.Main:AddDropdown("AF_Platform", {
+    Title = "Platform",
+    Values = {"Mobile", "PC"},
+    Default = "Mobile",
+    Callback = function(val)
+        AF_Platform = val
+        AF_Saved = false
+        if AnchorGui then AnchorGui.Enabled = (val == "Mobile" and AF_Enabled) end
+        SpawnNotify("สลับเป็นโหมด: " .. val)
+    end
+})
+
 Tabs.Main:AddToggle("AutoFireV3", {
     Title = "Auto Fire",
     Default = false,
     Callback = function(state)
         AF_Enabled = state
-        if FirstRun then FirstRun = false return end
         if state then
-            AF_Saved = false
-            AnchorGui.Enabled = true
-            SpawnNotify("Press Save")
+            if AF_Platform == "Mobile" then
+                AF_Saved = false
+                AnchorGui.Enabled = true
+                SpawnNotify("กรุณาวางเป้าเขียวบนปุ่มยิงแล้วกด SAVE")
+            else
+                SpawnNotify("โหมด PC: เริ่มการทำงาน")
+            end
         else
-            AF_Saved = false
             AnchorGui.Enabled = false
-            -- ปล่อยปุ่มยิงทันทีที่ปิด
-            VIM:SendTouchEvent(99, 2, 0, 0, game)
             IsShooting = false
-            SpawnNotify("ปิดการใช้งานระบบ")
+            SpawnNotify("ปิดระบบ Auto Fire")
         end
     end
 })
@@ -1812,17 +1833,10 @@ Tabs.Main:AddDropdown("FireMode", {
     Default = "Normal",
     Callback = function(val)
         AF_Mode = val
-        if val == "Normal" then
-            AF_Delay = 0.3
-            AF_HoldTime = 0.05
-        elseif val == "Spam" then
-            AF_Delay = 0.05 -- ปรับให้ปลอดภัยต่อระบบหันหน้าจอ
-            AF_HoldTime = 0.02
-        elseif val == "Rapid Click" then
-            AF_Delay = 0
-            AF_HoldTime = 0
-        end
-        SpawnNotify("เปลี่ยนเป็นโหมด: " .. val)
+        if val == "Normal" then AF_Delay = 0.3; AF_HoldTime = 0.05
+        elseif val == "Spam" then AF_Delay = 0.05; AF_HoldTime = 0.02
+        elseif val == "Rapid Click" then AF_Delay = 0; AF_HoldTime = 0 end
+        SpawnNotify("โหมดการยิง: " .. val)
     end
 })
 
