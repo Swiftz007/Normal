@@ -1802,7 +1802,7 @@ Tabs.Main:AddDropdown("AF_Platform", {
         AF_Platform = val
         AF_Saved = false
         if AnchorGui then AnchorGui.Enabled = (val == "Mobile" and AF_Enabled) end
-        SpawnNotify("สลับเป็นโหมด: " .. val)
+        SpawnNotify("Mode : " .. val)
     end
 })
 
@@ -1815,9 +1815,9 @@ Tabs.Main:AddToggle("AutoFireV3", {
             if AF_Platform == "Mobile" then
                 AF_Saved = false
                 AnchorGui.Enabled = true
-                SpawnNotify("กรุณาวางเป้าเขียวบนปุ่มยิงแล้วกด SAVE")
+                SpawnNotify("Press Save to working")
             else
-                SpawnNotify("โหมด PC: เริ่มการทำงาน")
+                SpawnNotify("PC Mode")
             end
         else
             AnchorGui.Enabled = false
@@ -1835,7 +1835,7 @@ Tabs.Main:AddDropdown("FireMode", {
         if val == "Normal" then AF_Delay = 0.3; AF_HoldTime = 0.05
         elseif val == "Spam" then AF_Delay = 0.05; AF_HoldTime = 0.02
         elseif val == "Rapid Click" then AF_Delay = 0; AF_HoldTime = 0 end
-        SpawnNotify("โหมดการยิง: " .. val)
+        SpawnNotify("Fire Mode: " .. val)
     end
 })
 
