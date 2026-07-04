@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 49
+-- 🔥 Lib Load Screen Reaper Hub 50
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -20,6 +20,7 @@ local VIM = game:GetService("VirtualInputManager")
 local CoreGui = game:GetService("CoreGui")
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
+local VU = game:GetService("VirtualUser")
 
 
 --=========================
@@ -1755,12 +1756,6 @@ RunService.RenderStepped:Connect(function()
                         mouse1press()
                         task.wait(AF_HoldTime)
                         mouse1release()
-                    else
-                        -- กรณี Executor ไม่รองรับคำสั่งพื้นฐาน (Fallback)
-                        local mPos = UIS:GetMouseLocation()
-                        VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, true, game, 1)
-                        task.wait(AF_HoldTime)
-                        VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, false, game, 1)
                     end
                 end
 
