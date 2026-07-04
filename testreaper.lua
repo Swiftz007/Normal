@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 50
+-- 🔥 Lib Load Screen Reaper Hub 51
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1751,13 +1751,16 @@ RunService.RenderStepped:Connect(function()
                     VIM:SendTouchEvent(99, 2, AF_Pos.X, AF_Pos.Y, game)
                 else
                     -- โหมด PC: ใช้คลิกเมาส์ซ้าย
-                    -- 🔥 ส่วนที่แก้ไข: ใช้คำสั่งจำลองเมาส์แบบ Global เพื่อให้หันจอได้อิสระ
-                    if mouse1press and mouse1release then
-                        mouse1press()
-                        task.wait(AF_HoldTime)
-                        mouse1release()
-                    end
-                end
+    -- โหมด PC: ใช้ VIM แทนเพื่อแก้ปัญหากล้องสะบัดขึ้นฟ้า
+    local viewportSize = Camera.ViewportSize
+    local centerX, centerY = viewportSize.X / 2, viewportSize.Y / 2
+    
+    -- ส่งสัญญาณคลิกซ้ายไปที่กลางจอโดยตรง
+    VIM:SendMouseButtonEvent(centerX, centerY, 0, true, game, 0)
+    task.wait(AF_HoldTime)
+    VIM:SendMouseButtonEvent(centerX, centerY, 0, false, game, 0)
+end
+
 
                 IsShooting = false
             end)
