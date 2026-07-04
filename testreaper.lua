@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 48
+-- 🔥 Lib Load Screen Reaper Hub 49
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -1750,11 +1750,20 @@ RunService.RenderStepped:Connect(function()
                     VIM:SendTouchEvent(99, 2, AF_Pos.X, AF_Pos.Y, game)
                 else
                     -- โหมด PC: ใช้คลิกเมาส์ซ้าย
-                    local mPos = UIS:GetMouseLocation()
-                    VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, true, game, 1)
-                    task.wait(AF_HoldTime)
-                    VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, false, game, 1)
+                    -- 🔥 ส่วนที่แก้ไข: ใช้คำสั่งจำลองเมาส์แบบ Global เพื่อให้หันจอได้อิสระ
+                    if mouse1press and mouse1release then
+                        mouse1press()
+                        task.wait(AF_HoldTime)
+                        mouse1release()
+                    else
+                        -- กรณี Executor ไม่รองรับคำสั่งพื้นฐาน (Fallback)
+                        local mPos = UIS:GetMouseLocation()
+                        VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, true, game, 1)
+                        task.wait(AF_HoldTime)
+                        VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, false, game, 1)
+                    end
                 end
+
                 IsShooting = false
             end)
         end
