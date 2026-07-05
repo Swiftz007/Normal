@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 53
+-- 🔥 Lib Load Screen Reaper Hub 54
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2432,8 +2432,7 @@ if game.CoreGui:FindFirstChild("ToggleUI") then
 end
 
 pcall(function()
-    local oldBlur = game:GetService("Lighting"):FindFirstChild("MenuBlur")
-    if oldBlur then oldBlur:Destroy() end
+    game:GetService("Lighting"):FindFirstChild("MenuBlur"):Destroy()
 end)
 
 --=========================
@@ -2448,11 +2447,11 @@ local Lighting = game:GetService("Lighting")
 --=========================
 local Blur = Instance.new("BlurEffect")
 Blur.Name = "MenuBlur"
-Blur.Size = 40 -- เริ่มต้นที่ 40 ตามค่า isOpen = true
+Blur.Size = 40
 Blur.Parent = Lighting
 
 --=========================
--- GUI CREATION
+-- GUI SETUP
 --=========================
 local gui = Instance.new("ScreenGui")
 gui.Name = "ToggleUI"
@@ -2464,45 +2463,95 @@ gui.Parent = game.CoreGui
 -- BORDER
 local border = Instance.new("Frame")
 border.Parent = gui
-border.Size = UDim2.new(0, 64, 0, 64) -- ปรับขนาดให้คลุมปุ่ม
-border.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-border.BackgroundTransparency = 0.5
+border.Size = UDim2.new(0,0,0,0)
+border.BackgroundColor3 = Color3.fromRGB(0,0,0)
 border.ZIndex = 1
-border.AnchorPoint = Vector2.new(0.5, 0.5)
+border.AnchorPoint = Vector2.new(0,0)
 
 local borderCorner = Instance.new("UICorner")
-borderCorner.CornerRadius = UDim.new(0, 14)
+borderCorner.CornerRadius = UDim.new(0,14)
 borderCorner.Parent = border
 
 -- BUTTON
 local button = Instance.new("ImageButton")
 button.Parent = gui
-button.Size = UDim2.new(0, 60, 0, 60)
-button.Position = UDim2.new(0, 60, 0.2, 0)
-button.AnchorPoint = Vector2.new(0.5, 0.5)
+button.Size = UDim2.new(0,60,0,60)
+button.Position = UDim2.new(0,60,0.2,0)
+button.AnchorPoint = Vector2.new(0,0)
 button.BackgroundTransparency = 1
 button.ZIndex = 999999
 button.AutoButtonColor = false
 
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
+corner.CornerRadius = UDim.new(0,12)
 corner.Parent = button
 
--- IMAGE ASSETS
+-- IMAGE
 local imgOn = "rbxassetid://86279908104891"
 local imgOff = "rbxassetid://86279908104891"
-
 button.Image = imgOn
 button.ScaleType = Enum.ScaleType.Fit
 
 --=========================
--- AUTO ALIGN SYSTEM
+-- FUNCTIONS
 --=========================
 local function UpdateBorder()
-    border.Position = button.Position
+    local offset = (border.Size.X.Offset - button.Size.X.Offset) / 2
+    border.Position = UDim2.new(
+        button.Position.X.Scale,
+        button.Position.X.Offset - offset,
+        button.Position.Y.Scale,
+        button.Position.Y.Offset - offset
+    )
 end
 
-UpdateBorder()
+local function OpenBlur()
+    TweenService:Create(Blur, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 40}):Play()
+end
+
+local function CloseBlur()
+    TweenService:Create(Blur, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 0}):Play()
+end
+
+--=========================
+-- CORE TOGGLE SYSTEM
+--=========================
+local isOpen = true
+
+local function ToggleMenu()
+    isOpen = not isOpen
+
+    -- ตรวจสอบว่ามี Library Window อยู่หรือไม่
+    if _G.Window then 
+        _G.Window:Minimize(not isOpen)
+    elseif Window then
+        Window:Minimize(not isOpen)
+    end
+
+    button.Image = isOpen and imgOn or imgOff
+
+    if isOpen then
+        OpenBlur()
+    else
+        CloseBlur()
+    end
+end
+
+--=========================
+-- INPUT EVENTS
+--=========================
+
+-- Click Event
+button.MouseButton1Click:Connect(ToggleMenu)
+
+-- Keybind Event (Left Control)
+UIS.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed then -- ไม่ทำงานตอนพิมพ์ Chat
+        if input.KeyCode == Enum.KeyCode.LeftControl then
+            ToggleMenu()
+        end
+    end
+end)
 
 --=========================
 -- DRAG SYSTEM
@@ -2519,7 +2568,7 @@ button.InputBegan:Connect(function(input)
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+    if dragging then
         local delta = input.Position - dragStart
         button.Position = UDim2.new(
             startPos.X.Scale,
@@ -2537,57 +2586,8 @@ UIS.InputEnded:Connect(function(input)
     end
 end)
 
---=========================
--- BLUR ANIMATIONS
---=========================
-local function OpenBlur()
-    TweenService:Create(Blur, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 40}):Play()
-end
+UpdateBorder()
 
-local function CloseBlur()
-    TweenService:Create(Blur, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 0}):Play()
-end
-
---=========================
--- MAIN TOGGLE LOGIC (Unified)
---=========================
-local isOpen = true
-
-local function ToggleMenu()
-    isOpen = not isOpen
-
-    -- จัดการ UI Library Window (ถ้ามีตัวแปร Window ประกาศไว้)
-    if Window then
-        local success, err = pcall(function()
-            Window:Minimize(not isOpen)
-        end)
-    end
-
-    -- เปลี่ยนรูปปุ่ม
-    button.Image = isOpen and imgOn or imgOff
-
-    -- จัดการ Blur
-    if isOpen then
-        OpenBlur()
-    else
-        CloseBlur()
-    end
-end
-
--- รับคำสั่งจากการคลิกปุ่ม (Mobile/PC)
-button.MouseButton1Click:Connect(function()
-    ToggleMenu()
-end)
-
--- รับคำสั่งจากคีย์บอร์ด (PC: Left Control)
-UIS.InputBegan:Connect(function(input, gameProcessed)
-    -- ถ้ากำลังพิมพ์ในช่อง Chat ให้ข้ามไป ไม่ต้อง Toggle
-    if gameProcessed then return end
-    
-    if input.KeyCode == Enum.KeyCode.LeftControl then
-        ToggleMenu()
-    end
-end)
 
 
 
