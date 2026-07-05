@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 55
+-- 🔥 Lib Load Screen Reaper Hub 56
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2426,10 +2426,10 @@ SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 Window:SelectTab(3)
 -- Lib Toggle
 --=====================================================
--- 🔥 REAPER ASSISTANT: TOGGLE SYSTEM (FULL VERSION)
+-- 🔥 REAPER ASSISTANT: COMPLETE TOGGLE SYSTEM
 --=====================================================
 
--- 1. ลบของเก่าออกก่อน (ป้องกัน UI ซ้อน)
+-- 1. CLEANUP (ลบของเก่าออกก่อนรันใหม่)
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
 end
@@ -2446,7 +2446,7 @@ local CoreGui = game:GetService("CoreGui")
 -- 3. BLUR SETUP
 local Blur = Instance.new("BlurEffect")
 Blur.Name = "MenuBlur"
-Blur.Size = 40 -- ขนาดเบลอตอนเปิด
+Blur.Size = 40
 Blur.Parent = Lighting
 
 -- 4. GUI SETUP
@@ -2457,7 +2457,7 @@ gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999999
 gui.Parent = CoreGui
 
--- BUTTON SETUP
+-- BUTTON
 local button = Instance.new("ImageButton")
 button.Parent = gui
 button.Size = UDim2.new(0, 60, 0, 60)
@@ -2465,18 +2465,19 @@ button.Position = UDim2.new(0, 60, 0.2, 0)
 button.BackgroundTransparency = 1
 button.ZIndex = 999999
 button.AutoButtonColor = false
-button.Image = "rbxassetid://86279908104891" -- ไอคอนเปิด/ปิด
+button.Image = "rbxassetid://86279908104891"
 button.ScaleType = Enum.ScaleType.Fit
 
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = button
 
--- 5. FUNCTIONS
+-- 5. CONFIG & STATE
 local isOpen = true
 local imgOn = "rbxassetid://86279908104891"
 local imgOff = "rbxassetid://86279908104891"
 
+-- 6. FUNCTIONS
 local function OpenBlur()
     TweenService:Create(Blur, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 40}):Play()
 end
@@ -2488,19 +2489,20 @@ end
 local function ToggleMenu()
     isOpen = not isOpen
 
-    -- สั่งการ Window (รองรับทั้ง Local และ Global)
+    -- เช็คหาตัวแปร Window (Fluent)
     local targetWindow = _G.Window or (typeof(Window) ~= "nil" and Window or nil)
-    
+
     if targetWindow then
+        -- Fluent: Minimize(true) = ปิด, Minimize(false) = เปิด
         pcall(function()
-            -- Fluent ใช้ Minimize(bool) : true คือพับหน้าต่าง, false คือกางหน้าต่าง
             targetWindow:Minimize(not isOpen)
         end)
     else
-        warn("Reaper Assistant: ไม่พบตัวแปร Window กรุณาใส่ _G.Window = Window ในสคริปต์หลัก")
+        -- ถ้าหาไม่เจอ ให้แจ้งเตือน (แต่เบลอยังทำงานเพื่อให้รู้ว่าปุ่มกดติด)
+        warn("Reaper Hub: ไม่พบตัวแปร Window กรุณาเช็คว่ามี '_G.Window = Window' ในสคริปต์หลัก")
     end
 
-    -- ปรับสถานะไอคอนและ Blur
+    -- ปรับสถานะภาพและเบลอ
     button.Image = isOpen and imgOn or imgOff
     if isOpen then
         OpenBlur()
@@ -2509,22 +2511,20 @@ local function ToggleMenu()
     end
 end
 
--- 6. INPUT EVENTS
--- คลิกปุ่มบนหน้าจอ
-button.MouseButton1Click:Connect(function()
-    ToggleMenu()
-end)
+-- 7. INPUT EVENTS
+-- คลิกที่ปุ่ม
+button.MouseButton1Click:Connect(ToggleMenu)
 
--- กดปุ่ม Keyboard (Left Control)
+-- กดปุ่ม Left Control
 UIS.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then 
+    if not gameProcessed then
         if input.KeyCode == Enum.KeyCode.LeftControl then
             ToggleMenu()
         end
     end
 end)
 
--- 7. DRAG SYSTEM (ระบบลากปุ่ม)
+-- 8. DRAG SYSTEM (ระบบลากปุ่ม)
 local dragging = false
 local dragStart, startPos
 
@@ -2554,8 +2554,9 @@ UIS.InputEnded:Connect(function(input)
     end
 end)
 
--- เริ่มต้นให้เปิด Blur ไว้ (ตามสถานะ isOpen = true)
+-- เริ่มต้นระบบ
 OpenBlur()
+
 
 
 
