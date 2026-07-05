@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 57
+-- 🔥 Lib Load Screen Reaper Hub 58
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2426,90 +2426,66 @@ SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 Window:SelectTab(3)
 -- Lib Toggle
 --=====================================================
--- 🔥 REAPER SYSTEM: COMPLETE TOGGLE & BLUR (FIXED)
+-- 🔥 REAPER SYSTEM: FINAL TOGGLE & BLUR (DIRECT SYNC)
 --=====================================================
 
--- [1] CLEANUP & INITIAL SETUP
-if game.CoreGui:FindFirstChild("ToggleUI") then
-    game.CoreGui.ToggleUI:Destroy()
-end
-pcall(function()
-    if game:GetService("Lighting"):FindFirstChild("MenuBlur") then
-        game:GetService("Lighting").MenuBlur:Destroy()
-    end
+-- [1] CLEANUP (ลบของเก่าป้องกันบัค)
+if CoreGui:FindFirstChild("ToggleUI") then CoreGui.ToggleUI:Destroy() end
+pcall(function() 
+    local oldBlur = Lighting:FindFirstChild("MenuBlur")
+    if oldBlur then oldBlur:Destroy() end 
 end)
 
-local UIS = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
-local CoreGui = game:GetService("CoreGui")
-
--- [2] CREATE BLUR
-local Blur = Instance.new("BlurEffect")
+-- [2] BLUR SETUP
+local Blur = Instance.new("BlurEffect", Lighting)
 Blur.Name = "MenuBlur"
 Blur.Size = 40
-Blur.Parent = Lighting
 
--- [3] CREATE TOGGLE BUTTON
-local gui = Instance.new("ScreenGui")
+-- [3] TOGGLE BUTTON UI
+local gui = Instance.new("ScreenGui", CoreGui)
 gui.Name = "ToggleUI"
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999999
-gui.Parent = CoreGui
 
-local button = Instance.new("ImageButton")
-button.Parent = gui
+local button = Instance.new("ImageButton", gui)
 button.Size = UDim2.new(0, 60, 0, 60)
 button.Position = UDim2.new(0, 60, 0.2, 0)
 button.BackgroundTransparency = 1
 button.Image = "rbxassetid://86279908104891"
 button.ScaleType = Enum.ScaleType.Fit
+Instance.new("UICorner", button).CornerRadius = UDim.new(0, 12)
 
-local corner = Instance.new("UICorner", button)
-corner.CornerRadius = UDim.new(0, 12)
-
--- [4] TOGGLE LOGIC (ซิงค์สถานะจริงของ Fluent)
+-- [4] THE CORE LOGIC (เชื่อมกับ Window โดยตรง)
 local function ToggleMenu()
-    -- ดึงค่า Window จาก Global ที่เราเซตไว้ (_G.Window = Window)
-    local target = _G.Window 
-    
-    if target then
-        -- Fluent: target.Minimized เป็น true เมื่อปิดหน้าต่าง
-        -- เราจะสั่งสลับสถานะ (ถ้าปิดให้เปิด ถ้าเปิดให้ปิด)
-        local isClosed = target.Minimized
-        local nextState = not isClosed -- เป้าหมายถัดไปคือค่าตรงข้าม
+    -- ใช้ตัวแปร Window ที่คุณประกาศไว้ด้านบน (WINDOW SECTION)
+    if Window then
+        -- ตรวจสอบสถานะจริง: Minimized = true คือปิด / false คือเปิด
+        local isCurrentlyClosed = Window.Minimized
+        local shouldClose = not isCurrentlyClosed
         
-        -- สั่งการ Fluent (true = พับหน้าต่าง, false = กางหน้าต่าง)
-        target:Minimize(nextState)
+        -- สั่งการ UI (Minimize)
+        Window:Minimize(shouldClose)
         
         -- ปรับ Blur และปุ่มตามสถานะใหม่
-        if nextState then -- ถ้าสั่งปิด (Minimized = true)
-            TweenService:Create(Blur, TweenInfo.new(0.3), {Size = 0}):Play()
-            button.ImageTransparency = 0.5
-        else -- ถ้าสั่งเปิด (Minimized = false)
-            TweenService:Create(Blur, TweenInfo.new(0.3), {Size = 40}):Play()
-            button.ImageTransparency = 0
-        end
-    else
-        -- กรณีหา Window ไม่เจอ (อาจจะรันสคริปต์นี้เร็วไปหรือลืมเซต _G.Window)
-        warn("Reaper Hub: หาหน้าต่าง UI ไม่เจอ! (_G.Window is nil)")
-        -- สั่งเปิดเบลอหลอกไว้เพื่อให้รู้ว่าปุ่มยังทำงาน
-        local currentBlur = Blur.Size > 0
-        TweenService:Create(Blur, TweenInfo.new(0.3), {Size = currentBlur and 0 or 40}):Play()
+        -- ถ้าสั่งให้ปิด (shouldClose = true) -> เบลอต้องหาย (Size = 0)
+        -- ถ้าสั่งให้เปิด (shouldClose = false) -> เบลอต้องมา (Size = 40)
+        local blurTarget = shouldClose and 0 or 40
+        local btnAlpha = shouldClose and 0.5 or 0
+        
+        TweenService:Create(Blur, TweenInfo.new(0.3), {Size = blurTarget}):Play()
+        TweenService:Create(button, TweenInfo.new(0.3), {ImageTransparency = btnAlpha}):Play()
     end
 end
 
 -- [5] INPUT EVENTS
--- คลิกปุ่มวงกลม
+-- คลิกที่ปุ่มวงกลม
 button.MouseButton1Click:Connect(ToggleMenu)
 
 -- กดปุ่ม Left Control
-UIS.InputBegan:Connect(function(input, gameProcessed)
-    -- ตรวจสอบว่าไม่ได้พิมพ์ในช่องแชทหรือ UI อื่นๆ
-    if not gameProcessed then
-        if input.KeyCode == Enum.KeyCode.LeftControl then
-            ToggleMenu()
-        end
+UIS.InputBegan:Connect(function(input, processed)
+    -- ถ้าไม่ได้กำลังพิมพ์ในช่องแชท/UI และกดปุ่ม Left Control
+    if not processed and input.KeyCode == Enum.KeyCode.LeftControl then
+        ToggleMenu()
     end
 end)
 
@@ -2517,33 +2493,24 @@ end)
 local dragging, dragStart, startPos
 button.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = button.Position
+        dragging = true; dragStart = input.Position; startPos = button.Position
     end
 end)
-
 UIS.InputChanged:Connect(function(input)
     if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
-
 UIS.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
     end
 end)
 
--- [7] STARTUP
--- ตั้งค่าเริ่มต้นให้เปิด Blur (เพราะ Fluent มักจะกางหน้าต่างตอนเริ่ม)
+-- [7] STARTUP & SUCCESS
 Blur.Size = 40
 button.ImageTransparency = 0
-
-
-
-
 
 
 
