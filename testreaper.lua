@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 59
+-- 🔥 Lib Load Screen Reaper Hub 60
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2437,7 +2437,6 @@ pcall(function()
     game:GetService("Lighting"):FindFirstChild("MenuBlur"):Destroy()
 end)
 
-
 --=========================
 -- BLUR
 --=========================
@@ -2594,7 +2593,7 @@ end
 --=========================
 local isOpen = true
 
-button.MouseButton1Click:Connect(function()
+local function ToggleMenu()
 
     isOpen = not isOpen
 
@@ -2604,12 +2603,27 @@ button.MouseButton1Click:Connect(function()
 
     button.Image = isOpen and imgOn or imgOff
 
-    -- BLUR
     if isOpen then
         OpenBlur()
     else
         CloseBlur()
     end
+end
+
+-- มือถือ
+button.MouseButton1Click:Connect(ToggleMenu)
+
+-- PC (Left Ctrl)
+UIS.InputBegan:Connect(function(input, gameProcessed)
+
+    if gameProcessed then
+        return
+    end
+
+    if input.KeyCode == Enum.KeyCode.LeftControl then
+        ToggleMenu()
+    end
+
 end)
 
 
