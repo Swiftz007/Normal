@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 54
+-- 🔥 Lib Load Screen Reaper Hub 55
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -34,6 +34,8 @@ Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
 MinimizeKey = Enum.KeyCode.RightControl
 })
+
+_G.Window = Window
 
 local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Icon.lua"))()
 
@@ -2423,87 +2425,57 @@ SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
 Window:SelectTab(3)
 -- Lib Toggle
+--=====================================================
+-- 🔥 REAPER ASSISTANT: TOGGLE SYSTEM (FULL VERSION)
+--=====================================================
 
---=========================
--- TOGGLE BUTTON + PURE BLUR (FULL VERSION)
---=========================
+-- 1. ลบของเก่าออกก่อน (ป้องกัน UI ซ้อน)
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
 end
-
 pcall(function()
     game:GetService("Lighting"):FindFirstChild("MenuBlur"):Destroy()
 end)
 
---=========================
--- SERVICES
---=========================
+-- 2. SERVICES
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
+local CoreGui = game:GetService("CoreGui")
 
---=========================
--- BLUR SETUP
---=========================
+-- 3. BLUR SETUP
 local Blur = Instance.new("BlurEffect")
 Blur.Name = "MenuBlur"
-Blur.Size = 40
+Blur.Size = 40 -- ขนาดเบลอตอนเปิด
 Blur.Parent = Lighting
 
---=========================
--- GUI SETUP
---=========================
+-- 4. GUI SETUP
 local gui = Instance.new("ScreenGui")
 gui.Name = "ToggleUI"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999999
-gui.Parent = game.CoreGui
+gui.Parent = CoreGui
 
--- BORDER
-local border = Instance.new("Frame")
-border.Parent = gui
-border.Size = UDim2.new(0,0,0,0)
-border.BackgroundColor3 = Color3.fromRGB(0,0,0)
-border.ZIndex = 1
-border.AnchorPoint = Vector2.new(0,0)
-
-local borderCorner = Instance.new("UICorner")
-borderCorner.CornerRadius = UDim.new(0,14)
-borderCorner.Parent = border
-
--- BUTTON
+-- BUTTON SETUP
 local button = Instance.new("ImageButton")
 button.Parent = gui
-button.Size = UDim2.new(0,60,0,60)
-button.Position = UDim2.new(0,60,0.2,0)
-button.AnchorPoint = Vector2.new(0,0)
+button.Size = UDim2.new(0, 60, 0, 60)
+button.Position = UDim2.new(0, 60, 0.2, 0)
 button.BackgroundTransparency = 1
 button.ZIndex = 999999
 button.AutoButtonColor = false
-
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0,12)
-corner.Parent = button
-
--- IMAGE
-local imgOn = "rbxassetid://86279908104891"
-local imgOff = "rbxassetid://86279908104891"
-button.Image = imgOn
+button.Image = "rbxassetid://86279908104891" -- ไอคอนเปิด/ปิด
 button.ScaleType = Enum.ScaleType.Fit
 
---=========================
--- FUNCTIONS
---=========================
-local function UpdateBorder()
-    local offset = (border.Size.X.Offset - button.Size.X.Offset) / 2
-    border.Position = UDim2.new(
-        button.Position.X.Scale,
-        button.Position.X.Offset - offset,
-        button.Position.Y.Scale,
-        button.Position.Y.Offset - offset
-    )
-end
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = button
+
+-- 5. FUNCTIONS
+local isOpen = true
+local imgOn = "rbxassetid://86279908104891"
+local imgOff = "rbxassetid://86279908104891"
 
 local function OpenBlur()
     TweenService:Create(Blur, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 40}):Play()
@@ -2513,23 +2485,23 @@ local function CloseBlur()
     TweenService:Create(Blur, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 0}):Play()
 end
 
---=========================
--- CORE TOGGLE SYSTEM
---=========================
-local isOpen = true
-
 local function ToggleMenu()
     isOpen = not isOpen
 
-    -- ตรวจสอบว่ามี Library Window อยู่หรือไม่
-    if _G.Window then 
-        _G.Window:Minimize(not isOpen)
-    elseif Window then
-        Window:Minimize(not isOpen)
+    -- สั่งการ Window (รองรับทั้ง Local และ Global)
+    local targetWindow = _G.Window or (typeof(Window) ~= "nil" and Window or nil)
+    
+    if targetWindow then
+        pcall(function()
+            -- Fluent ใช้ Minimize(bool) : true คือพับหน้าต่าง, false คือกางหน้าต่าง
+            targetWindow:Minimize(not isOpen)
+        end)
+    else
+        warn("Reaper Assistant: ไม่พบตัวแปร Window กรุณาใส่ _G.Window = Window ในสคริปต์หลัก")
     end
 
+    -- ปรับสถานะไอคอนและ Blur
     button.Image = isOpen and imgOn or imgOff
-
     if isOpen then
         OpenBlur()
     else
@@ -2537,25 +2509,22 @@ local function ToggleMenu()
     end
 end
 
---=========================
--- INPUT EVENTS
---=========================
+-- 6. INPUT EVENTS
+-- คลิกปุ่มบนหน้าจอ
+button.MouseButton1Click:Connect(function()
+    ToggleMenu()
+end)
 
--- Click Event
-button.MouseButton1Click:Connect(ToggleMenu)
-
--- Keybind Event (Left Control)
+-- กดปุ่ม Keyboard (Left Control)
 UIS.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then -- ไม่ทำงานตอนพิมพ์ Chat
+    if not gameProcessed then 
         if input.KeyCode == Enum.KeyCode.LeftControl then
             ToggleMenu()
         end
     end
 end)
 
---=========================
--- DRAG SYSTEM
---=========================
+-- 7. DRAG SYSTEM (ระบบลากปุ่ม)
 local dragging = false
 local dragStart, startPos
 
@@ -2568,7 +2537,7 @@ button.InputBegan:Connect(function(input)
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging then
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         button.Position = UDim2.new(
             startPos.X.Scale,
@@ -2576,7 +2545,6 @@ UIS.InputChanged:Connect(function(input)
             startPos.Y.Scale,
             startPos.Y.Offset + delta.Y
         )
-        UpdateBorder()
     end
 end)
 
@@ -2586,7 +2554,9 @@ UIS.InputEnded:Connect(function(input)
     end
 end)
 
-UpdateBorder()
+-- เริ่มต้นให้เปิด Blur ไว้ (ตามสถานะ isOpen = true)
+OpenBlur()
+
 
 
 
