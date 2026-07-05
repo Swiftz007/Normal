@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 60
+-- 🔥 Lib Load Screen Reaper Hub 61
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2427,23 +2427,16 @@ SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 Window:SelectTab(3)
 -- Lib Toggle
 --=========================
--- TOGGLE BUTTON + PURE BLUR
+-- TOGGLE BUTTON
 --=========================
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
 end
 
-pcall(function()
-    game:GetService("Lighting"):FindFirstChild("MenuBlur"):Destroy()
-end)
-
 --=========================
--- BLUR
+-- SERVICES
 --=========================
-local Blur = Instance.new("BlurEffect")
-Blur.Name = "MenuBlur"
-Blur.Size = 40
-Blur.Parent = Lighting
+local UIS = game:GetService("UserInputService")
 
 --=========================
 -- GUI
@@ -2556,44 +2549,11 @@ UIS.InputEnded:Connect(function(input)
 end)
 
 --=========================
--- BLUR FUNCTIONS
---=========================
-local function OpenBlur()
-
-    TweenService:Create(
-        Blur,
-        TweenInfo.new(
-            0.3,
-            Enum.EasingStyle.Quad,
-            Enum.EasingDirection.Out
-        ),
-        {
-            Size = 40
-        }
-    ):Play()
-end
-
-local function CloseBlur()
-
-    TweenService:Create(
-        Blur,
-        TweenInfo.new(
-            0.25,
-            Enum.EasingStyle.Quad,
-            Enum.EasingDirection.Out
-        ),
-        {
-            Size = 0
-        }
-    ):Play()
-end
-
---=========================
 -- TOGGLE
 --=========================
 local isOpen = true
 
-local function ToggleMenu()
+button.MouseButton1Click:Connect(function()
 
     isOpen = not isOpen
 
@@ -2601,28 +2561,7 @@ local function ToggleMenu()
         Window:Minimize(not isOpen)
     end
 
-    button.Image = isOpen and imgOn or imgOff
-
-    if isOpen then
-        OpenBlur()
-    else
-        CloseBlur()
-    end
-end
-
--- มือถือ
-button.MouseButton1Click:Connect(ToggleMenu)
-
--- PC (Left Ctrl)
-UIS.InputBegan:Connect(function(input, gameProcessed)
-
-    if gameProcessed then
-        return
-    end
-
-    if input.KeyCode == Enum.KeyCode.LeftControl then
-        ToggleMenu()
-    end
+    button.Image = isOpen and imgOff or imgOn
 
 end)
 
