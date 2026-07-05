@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 51
+-- 🔥 Lib Load Screen Reaper Hub 52
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -132,19 +132,15 @@ RunService.RenderStepped:Connect(function()
     local hum = char and char:FindFirstChildOfClass("Humanoid")
     if not hum then return end
 
-    -- WalkSpeed
+       -- WalkSpeed (ทำงานเฉพาะตอนเปิด)
     if State.WS then
         hum.WalkSpeed = WSValue
-    else
-        hum.WalkSpeed = DefaultWS
     end
 
-    -- JumpPower
-    hum.UseJumpPower = true
+    -- JumpPower (ทำงานเฉพาะตอนเปิด)
     if State.JP then
+        hum.UseJumpPower = true
         hum.JumpPower = JPValue
-    else
-        hum.JumpPower = DefaultJP
     end
 end)
 
@@ -335,9 +331,18 @@ end
 })
 
 Tabs.Player:AddToggle("WS", {
-Title = "WalkSpeed",
-Default = false,
-Callback = function(v) State.WS = v end
+    Title = "WalkSpeed",
+    Default = false,
+    Callback = function(v) 
+        State.WS = v 
+        if not v then 
+            local hum = GetHum()
+            if hum then 
+                --  เปลี่ยนจาก 16 เป็น DefaultWS (ค่าที่เราดูดไว้ตอนรันสคริปต์)
+                hum.WalkSpeed = DefaultWS 
+            end 
+        end
+    end
 })
 
 Tabs.Player:AddInput("JPV", {
@@ -349,10 +354,19 @@ end
 })
 
 Tabs.Player:AddToggle("JP", {
-Title = "JumpPower",
-Default = false,
-Callback = function(v) State.JP = v 
-end
+    Title = "JumpPower",
+    Default = false,
+    Callback = function(v) 
+        State.JP = v 
+        if not v then 
+            local hum = GetHum()
+            if hum then 
+                --  เปลี่ยนจาก 50 เป็น DefaultJP
+                hum.JumpPower = DefaultJP
+                hum.UseJumpPower = false
+            end 
+        end
+    end
 })
 
 -- Fly Mode 🔥
