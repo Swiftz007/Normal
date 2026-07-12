@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 63
+-- 🔥 Lib Load Screen Reaper Hub 64
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -371,6 +371,47 @@ Tabs.Player:AddToggle("JP", {
         end
     end
 })
+
+--=========================
+-- 🔥 GRAVITY SYSTEM (SAFE & CLEAN)
+--=========================
+local DefaultGravity = workspace.Gravity -- 1. แค่จดจำค่าเดิมของเกมไว้ (ไม่สั่งเปลี่ยน)
+local TargetGravityValue = 196.2
+
+-- 2. Slider สำหรับเลือกค่า (เลื่อนได้อิสระ แต่ค่าในเกมจะยังไม่เปลี่ยน)
+Tabs.Player:AddSlider("GravitySlider", {
+    Title = "Gravity Level",
+    Description = "",
+    Default = 196.2,
+    Min = 0,
+    Max = 1000,
+    Rounding = 1,
+    Callback = function(Value)
+        TargetGravityValue = Value
+        -- ถ้าเปิด Toggle อยู่ ให้เปลี่ยนแรงโน้มถ่วงทันทีตามมือที่เลื่อน
+        if _G.GravityEnabled then
+            workspace.Gravity = Value
+        end
+    end
+})
+
+-- 3. Toggle: สวิตช์หลัก (จุดนี้จุดเดียวที่จะสั่งเปลี่ยนค่าในเกม)
+Tabs.Player:AddToggle("GravityToggle", {
+    Title = "Enable Gravity",
+    Default = false,
+    Callback = function(Value)
+        _G.GravityEnabled = Value
+        
+        if Value then
+            -- เมื่อเปิด: สั่งเปลี่ยนแรงโน้มถ่วงเป็นค่าที่เราเลือกไว้ใน Slider
+            workspace.Gravity = TargetGravityValue
+        else
+            -- เมื่อปิด: คืนค่าเดิมของเกมทันที (ค่าที่จดไว้ตอนรันสคริปต์)
+            workspace.Gravity = DefaultGravity
+        end
+    end
+})
+
 
 -- Fly Mode 🔥
 -- === ตัวแปรระบบบิน ===
