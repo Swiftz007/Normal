@@ -29,7 +29,7 @@ local Lighting = game:GetService("Lighting")
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.2",
+SubTitle = "lib Beta 20.3",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1874,7 +1874,61 @@ WallCheckToggle:OnChanged(function(Value)
 end)
 
 
--- Fake name
+-- Full Bright
+--=========================
+-- 🔥 FULL BRIGHT SYSTEM (SLIDER)
+--=========================
+local DefaultLighting = {
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+    Brightness = Lighting.Brightness,
+    ClockTime = Lighting.ClockTime,
+    FogEnd = Lighting.FogEnd
+}
+
+local CurrentBrightness = 2 -- ค่าเริ่มต้นในสคริปต์ (ไม่กระทบเกมจนกว่าจะเปิด)
+
+-- 1. Slider สำหรับเลือกค่า (ปรับรอไว้ก่อนได้)
+Tabs.Misc:AddSlider("BrightnessSlider", {
+    Title = "Brightness Level",
+    Description = "",
+    Default = 2,
+    Min = 1,
+    Max = 50,
+    Rounding = 1,
+    Callback = function(Value)
+        CurrentBrightness = Value
+        -- ถ้าเปิด Toggle อยู่ ให้เปลี่ยนค่าทันทีที่เลื่อน Slider
+        if _G.FullBrightEnabled then
+            Lighting.Brightness = CurrentBrightness
+        end
+    end
+})
+
+-- 2. Toggle สำหรับสั่งเปิด/ปิด (ตัวควบคุมหลัก)
+Tabs.Misc:AddToggle("FullBrightToggle", {
+    Title = "Enable Full Bright",
+    Default = false,
+    Callback = function(Value)
+        _G.FullBrightEnabled = Value -- เก็บสถานะไว้เช็คใน Slider
+        
+        if Value then
+            -- เมื่อเปิด: สั่งเปลี่ยนค่า Lighting ทั้งหมด
+            Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+            Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+            Lighting.Brightness = CurrentBrightness
+            Lighting.ClockTime = 14
+            Lighting.FogEnd = 100000
+        else
+            -- เมื่อปิด: คืนค่าเดิมของเกมทันที
+            Lighting.Ambient = DefaultLighting.Ambient
+            Lighting.OutdoorAmbient = DefaultLighting.OutdoorAmbient
+            Lighting.Brightness = DefaultLighting.Brightness
+            Lighting.ClockTime = DefaultLighting.ClockTime
+            Lighting.FogEnd = DefaultLighting.FogEnd
+        end
+    end
+})
 
 
 
