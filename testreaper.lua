@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 64
+-- 🔥 Lib Load Screen Reaper Hub 65
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -22,7 +22,7 @@ local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local VU = game:GetService("VirtualUser")
 local Lighting = game:GetService("Lighting")
-
+local LocalPlayer = game:GetService("Players").LocalPlayer
 
 --=========================
 -- 🔥 WINDOW
@@ -415,8 +415,6 @@ Tabs.Player:AddToggle("GravityToggle", {
 
 -- Fly Mode 🔥
 -- === ตัวแปรระบบบิน ===
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
 local flying = false
 local speed = 60
 local bv, bg
