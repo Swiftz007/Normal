@@ -26,7 +26,7 @@ local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 local LP = LocalPlayer
 local Camera = workspace.CurrentCamera
-
+local lp = LocalPlayer
 --=========================
 -- 🔥 WINDOW
 --=========================
