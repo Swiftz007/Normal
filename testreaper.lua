@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 67
+-- 🔥 Lib Load Screen Reaper Hub 68
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -7,7 +7,6 @@ local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/InterfaceManager.lua"))()
 
-แบบนี้นะ ประหยัดบรรทัดหน่อย
 --=========================
 -- 🔥 SERVICES
 --=========================
@@ -1081,9 +1080,6 @@ end
 --========================
 -- UI (Fluent)
 --========================
-local Players = game:GetService("Players")
-local lp = Players.LocalPlayer
-
 -- แสดงข้อมูล Profile ในแท็บ Status ที่อยู่ใน Table Tabs
 Tabs.Status:AddParagraph({
     Title = "Player Profile",
@@ -1179,7 +1175,6 @@ Tabs.Credit:AddParagraph({
     Content = "Fluent X Reaper"
 })
 
-local TweenService = game:GetService("TweenService")
 
 local canClick = true
 
@@ -1998,7 +1993,7 @@ Tabs.Misc:AddToggle("MemCleanup", {
 
 
 -- Safe Mode
-local LP = game:GetService("Players").LocalPlayer -- มั่นใจว่ามีตัวแปรนี้
+
 local SafeModeActive = false
 local SafeModeType = "Tween"
 local OriginalPos = nil
@@ -2073,9 +2068,6 @@ Tabs.Misc:AddToggle("SafeModeToggle", {
 
 
 -- Max Zoom
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
 local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
 
 Tabs.Misc:AddToggle("MaxZoom", {
@@ -2163,9 +2155,6 @@ Tabs.Misc:AddToggle("AntiAFK", {
 })
 
 -- FPS BOOST
-local workspace = game:GetService("Workspace")
-local lighting = game:GetService("Lighting")
-
 local saved = {}
 local connection = nil
 
@@ -2522,11 +2511,6 @@ Window:SelectTab(3)
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
 end
-
---=========================
--- SERVICES
---=========================
-local UIS = game:GetService("UserInputService")
 
 --=========================
 -- GUI
