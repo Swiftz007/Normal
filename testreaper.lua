@@ -7,22 +7,25 @@ local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/InterfaceManager.lua"))()
 
-
+แบบนี้นะ ประหยัดบรรทัดหน่อย
 --=========================
 -- 🔥 SERVICES
 --=========================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-local LP = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 local VIM = game:GetService("VirtualInputManager")
 local CoreGui = game:GetService("CoreGui")
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local VU = game:GetService("VirtualUser")
 local Lighting = game:GetService("Lighting")
-local LocalPlayer = game:GetService("Players").LocalPlayer
+
+--=========================
+-- 🔥 PLAYER / CAMERA / WORLD
+--=========================
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
 --=========================
 -- 🔥 WINDOW
