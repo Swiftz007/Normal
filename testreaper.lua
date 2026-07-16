@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 65
+-- 🔥 Lib Load Screen Reaper Hub 66
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -528,10 +528,6 @@ Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
 --================ SPIN PLAYER FIX =================--
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
 local LocalPlayer = Players.LocalPlayer
 
 local spinning = false
