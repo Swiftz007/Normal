@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 71
+-- 🔥 Lib Load Screen Reaper Hub 72
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -19,7 +19,7 @@ local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local VU = game:GetService("VirtualUser")
 local Lighting = game:GetService("Lighting")
-
+local lighting = Lighting
 --=========================
 -- 🔥 PLAYER / CAMERA / WORLD
 --=========================
