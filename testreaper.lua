@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 68
+-- 🔥 Lib Load Screen Reaper Hub 69
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2511,6 +2511,11 @@ Window:SelectTab(3)
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
 end
+
+--=========================
+-- SERVICES
+--=========================
+local UIS = game:GetService("UserInputService")
 
 --=========================
 -- GUI
