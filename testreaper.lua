@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 75
+-- 🔥 Lib Load Screen Reaper Hub 76
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2124,7 +2124,7 @@ UIStroke.Parent = MainFrame
 -- Logo
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
-Logo.Size = UDim2.new(0, 60, 0, 60)
+Logo.Size = UDim2.new(0, 80, 0, 80)
 Logo.Position = UDim2.new(0.5, -30, 0, 10)
 Logo.BackgroundTransparency = 1
 Logo.Image = "rbxassetid://131279093559313"
