@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 74
+-- 🔥 Lib Load Screen Reaper Hub 75
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2088,8 +2088,7 @@ Tabs.Misc:AddToggle("MaxZoom", {
 })
 
 -- Anti Afk
-
--- ลบ UI เก่าถ้ามีอยู่
+-- ลบ UI เก่า
 if game.CoreGui:FindFirstChild("REAPER_AFK_UI") then
     game.CoreGui.REAPER_AFK_UI:Destroy()
 end
@@ -2099,39 +2098,48 @@ ScreenGui.Name = "REAPER_AFK_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
+-- Main Frame (ปรับให้ยาวขึ้น)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 220, 0, 150)
-MainFrame.Position = UDim2.new(0.5, -110, 0.05, 0)
+MainFrame.Size = UDim2.new(0, 300, 0, 150) -- เพิ่มความกว้างเป็น 300
+MainFrame.Position = UDim2.new(0.5, -150, 0.05, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BackgroundTransparency = 0.1
 MainFrame.BorderSizePixel = 0
 MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
 
+-- UICorner (ขอบมน)
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.CornerRadius = UDim.new(0, 12)
 UICorner.Parent = MainFrame
+
+-- UIStroke (ขอบสีแดง)
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(255, 0, 0) -- สีแดง
+UIStroke.Thickness = 2
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke.Parent = MainFrame
 
 -- Logo
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
-Logo.Size = UDim2.new(0, 65, 0, 65)
-Logo.Position = UDim2.new(0.5, -32, 0, 10)
+Logo.Size = UDim2.new(0, 60, 0, 60)
+Logo.Position = UDim2.new(0.5, -30, 0, 10)
 Logo.BackgroundTransparency = 1
 Logo.Image = "rbxassetid://131279093559313"
 Logo.Parent = MainFrame
 
--- REAPER HUB Text
+-- REAPER HUB | ANTI AFK Text
 local Title = Instance.new("TextLabel")
 Title.Name = "Title"
 Title.Size = UDim2.new(1, 0, 0, 25)
-Title.Position = UDim2.new(0, 0, 0, 80)
+Title.Position = UDim2.new(0, 0, 0, 75)
 Title.BackgroundTransparency = 1
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Text = "REAPER HUB"
-Title.Font = Enum.Font.GothamBold -- ใช้ GothamBold แทน
-Title.TextSize = 20
+Title.Text = "REAPER HUB | ANTI AFK"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
 Title.Parent = MainFrame
 
 -- Timer Label (เลขล้วน)
@@ -2142,7 +2150,7 @@ TimerLabel.Position = UDim2.new(0, 0, 0, 105)
 TimerLabel.BackgroundTransparency = 1
 TimerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TimerLabel.Text = "00:00"
-TimerLabel.Font = Enum.Font.RobotoMono -- ใช้ RobotoMono แทน (เลขจะตรงกันสวยงาม)
+TimerLabel.Font = Enum.Font.RobotoMono
 TimerLabel.TextSize = 26
 TimerLabel.Parent = MainFrame
 
@@ -2184,6 +2192,7 @@ Tabs.Misc:AddToggle("AntiAFK", {
         end
     end
 })
+
 
 
 
