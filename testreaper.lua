@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 73
+-- 🔥 Lib Load Screen Reaper Hub 74
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -2087,25 +2087,24 @@ Tabs.Misc:AddToggle("MaxZoom", {
     end
 })
 
--- Anti AFK Improved
+-- Anti Afk
+
 -- ลบ UI เก่าถ้ามีอยู่
-if game.CoreGui:FindFirstChild("AntiAFK_Main") then
-    game.CoreGui.AntiAFK_Main:Destroy()
+if game.CoreGui:FindFirstChild("REAPER_AFK_UI") then
+    game.CoreGui.REAPER_AFK_UI:Destroy()
 end
 
--- สร้าง UI Container
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "AntiAFK_Main"
+ScreenGui.Name = "REAPER_AFK_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
--- Main Frame (กรอบสี่เหลี่ยมขอบมน)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 250, 0, 160)
-MainFrame.Position = UDim2.new(0.5, -125, 0.05, 0) -- กลางจอด้านบน
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.BackgroundTransparency = 0.2
+MainFrame.Size = UDim2.new(0, 220, 0, 150)
+MainFrame.Position = UDim2.new(0.5, -110, 0.05, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BackgroundTransparency = 0.1
 MainFrame.BorderSizePixel = 0
 MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
@@ -2117,22 +2116,22 @@ UICorner.Parent = MainFrame
 -- Logo
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
-Logo.Size = UDim2.new(0, 60, 0, 60)
-Logo.Position = UDim2.new(0.5, -30, 0, 10)
+Logo.Size = UDim2.new(0, 65, 0, 65)
+Logo.Position = UDim2.new(0.5, -32, 0, 10)
 Logo.BackgroundTransparency = 1
 Logo.Image = "rbxassetid://131279093559313"
 Logo.Parent = MainFrame
 
--- Text: REAPER HUB
+-- REAPER HUB Text
 local Title = Instance.new("TextLabel")
 Title.Name = "Title"
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Position = UDim2.new(0, 0, 0, 75)
+Title.Size = UDim2.new(1, 0, 0, 25)
+Title.Position = UDim2.new(0, 0, 0, 80)
 Title.BackgroundTransparency = 1
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Text = "REAPER HUB"
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 22
+Title.Font = Enum.Font.GothamBold -- ใช้ GothamBold แทน
+Title.TextSize = 20
 Title.Parent = MainFrame
 
 -- Timer Label (เลขล้วน)
@@ -2141,10 +2140,10 @@ TimerLabel.Name = "TimerLabel"
 TimerLabel.Size = UDim2.new(1, 0, 0, 30)
 TimerLabel.Position = UDim2.new(0, 0, 0, 105)
 TimerLabel.BackgroundTransparency = 1
-TimerLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
+TimerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TimerLabel.Text = "00:00"
-TimerLabel.Font = Enum.Font.JetBrainsMono -- ฟอนต์แนวโค้ด/ตัวเลข
-TimerLabel.TextSize = 28
+TimerLabel.Font = Enum.Font.RobotoMono -- ใช้ RobotoMono แทน (เลขจะตรงกันสวยงาม)
+TimerLabel.TextSize = 26
 TimerLabel.Parent = MainFrame
 
 local function formatTime(sec)
@@ -2164,7 +2163,6 @@ Tabs.Misc:AddToggle("AntiAFK", {
             startTime = os.time()
             MainFrame.Visible = true
 
-            -- อัปเดตเวลา
             task.spawn(function()
                 while getgenv().AntiAFK do
                     local elapsed = os.time() - startTime
@@ -2173,10 +2171,8 @@ Tabs.Misc:AddToggle("AntiAFK", {
                 end
             end)
 
-            -- Anti AFK loop
             task.spawn(function()
                 while getgenv().AntiAFK do
-                    -- คลิกขวาเพื่อกันหลุดทุก 18 นาที
                     VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
                     task.wait(1)
                     VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
@@ -2188,6 +2184,7 @@ Tabs.Misc:AddToggle("AntiAFK", {
         end
     end
 })
+
 
 
 -- FPS BOOST
