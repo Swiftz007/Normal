@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 72
+-- 🔥 Lib Load Screen Reaper Hub 73
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
@@ -20,6 +20,8 @@ local TweenService = game:GetService("TweenService")
 local VU = game:GetService("VirtualUser")
 local Lighting = game:GetService("Lighting")
 local lighting = Lighting
+local VirtualUser = game:GetService("VirtualUser")
+local LocalPlayer = Players.LocalPlayer
 --=========================
 -- 🔥 PLAYER / CAMERA / WORLD
 --=========================
@@ -2085,28 +2087,65 @@ Tabs.Misc:AddToggle("MaxZoom", {
     end
 })
 
--- Anti AFK
-local VirtualUser = game:GetService("VirtualUser")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+-- Anti AFK Improved
+-- ลบ UI เก่าถ้ามีอยู่
+if game.CoreGui:FindFirstChild("AntiAFK_Main") then
+    game.CoreGui.AntiAFK_Main:Destroy()
+end
 
--- สร้าง UI Timer
+-- สร้าง UI Container
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "AntiAFK_Timer"
+ScreenGui.Name = "AntiAFK_Main"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
-local Label = Instance.new("TextLabel")
-Label.Size = UDim2.new(0, 220, 0, 50)
-Label.Position = UDim2.new(0.5, -110, 0.15, 0) -- กลางจอด้านบน
-Label.BackgroundTransparency = 0.3
-Label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Label.TextColor3 = Color3.fromRGB(0, 255, 0)
-Label.TextScaled = true
-Label.Visible = false
-Label.Font = Enum.Font.GothamBold
-Label.Text = "Anti AFK: 00:00"
-Label.Parent = ScreenGui
+-- Main Frame (กรอบสี่เหลี่ยมขอบมน)
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 250, 0, 160)
+MainFrame.Position = UDim2.new(0.5, -125, 0.05, 0) -- กลางจอด้านบน
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.BackgroundTransparency = 0.2
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = false
+MainFrame.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.Parent = MainFrame
+
+-- Logo
+local Logo = Instance.new("ImageLabel")
+Logo.Name = "Logo"
+Logo.Size = UDim2.new(0, 60, 0, 60)
+Logo.Position = UDim2.new(0.5, -30, 0, 10)
+Logo.BackgroundTransparency = 1
+Logo.Image = "rbxassetid://131279093559313"
+Logo.Parent = MainFrame
+
+-- Text: REAPER HUB
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Position = UDim2.new(0, 0, 0, 75)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Text = "REAPER HUB"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 22
+Title.Parent = MainFrame
+
+-- Timer Label (เลขล้วน)
+local TimerLabel = Instance.new("TextLabel")
+TimerLabel.Name = "TimerLabel"
+TimerLabel.Size = UDim2.new(1, 0, 0, 30)
+TimerLabel.Position = UDim2.new(0, 0, 0, 105)
+TimerLabel.BackgroundTransparency = 1
+TimerLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
+TimerLabel.Text = "00:00"
+TimerLabel.Font = Enum.Font.JetBrainsMono -- ฟอนต์แนวโค้ด/ตัวเลข
+TimerLabel.TextSize = 28
+TimerLabel.Parent = MainFrame
 
 local function formatTime(sec)
     local m = math.floor(sec / 60)
@@ -2114,24 +2153,22 @@ local function formatTime(sec)
     return string.format("%02d:%02d", m, s)
 end
 
-local running = false
 local startTime = 0
 
 Tabs.Misc:AddToggle("AntiAFK", {
     Title = "Anti AFK",
     Default = false,
     Callback = function(v)
+        getgenv().AntiAFK = v
         if v then
-            getgenv().AntiAFK = true
-            running = true
             startTime = os.time()
-            Label.Visible = true
+            MainFrame.Visible = true
 
             -- อัปเดตเวลา
             task.spawn(function()
                 while getgenv().AntiAFK do
                     local elapsed = os.time() - startTime
-                    Label.Text = "Anti AFK: " .. formatTime(elapsed)
+                    TimerLabel.Text = formatTime(elapsed)
                     task.wait(1)
                 end
             end)
@@ -2139,21 +2176,19 @@ Tabs.Misc:AddToggle("AntiAFK", {
             -- Anti AFK loop
             task.spawn(function()
                 while getgenv().AntiAFK do
-                    task.wait(1080)
-
+                    -- คลิกขวาเพื่อกันหลุดทุก 18 นาที
                     VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
                     task.wait(1)
                     VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                    task.wait(1080)
                 end
             end)
-
         else
-            getgenv().AntiAFK = false
-            running = false
-            Label.Visible = false
+            MainFrame.Visible = false
         end
     end
 })
+
 
 -- FPS BOOST
 local saved = {}
