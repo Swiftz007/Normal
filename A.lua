@@ -1,6 +1,6 @@
 --[[
     ===================================================
-    REAPER HUB | KEY SYSTEM + MAIN SCRIPT HUB (FIXED)
+    REAPER HUB | KEY SYSTEM + MAIN SCRIPT HUB (TEXT FIXED)
     ===================================================
 ]]--
 
@@ -79,7 +79,7 @@ local KeyBox = Instance.new("TextBox")
 KeyBox.Size = UDim2.new(0, 320, 0, 44)
 KeyBox.Position = UDim2.new(0.5, -160, 0, 104)
 KeyBox.BackgroundColor3 = Color3.fromRGB(13, 19, 33)
-KeyBox.PlaceholderText = "Paste your Key..."
+KeyBox.PlaceholderText = "Paste your key here..."
 KeyBox.Text = ""
 KeyBox.TextColor3 = Color3.fromRGB(248, 113, 113)
 KeyBox.PlaceholderColor3 = Color3.fromRGB(100, 116, 139)
@@ -117,13 +117,13 @@ GetKeyStroke.Color = Color3.fromRGB(51, 65, 85)
 GetKeyStroke.Thickness = 1
 GetKeyStroke.Parent = GetKeyBtn
 
--- ปุ่ม Verify Button
+-- ปุ่ม Verify Button (ปรับ TextColor3 เป็นสีขาวชัดเจน)
 local VerifyBtn = Instance.new("TextButton")
 VerifyBtn.Size = UDim2.new(0, 152, 0, 40)
 VerifyBtn.Position = UDim2.new(0.5, 8, 0, 158)
 VerifyBtn.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
 VerifyBtn.Text = "Verify"
-VerifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+VerifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255) -- แก้ไขให้เป็นสีขาว
 VerifyBtn.TextSize = 12
 VerifyBtn.Font = Enum.Font.GothamBold
 VerifyBtn.Parent = MainFrame
@@ -144,7 +144,7 @@ local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Size = UDim2.new(1, 0, 0, 24)
 StatusLabel.Position = UDim2.new(0, 0, 0, 210)
 StatusLabel.BackgroundTransparency = 1
-StatusLabel.Text = "Status: Waiting for key input..."
+StatusLabel.Text = ""
 StatusLabel.TextColor3 = Color3.fromRGB(148, 163, 184)
 StatusLabel.TextSize = 11
 StatusLabel.Font = Enum.Font.GothamMedium
@@ -182,10 +182,10 @@ end
 GetKeyBtn.MouseButton1Click:Connect(function()
     if setclipboard then
         setclipboard(GETKEY_URL)
-        StatusLabel.Text = "Status: Get Key link copied to clipboard!"
+        StatusLabel.Text = "Link Copied!"
         StatusLabel.TextColor3 = Color3.fromRGB(52, 211, 153)
     else
-        StatusLabel.Text = "Status: Executor does not support setclipboard."
+        StatusLabel.Text = "Executor not Support!"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
     end
 end)
@@ -195,18 +195,18 @@ VerifyBtn.MouseButton1Click:Connect(function()
     local userKey = KeyBox.Text
     
     if userKey == "" or userKey == " " then
-        StatusLabel.Text = "Status: Please enter your key first!"
+        StatusLabel.Text = "Please enter Key!"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
         return
     end
 
     if not string.match(userKey, "^REAPER%-[A-Z0-9]+%-[A-Z0-9]+%-[A-Z0-9]+$") then
-        StatusLabel.Text = "Status: Invalid Key Format!"
+        StatusLabel.Text = "Invalid Key"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
         return
     end
 
-    StatusLabel.Text = "Status: Verifying key with database..."
+    StatusLabel.Text = "Verifying key..."
     StatusLabel.TextColor3 = Color3.fromRGB(250, 204, 21)
 
     local requestUrl = DATABASE_URL .. userKey .. ".json"
@@ -215,7 +215,7 @@ VerifyBtn.MouseButton1Click:Connect(function()
     end)
 
     if not success or not responseRaw or responseRaw == "null" then
-        StatusLabel.Text = "Status: Key not found in system!"
+        StatusLabel.Text = "Key not found"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
         return
     end
@@ -225,14 +225,14 @@ VerifyBtn.MouseButton1Click:Connect(function()
     end)
 
     if not decodeSuccess or not keyData then
-        StatusLabel.Text = "Status: Database error!"
+        StatusLabel.Text = "DataBase Error!"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
         return
     end
 
     local currentTime = os.time() * 1000
     if currentTime > (keyData.expiresAt or 0) then
-        StatusLabel.Text = "Status: Key has expired!"
+        StatusLabel.Text = "Key has expired!"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
         return
     end
@@ -246,12 +246,12 @@ VerifyBtn.MouseButton1Click:Connect(function()
             Body = HttpService:JSONEncode({ hwid = currentHWID })
         })
     elseif keyData.hwid ~= currentHWID then
-        StatusLabel.Text = "Status: Key is locked to another device!"
+        StatusLabel.Text = "Invalid HWID"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
         return
     end
 
-    StatusLabel.Text = "Status: Key Verified! Loading script..."
+    StatusLabel.Text = "Loading script..."
     StatusLabel.TextColor3 = Color3.fromRGB(52, 211, 153)
     
     task.wait(1)
