@@ -1,11 +1,12 @@
 local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local GETKEY_URL = "https://reapersystem.netlify.app/"
 local DATABASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys/"
-local SAVE_FILE_NAME = "reaper_key.txt"
+local SAVE_FILE_NAME = "reaper_saved_key.txt"
 
 local function GetHWID()
     local success, clientId = pcall(function()
@@ -25,7 +26,7 @@ local function SafeHttpRequest(requestData)
 end
 
 -- ===================================================
--- 🟢 ฟังก์ชันรันสคริปต์หลัก (รวมสคริปต์ภาษาและ Webhook ของคุณ)
+-- 🟢 ฟังก์ชันรันสคริปต์หลัก (รวมสคริปต์ภาษาและ Webhook)
 -- ===================================================
 local function RunMainScript()
     
@@ -75,14 +76,13 @@ end
 if readfile and writefile and isfile and isfile(SAVE_FILE_NAME) then
     local savedKey = readfile(SAVE_FILE_NAME)
     if savedKey and savedKey ~= "" and ValidateKey(savedKey) then
-        print("")
         RunMainScript()
         return
     end
 end
 
 -- ===================================================
--- 💻 UI CREATION (หน้าต่าง Key System ธีมแดง ขอบมน)
+-- 💻 UI CREATION (หน้าต่าง Key System พร้อมอนิเมชั่น)
 -- ===================================================
 if PlayerGui:FindFirstChild("ReaperHubRedKeyUI") then
     PlayerGui.ReaperHubRedKeyUI:Destroy()
@@ -93,12 +93,18 @@ ScreenGui.Name = "ReaperHubRedKeyUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
+-- กำหนดขนาดจริงและตำแหน่งกึ่งกลาง
+local targetSize = UDim2.new(0, 380, 0, 265)
+local targetPos = UDim2.new(0.5, -190, 0.5, -132.5)
+
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 380, 0, 265)
-MainFrame.Position = UDim2.new(0.5, -190, 0.5, -132.5)
+-- เริ่มต้นให้เล็กและอยู่ตรงกลาง เพื่อทำอนิเมชั่นขยายออก
+MainFrame.Size = UDim2.new(0, 0, 0, 0)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(6, 9, 17)
 MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 
 local UICorner = Instance.new("UICorner")
@@ -140,7 +146,7 @@ local KeyBox = Instance.new("TextBox")
 KeyBox.Size = UDim2.new(0, 320, 0, 44)
 KeyBox.Position = UDim2.new(0.5, -160, 0, 104)
 KeyBox.BackgroundColor3 = Color3.fromRGB(13, 19, 33)
-KeyBox.PlaceholderText = "Paste key here..."
+KeyBox.PlaceholderText = "Paste your key here..."
 KeyBox.Text = ""
 KeyBox.TextColor3 = Color3.fromRGB(248, 113, 113)
 KeyBox.PlaceholderColor3 = Color3.fromRGB(100, 116, 139)
@@ -180,7 +186,7 @@ GetKeyStroke.Parent = GetKeyBtn
 local VerifyBtn = Instance.new("TextButton")
 VerifyBtn.Size = UDim2.new(0, 152, 0, 40)
 VerifyBtn.Position = UDim2.new(0.5, 8, 0, 158)
-VerifyBtn.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
+VerifyBtn.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
 VerifyBtn.Text = "Verify"
 VerifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 VerifyBtn.TextSize = 12
@@ -208,11 +214,19 @@ StatusLabel.TextSize = 11
 StatusLabel.Font = Enum.Font.GothamMedium
 StatusLabel.Parent = MainFrame
 
+-- 🎬 อ니เมชั่นตอนเปิดหน้าต่าง (Pop-up ขยายเข้า)
+local openTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+local openTween = TweenService:Create(MainFrame, openTweenInfo, {
+    Size = targetSize,
+    Position = targetPos
+})
+openTween:Play()
+
 -- กดปุ่ม Get Key
 GetKeyBtn.MouseButton1Click:Connect(function()
     if setclipboard then
         setclipboard(GETKEY_URL)
-        StatusLabel.Text = "link copied!"
+        StatusLabel.Text = "Key link copied!"
         StatusLabel.TextColor3 = Color3.fromRGB(52, 211, 153)
     else
         StatusLabel.Text = "setclipboard Error"
@@ -269,8 +283,16 @@ VerifyBtn.MouseButton1Click:Connect(function()
     StatusLabel.Text = "Loading..."
     StatusLabel.TextColor3 = Color3.fromRGB(52, 211, 153)
     
-    task.wait(1)
-    ScreenGui:Destroy()
-
-    RunMainScript()
+    -- 🎬 อ니เมชั่นตอน Verify ผ่าน (ย่อขนาดหดกลับตรงกลางแล้วหายไปอย่างสมูท)
+    local closeTweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+    local closeTween = TweenService:Create(MainFrame, closeTweenInfo, {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0.5, 0)
+    })
+    closeTween:Play()
+    
+    closeTween.Completed:Connect(function()
+        ScreenGui:Destroy()
+        RunMainScript()
+    end)
 end)
