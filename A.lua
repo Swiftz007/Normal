@@ -1,6 +1,6 @@
 --[[
     ===================================================
-    REAPER HUB | KEY SYSTEM + MAIN SCRIPT HUB (TEXT FIXED)
+    REAPER HUB | KEY SYSTEM + MAIN SCRIPT HUB (TEXT FIXED) 2
     ===================================================
 ]]--
 
@@ -121,7 +121,7 @@ GetKeyStroke.Parent = GetKeyBtn
 local VerifyBtn = Instance.new("TextButton")
 VerifyBtn.Size = UDim2.new(0, 152, 0, 40)
 VerifyBtn.Position = UDim2.new(0.5, 8, 0, 158)
-VerifyBtn.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
+VerifyBtn.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
 VerifyBtn.Text = "Verify"
 VerifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255) -- แก้ไขให้เป็นสีขาว
 VerifyBtn.TextSize = 12
