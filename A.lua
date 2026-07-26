@@ -1,6 +1,6 @@
 --[[
     ===================================================
-    REAPER HUB | KEY SYSTEM + MAIN SCRIPT HUB
+    REAPER HUB | KEY SYSTEM + MAIN SCRIPT HUB (FIXED)
     ===================================================
 ]]--
 
@@ -79,7 +79,7 @@ local KeyBox = Instance.new("TextBox")
 KeyBox.Size = UDim2.new(0, 320, 0, 44)
 KeyBox.Position = UDim2.new(0.5, -160, 0, 104)
 KeyBox.BackgroundColor3 = Color3.fromRGB(13, 19, 33)
-KeyBox.PlaceholderText = "Paste your REAPER-XXX-XXX-XXX key here..."
+KeyBox.PlaceholderText = "Paste your Key..."
 KeyBox.Text = ""
 KeyBox.TextColor3 = Color3.fromRGB(248, 113, 113)
 KeyBox.PlaceholderColor3 = Color3.fromRGB(100, 116, 139)
@@ -164,6 +164,20 @@ local function GetHWID()
     return tostring(LocalPlayer.UserId)
 end
 
+-- ฟังก์ชันส่ง HTTP Request ที่รองรับทุก Executor อย่างปลอดภัย
+local function SafeHttpRequest(requestData)
+    local req = (syn and syn.request) or (http and http.request) or http_request or request
+    if req then
+        local success, result = pcall(function()
+            return req(requestData)
+        end)
+        if success then
+            return result
+        end
+    end
+    return nil
+end
+
 -- กดปุ่ม Get Key (คัดลอกลิงก์)
 GetKeyBtn.MouseButton1Click:Connect(function()
     if setclipboard then
@@ -192,7 +206,7 @@ VerifyBtn.MouseButton1Click:Connect(function()
         return
     end
 
-    StatusLabel.Text = "Status: Verifying key..."
+    StatusLabel.Text = "Status: Verifying key with database..."
     StatusLabel.TextColor3 = Color3.fromRGB(250, 204, 21)
 
     local requestUrl = DATABASE_URL .. userKey .. ".json"
@@ -201,7 +215,7 @@ VerifyBtn.MouseButton1Click:Connect(function()
     end)
 
     if not success or not responseRaw or responseRaw == "null" then
-        StatusLabel.Text = "Status: Key not found"
+        StatusLabel.Text = "Status: Key not found in system!"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
         return
     end
@@ -225,19 +239,14 @@ VerifyBtn.MouseButton1Click:Connect(function()
 
     local currentHWID = GetHWID()
     if not keyData.hwid or keyData.hwid == "" then
-        pcall(function()
-            local httpRequest = (syn and syn.request) or (http and http.request) or http_request or request
-            if httpRequest then
-                httpRequest({
-                    Url = requestUrl,
-                    Method = "PATCH",
-                    Headers = { ["Content-Type"] = "application/json" },
-                    Body = HttpService:JSONEncode({ hwid = currentHWID })
-                })
-            end
-        end)
+        SafeHttpRequest({
+            Url = requestUrl,
+            Method = "PATCH",
+            Headers = { ["Content-Type"] = "application/json" },
+            Body = HttpService:JSONEncode({ hwid = currentHWID })
+        })
     elseif keyData.hwid ~= currentHWID then
-        StatusLabel.Text = "Status: Invalid HWID"
+        StatusLabel.Text = "Status: Key is locked to another device!"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
         return
     end
@@ -251,13 +260,12 @@ VerifyBtn.MouseButton1Click:Connect(function()
     -- ===============================================
     -- 🟢 รันสคริปต์หลักของคุณหลังจากผ่านการ Verify 🟢
     -- ===============================================
---    if _G.Script_Language == "Thai" then
---        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/Thai.lua"))()
---    else
+    if _G.Script_Language == "Thai" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/Thai.lua"))()
+    else
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/testreaper.lua"))()
     end
     
     task.wait(2)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libwebhook2.lua"))() -- webhook
 end)
-
