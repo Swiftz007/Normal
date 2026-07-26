@@ -8,11 +8,21 @@ local GETKEY_URL = "https://reapersystem.netlify.app/"
 local DATABASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys/"
 local SAVE_FILE_NAME = "reaper_saved_key.txt"
 
+-- ฟังก์ชันดึง HWID ให้ตรงกับ Webhook ทันที (ใช้ gethwid ตัวเดียวกัน)
 local function GetHWID()
-    local success, clientId = pcall(function()
+    local success, hwidValue = pcall(function()
+        return gethwid and gethwid() or nil
+    end)
+    if success and hwidValue and hwidValue ~= "Not Supported" then
+        return hwidValue
+    end
+    -- Fallback เผื่อ Executor ตัวไหนไม่รองรับ gethwid
+    local successClient, clientId = pcall(function()
         return game:GetService("RbxAnalyticsService"):GetClientId()
     end)
-    if success and clientId then return clientId end
+    if successClient and clientId then 
+        return clientId 
+    end
     return tostring(LocalPlayer.UserId)
 end
 
@@ -93,13 +103,11 @@ ScreenGui.Name = "ReaperHubRedKeyUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- กำหนดขนาดจริงและตำแหน่งกึ่งกลาง
 local targetSize = UDim2.new(0, 380, 0, 265)
 local targetPos = UDim2.new(0.5, -190, 0.5, -132.5)
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
--- เริ่มต้นให้เล็กและอยู่ตรงกลาง เพื่อทำอนิเมชั่นขยายออก
 MainFrame.Size = UDim2.new(0, 0, 0, 0)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(6, 9, 17)
@@ -146,7 +154,7 @@ local KeyBox = Instance.new("TextBox")
 KeyBox.Size = UDim2.new(0, 320, 0, 44)
 KeyBox.Position = UDim2.new(0.5, -160, 0, 104)
 KeyBox.BackgroundColor3 = Color3.fromRGB(13, 19, 33)
-KeyBox.PlaceholderText = "Paste your key here..."
+KeyBox.PlaceholderText = "Paste key here..."
 KeyBox.Text = ""
 KeyBox.TextColor3 = Color3.fromRGB(248, 113, 113)
 KeyBox.PlaceholderColor3 = Color3.fromRGB(100, 116, 139)
@@ -186,7 +194,7 @@ GetKeyStroke.Parent = GetKeyBtn
 local VerifyBtn = Instance.new("TextButton")
 VerifyBtn.Size = UDim2.new(0, 152, 0, 40)
 VerifyBtn.Position = UDim2.new(0.5, 8, 0, 158)
-VerifyBtn.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
+VerifyBtn.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
 VerifyBtn.Text = "Verify"
 VerifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 VerifyBtn.TextSize = 12
@@ -214,7 +222,7 @@ StatusLabel.TextSize = 11
 StatusLabel.Font = Enum.Font.GothamMedium
 StatusLabel.Parent = MainFrame
 
--- 🎬 อ니เมชั่นตอนเปิดหน้าต่าง (Pop-up ขยายเข้า)
+-- อนิเมชั่นเปิดตัว
 local openTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local openTween = TweenService:Create(MainFrame, openTweenInfo, {
     Size = targetSize,
@@ -222,19 +230,17 @@ local openTween = TweenService:Create(MainFrame, openTweenInfo, {
 })
 openTween:Play()
 
--- กดปุ่ม Get Key
 GetKeyBtn.MouseButton1Click:Connect(function()
     if setclipboard then
         setclipboard(GETKEY_URL)
-        StatusLabel.Text = "Key link copied!"
+        StatusLabel.Text = "link copied!"
         StatusLabel.TextColor3 = Color3.fromRGB(52, 211, 153)
     else
-        StatusLabel.Text = "setclipboard Error"
+        StatusLabel.Text = "setclipboard Error."
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
     end
 end)
 
--- กดปุ่ม Verify
 VerifyBtn.MouseButton1Click:Connect(function()
     local userKey = KeyBox.Text
     if userKey == "" then
@@ -283,7 +289,7 @@ VerifyBtn.MouseButton1Click:Connect(function()
     StatusLabel.Text = "Loading..."
     StatusLabel.TextColor3 = Color3.fromRGB(52, 211, 153)
     
-    -- 🎬 อ니เมชั่นตอน Verify ผ่าน (ย่อขนาดหดกลับตรงกลางแล้วหายไปอย่างสมูท)
+    -- อนิเมชั่นตอนปิดหน้าต่าง
     local closeTweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
     local closeTween = TweenService:Create(MainFrame, closeTweenInfo, {
         Size = UDim2.new(0, 0, 0, 0),
@@ -296,3 +302,4 @@ VerifyBtn.MouseButton1Click:Connect(function()
         RunMainScript()
     end)
 end)
+
