@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-local GETKEY_URL = "https://reapersystem.netlify.app/"
+local GETKEY_URL = "https://lastreaperx.netlify.app/"
 local DATABASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys/"
 local SAVE_FILE_NAME = "reaper_saved_key.txt"
 
