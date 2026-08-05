@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 77
+-- 🔥 Lib Load Screen Reaper Hub 78
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -170,8 +170,8 @@ end)
 local ESPObjects = {}
 local Cache = {}
 
-local BoxColor = Color3.fromRGB(0,0,0)
-local LineColor = Color3.fromRGB(0,0,0)
+local BoxColor = Color3.fromRGB(255,255,255)
+local LineColor = Color3.fromRGB(255,255,255)
 
 local ESPConnection
 
