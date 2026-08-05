@@ -8,15 +8,20 @@ local GETKEY_URL = "https://lastreaperx.netlify.app/"
 local DATABASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys/"
 local SAVE_FILE_NAME = "reaper_saved_key.txt"
 
--- ฟังก์ชันดึง HWID ให้ตรงกับ Webhook ทันที (ใช้ gethwid ตัวเดียวกัน)
+-- กำหนดภาษาเริ่มต้นหากไม่ได้ตั้งไว้
+if _G.Script_Language == nil then
+    _G.Script_Language = "Thai" -- เปลี่ยนเป็น "English" ได้ถ้าต้องการให้ default เป็นอังกฤษ
+end
+
+-- ฟังก์ชันดึง HWID
 local function GetHWID()
     local success, hwidValue = pcall(function()
         return gethwid and gethwid() or nil
     end)
-    if success and hwidValue and hwidValue ~= "Not Supported" then
+    if success and hwidValue and hwidValue ~= "Not Supported" and hwidValue ~= "" then
         return hwidValue
     end
-    -- Fallback เผื่อ Executor ตัวไหนไม่รองรับ gethwid
+    
     local successClient, clientId = pcall(function()
         return game:GetService("RbxAnalyticsService"):GetClientId()
     end)
@@ -36,20 +41,40 @@ local function SafeHttpRequest(requestData)
 end
 
 -- ===================================================
--- 🟢 ฟังก์ชันรันสคริปต์หลัก (รวมสคริปต์ภาษาและ Webhook)
+-- 🟢 ฟังก์ชันรันสคริปต์หลัก (พร้อมระบบป้องกัน Crash)
 -- ===================================================
 local function RunMainScript()
+    local scriptUrl = (_G.Script_Language == "Thai") 
+        and "https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/Thai.lua"
+        or "https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/kingxyz.lua"
     
-    if _G.Script_Language == "Thai" then
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/Thai.lua"))()
-    else
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/kingxyz.lua"))()
-    end
+    -- รันสคริปต์หลักด้วย pcall กันพัง
+    task.spawn(function()
+        local s, res = pcall(function()
+            return game:HttpGet(scriptUrl)
+        end)
+        if s and res then
+            local runSuccess, runErr = pcall(function()
+                loadstring(res)()
+            end)
+            if not runSuccess then
+                warn("[REAPER] Main Script Error: " .. tostring(runErr))
+            end
+        else
+            warn("[REAPER] Failed to fetch main script from GitHub.")
+        end
+    end)
     
-    task.wait(2)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libwebhook2.lua"))() -- Webhook
+    -- รัน Webhook
+    task.spawn(function()
+        task.wait(2)
+        pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libwebhook2.lua"))()
+        end)
+    end)
 end
 
+-- ฟังก์ชันตรวจสอบคีย์
 local function ValidateKey(userKey)
     if not userKey or not string.match(userKey, "^REAPER%-[A-Z0-9]+%-[A-Z0-9]+%-[A-Z0-9]+$") then
         return false
@@ -61,8 +86,13 @@ local function ValidateKey(userKey)
     if not success or not responseRaw or responseRaw == "null" then return false end
 
     local decodeSuccess, keyData = pcall(function() return HttpService:JSONDecode(responseRaw) end)
-    if not decodeSuccess or not keyData or (os.time() * 1000) > (keyData.expiresAt or 0) then
-        return false
+    if not decodeSuccess or not keyData then return false end
+
+    -- เช็กวันหมดอายุ (ถ้า expiresAt เป็น nil หรือ 0 แปลว่าถาวร)
+    if keyData.expiresAt and keyData.expiresAt > 0 then
+        if (os.time() * 1000) > keyData.expiresAt then
+            return false
+        end
     end
 
     local currentHWID = GetHWID()
@@ -83,7 +113,7 @@ end
 -- ===================================================
 -- ⚡ AUTO LOAD CHECK (ตรวจสอบคีย์เดิมในเครื่อง)
 -- ===================================================
-if readfile and writefile and isfile and isfile(SAVE_FILE_NAME) then
+if readfile and isfile and isfile(SAVE_FILE_NAME) then
     local savedKey = readfile(SAVE_FILE_NAME)
     if savedKey and savedKey ~= "" and ValidateKey(savedKey) then
         RunMainScript()
@@ -92,7 +122,7 @@ if readfile and writefile and isfile and isfile(SAVE_FILE_NAME) then
 end
 
 -- ===================================================
--- 💻 UI CREATION (หน้าต่าง Key System พร้อมอนิเมชั่น)
+-- 💻 UI CREATION (หน้าต่าง Key System)
 -- ===================================================
 if PlayerGui:FindFirstChild("ReaperHubRedKeyUI") then
     PlayerGui.ReaperHubRedKeyUI:Destroy()
@@ -233,7 +263,7 @@ openTween:Play()
 GetKeyBtn.MouseButton1Click:Connect(function()
     if setclipboard then
         setclipboard(GETKEY_URL)
-        StatusLabel.Text = "link copied!"
+        StatusLabel.Text = "Link copied!"
         StatusLabel.TextColor3 = Color3.fromRGB(52, 211, 153)
     else
         StatusLabel.Text = "setclipboard Error."
@@ -252,32 +282,8 @@ VerifyBtn.MouseButton1Click:Connect(function()
     StatusLabel.Text = "Verifying..."
     StatusLabel.TextColor3 = Color3.fromRGB(250, 204, 21)
 
-    local requestUrl = DATABASE_URL .. userKey .. ".json"
-    local success, responseRaw = pcall(function() return game:HttpGet(requestUrl) end)
-
-    if not success or not responseRaw or responseRaw == "null" then
-        StatusLabel.Text = "Key not found!"
-        StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
-        return
-    end
-
-    local decodeSuccess, keyData = pcall(function() return HttpService:JSONDecode(responseRaw) end)
-    if not decodeSuccess or not keyData or (os.time() * 1000) > (keyData.expiresAt or 0) then
-        StatusLabel.Text = "Key expired or invalid!"
-        StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
-        return
-    end
-
-    local currentHWID = GetHWID()
-    if not keyData.hwid or keyData.hwid == "" then
-        SafeHttpRequest({
-            Url = requestUrl,
-            Method = "PATCH",
-            Headers = { ["Content-Type"] = "application/json" },
-            Body = HttpService:JSONEncode({ hwid = currentHWID })
-        })
-    elseif keyData.hwid ~= currentHWID then
-        StatusLabel.Text = "Invalid HWID"
+    if not ValidateKey(userKey) then
+        StatusLabel.Text = "Invalid key"
         StatusLabel.TextColor3 = Color3.fromRGB(248, 113, 113)
         return
     end
@@ -302,3 +308,4 @@ VerifyBtn.MouseButton1Click:Connect(function()
         RunMainScript()
     end)
 end)
+
