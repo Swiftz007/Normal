@@ -21,6 +21,10 @@ local Lighting = game:GetService("Lighting")
 local lighting = Lighting
 local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
+
+--local Players = game:GetService("Players")
+--local LocalPlayer = Players.LocalPlayer
+
 --=========================
 -- 🔥 PLAYER / CAMERA / WORLD
 --=========================
@@ -972,9 +976,6 @@ Tabs.ESP:AddToggle("HealthESP", {
     end
 })
 
--- Add Hitbox 🔥
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 
 -- ค่าเริ่มต้น
 local hitboxEnabled = false
