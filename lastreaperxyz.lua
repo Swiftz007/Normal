@@ -1,3 +1,4 @@
+--1
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -162,12 +163,12 @@ local Icons = {
 	Info = "rbxassetid://94529541997278",
 	Copy = "rbxassetid://107485544510830",
 	ErrorFolder = "rbxassetid://113312905787220",
-	ReaperIcon = "rbxassetid://131279093559313" -- เปลี่ยนชื่อตัวแปรเป็น ReaperIcon เรียบร้อย
+	ReaperIcon = "rbxassetid://131279093559313"
 }
 
 local Configuration = {
 	ScreenGuiName = "ReaperHubHorizontalKeyUI",
-	Window = {Size = UDim2.new(0, 560, 0, 220)},
+	Window = {Size = UDim2.new(0, 560, 0, 240)}, -- ปรับความสูงขึ้นเป็น 240
 	Colors = {
 		Bg = Color3.fromRGB(10, 10, 12),
 		Primary = Color3.fromRGB(239, 68, 68),
@@ -405,23 +406,22 @@ local function Build()
 
 	-- Body Content Container (Horizontal Split Layout)
 	local body = Instance.new("Frame")
-	body.Size = UDim2.new(1, -40, 1, -60)
+	body.Size = UDim2.new(1, -40, 1, -55)
 	body.Position = UDim2.new(0, 20, 0, 45)
 	body.BackgroundTransparency = 1
 	body.Parent = main
 
-	-- ซ้าย: โลโก้และชื่อ Hub
+	-- ซ้าย: โลโก้ใสไม่มีพื้นหลังและชื่อ Hub
 	local leftCol = Instance.new("Frame")
 	leftCol.Size = UDim2.new(0, 160, 1, 0)
 	leftCol.BackgroundTransparency = 1
 	leftCol.Parent = body
 
 	local logoContainer = Instance.new("Frame")
-	logoContainer.Size = UDim2.fromOffset(64, 64)
-	logoContainer.BackgroundColor3 = Configuration.Colors.Primary
-	logoContainer.Position = UDim2.new(0, 0, 0, 5)
+	logoContainer.Size = UDim2.fromOffset(68, 68)
+	logoContainer.Position = UDim2.new(0, 0, 0, 10)
+	logoContainer.BackgroundTransparency = 1 -- 🟢 ตั้งค่าให้พื้นหลังโปร่งใสไม่มีกรอบสี
 	logoContainer.Parent = leftCol
-	Utils.Round(logoContainer, 16)
 
 	local sIcon = Instance.new("ImageLabel")
 	sIcon.Size = UDim2.fromScale(1, 1)
@@ -434,7 +434,7 @@ local function Build()
 
 	local mainTitle = Instance.new("TextLabel")
 	mainTitle.Size = UDim2.new(1, 0, 0, 22)
-	mainTitle.Position = UDim2.new(0, 0, 0, 78)
+	mainTitle.Position = UDim2.new(0, 0, 0, 86)
 	mainTitle.Text = "Reaper Hub"
 	mainTitle.TextColor3 = Color3.new(1, 1, 1)
 	mainTitle.TextSize = 18
@@ -445,7 +445,7 @@ local function Build()
 
 	local subTitle = Instance.new("TextLabel")
 	subTitle.Size = UDim2.new(1, 0, 0, 14)
-	subTitle.Position = UDim2.new(0, 0, 0, 102)
+	subTitle.Position = UDim2.new(0, 0, 0, 110)
 	subTitle.Text = "Key System"
 	subTitle.TextColor3 = Configuration.Colors.TextSec
 	subTitle.TextSize = 12
@@ -462,13 +462,13 @@ local function Build()
 	rightCol.Parent = body
 
 	local listLayout = Instance.new("UIListLayout")
-	listLayout.Padding = UDim.new(0, 10)
+	listLayout.Padding = UDim.new(0, 12)
 	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	listLayout.Parent = rightCol
 
 	-- 1. Status Card (แนวนอน)
 	local statusCard = Instance.new("Frame")
-	statusCard.Size = UDim2.new(1, 0, 0, 46)
+	statusCard.Size = UDim2.new(1, 0, 0, 48)
 	statusCard.BackgroundColor3 = Color3.new(1, 1, 1)
 	statusCard.BackgroundTransparency = 0.96
 	statusCard.Parent = rightCol
@@ -476,13 +476,13 @@ local function Build()
 	Utils.Stroke(statusCard, Color3.new(1, 1, 1), 1, 0.95)
 
 	local sIconBg = Instance.new("Frame")
-	sIconBg.Size = UDim2.fromOffset(30, 30)
-	sIconBg.Position = UDim2.new(0, 8, 0.5, 0)
+	sIconBg.Size = UDim2.fromOffset(32, 32)
+	sIconBg.Position = UDim2.new(0, 10, 0.5, 0)
 	sIconBg.AnchorPoint = Vector2.new(0, 0.5)
 	sIconBg.BackgroundColor3 = Configuration.Colors.StatusIdle
 	sIconBg.BackgroundTransparency = 0.9
 	sIconBg.Parent = statusCard
-	Utils.Round(sIconBg, 15)
+	Utils.Round(sIconBg, 16)
 
 	local sImg = Instance.new("ImageLabel")
 	sImg.Size = UDim2.fromScale(0.5, 0.5)
@@ -494,8 +494,8 @@ local function Build()
 	sImg.Parent = sIconBg
 
 	local sLabel = Instance.new("TextLabel")
-	sLabel.Size = UDim2.new(1, -45, 0, 12)
-	sLabel.Position = UDim2.fromOffset(45, 8)
+	sLabel.Size = UDim2.new(1, -50, 0, 12)
+	sLabel.Position = UDim2.fromOffset(50, 8)
 	sLabel.Text = "CURRENT STATUS"
 	sLabel.TextColor3 = Configuration.Colors.TextMuted
 	sLabel.TextSize = 9
@@ -505,8 +505,8 @@ local function Build()
 	sLabel.Parent = statusCard
 
 	local sValue = Instance.new("TextLabel")
-	sValue.Size = UDim2.new(1, -45, 0, 16)
-	sValue.Position = UDim2.fromOffset(45, 20)
+	sValue.Size = UDim2.new(1, -50, 0, 18)
+	sValue.Position = UDim2.fromOffset(50, 21)
 	sValue.Text = "No key detected"
 	sValue.TextColor3 = Configuration.Colors.StatusIdle
 	sValue.TextSize = 13
@@ -517,7 +517,7 @@ local function Build()
 
 	-- 2. Input Frame
 	local inputFrame = Instance.new("Frame")
-	inputFrame.Size = UDim2.new(1, 0, 0, 42)
+	inputFrame.Size = UDim2.new(1, 0, 0, 44)
 	inputFrame.BackgroundColor3 = Color3.new(1, 1, 1)
 	inputFrame.BackgroundTransparency = 0.975
 	inputFrame.Parent = rightCol
@@ -526,7 +526,7 @@ local function Build()
 
 	local kIcon = Instance.new("ImageLabel")
 	kIcon.Size = UDim2.fromOffset(16, 16)
-	kIcon.Position = UDim2.new(0, 10, 0.5, 0)
+	kIcon.Position = UDim2.new(0, 12, 0.5, 0)
 	kIcon.AnchorPoint = Vector2.new(0, 0.5)
 	kIcon.Image = Icons.Key
 	kIcon.ImageColor3 = Configuration.Colors.TextMuted
@@ -534,8 +534,8 @@ local function Build()
 	kIcon.Parent = inputFrame
 
 	local box = Instance.new("TextBox")
-	box.Size = UDim2.new(1, -65, 1, 0)
-	box.Position = UDim2.fromOffset(36, 0)
+	box.Size = UDim2.new(1, -68, 1, 0)
+	box.Position = UDim2.fromOffset(38, 0)
 	box.Text = ""
 	box.PlaceholderText = "Enter your key..."
 	box.TextColor3 = Color3.new(1, 1, 1)
@@ -547,7 +547,7 @@ local function Build()
 
 	local paste = Instance.new("ImageButton")
 	paste.Size = UDim2.fromOffset(16, 16)
-	paste.Position = UDim2.new(1, -10, 0.5, 0)
+	paste.Position = UDim2.new(1, -12, 0.5, 0)
 	paste.AnchorPoint = Vector2.new(1, 0.5)
 	paste.Image = Icons.Copy
 	paste.ImageColor3 = Configuration.Colors.TextMuted
@@ -556,7 +556,7 @@ local function Build()
 
 	-- 3. Buttons Row (Redeem & Get Key)
 	local btnRow = Instance.new("Frame")
-	btnRow.Size = UDim2.new(1, 0, 0, 40)
+	btnRow.Size = UDim2.new(1, 0, 0, 42)
 	btnRow.BackgroundTransparency = 1
 	btnRow.Parent = rightCol
 
