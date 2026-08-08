@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 78
+-- 🔥 Lib Load Screen Reaper Hub 79~
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1077,7 +1077,7 @@ end
 
 -- Key Times
 --=========================
--- 🔑 KEY EXPIRY DISPLAY (MINIMAL)
+-- 🔑 KEY EXPIRY DISPLAY (FIXED)
 --=========================
 local FIREBASE_BASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys"
 local KEY_FILE = "reaper_saved_key.txt"
@@ -1090,41 +1090,50 @@ local ExpiryLabel = Tabs.Status:AddParagraph({
 
 local function updateKeyTime()
     task.spawn(function()
+        -- 1. ตรวจสอบไฟล์
         if not isfile(KEY_FILE) then 
-            ExpiryLabel:SetDesc("Key not found")
+            ExpiryLabel:SetDesc("Status: No key file found")
             return 
         end
         
-        local savedKey = readfile(KEY_FILE)
+        -- 2. อ่านคีย์และลบช่องว่าง/ขึ้นบรรทัดใหม่ที่อาจติดมา (สำคัญมาก)
+        local rawKey = readfile(KEY_FILE)
+        local savedKey = rawKey:gsub("%s+", "") -- ลบ spaces, tabs, newlines ทั้งหมด
+        
+        -- 3. ดึงข้อมูลจาก Firebase
         local success, response = pcall(function()
             return game:HttpGet(string.format("%s/%s.json", FIREBASE_BASE_URL, savedKey))
         end)
 
-        if success and response ~= "null" then
+        if success and response and response ~= "null" then
             local data = HttpService:JSONDecode(response)
             
-            -- ตรวจสอบ HWID และเวลา (ถ้าผ่านค่อยแสดงเวลา)
-            if data.hwid == gethwid() then
-                local timeLeft = (data.expiresAt / 1000) - os.time()
-                
-                if timeLeft > 0 then
-                    local d = math.floor(timeLeft / 86400)
-                    local h = math.floor((timeLeft % 86400) / 3600)
-                    local m = math.floor((timeLeft % 3600) / 60)
+            -- 4. ตรวจสอบข้อมูลภายใน
+            if data and data.expiresAt then
+                -- เช็ค HWID (ถ้าในเบสมีค่า ต้องตรงกับเครื่องนี้)
+                if data.hwid == "" or data.hwid == nil or data.hwid == gethwid() then
+                    local timeLeft = (tonumber(data.expiresAt) / 1000) - os.time()
                     
-                    ExpiryLabel:SetDesc(string.format("%d Days %d Hours %d Mins", d, h, m))
-                    return
+                    if timeLeft > 0 then
+                        local d = math.floor(timeLeft / 86400)
+                        local h = math.floor((timeLeft % 86400) / 3600)
+                        local m = math.floor((timeLeft % 3600) / 60)
+                        
+                        ExpiryLabel:SetDesc(string.format("%d Days %d Hours %d Mins", d, h, m))
+                        return
+                    end
                 end
             end
         end
         
-        -- ถ้าไม่ผ่านเงื่อนไขใดๆ (หมดอายุ/HWID ไม่ตรง/หาคีย์ไม่เจอ) ให้แสดงข้อความเดียวจบ
-        ExpiryLabel:SetDesc("No Active Session")
+        -- หากไม่เข้าเงื่อนไขด้านบนเลย
+        ExpiryLabel:SetDesc("Status: No Active Session")
     end)
 end
 
 -- เรียกใช้งาน
 updateKeyTime()
+
 
 
 -- แสดงข้อมูล Profile ในแท็บ Status ที่อยู่ใน Table Tabs
