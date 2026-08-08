@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 80
+-- 🔥 Lib Load Screen Reaper Hub 81
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1119,7 +1119,7 @@ local function startKeyTimer()
                         local timeLeft = targetTime - os.time()
                         
                         if timeLeft > 0 then
-                            local h = math.floor((timeLeft % 86400) / 3600)
+                            local h = math.floor(timeLeft % / 3600)
                             local m = math.floor((timeLeft % 3600) / 60)
                             local s = math.floor(timeLeft % 60)
                             
