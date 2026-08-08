@@ -1,4 +1,4 @@
---3
+--4
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -163,12 +163,12 @@ local Icons = {
 	Info = "rbxassetid://94529541997278",
 	Copy = "rbxassetid://107485544510830",
 	ErrorFolder = "rbxassetid://113312905787220",
-	ReaperIcon = "rbxassetid://131279093559313"
+	ReaperIcon = "rbxassetid://86279908104891"
 }
 
 local Configuration = {
 	ScreenGuiName = "ReaperHubHorizontalKeyUI",
-	Window = {Size = UDim2.new(0, 520, 0, 255)}, -- ปรับความกว้างลดลง (520) และเพิ่มความสูงขึ้น (255)
+	Window = {Size = UDim2.new(0, 520, 0, 255)},
 	Colors = {
 		Bg = Color3.fromRGB(10, 10, 12),
 		Primary = Color3.fromRGB(239, 68, 68),
@@ -411,7 +411,7 @@ local function Build()
 	body.BackgroundTransparency = 1
 	body.Parent = main
 
-	-- ซ้าย: โลโก้ใสไม่มีพื้นหลังและชื่อ Hub
+	-- ซ้าย: โลโก้และชื่อ Hub (จัดเซ็นเตอร์และแก้จุดกึ่งกลางของรูปภาพ)
 	local leftCol = Instance.new("Frame")
 	leftCol.Size = UDim2.new(0, 150, 1, 0)
 	leftCol.BackgroundTransparency = 1
@@ -419,7 +419,7 @@ local function Build()
 
 	local logoContainer = Instance.new("Frame")
 	logoContainer.Size = UDim2.fromOffset(72, 72)
-	logoContainer.Position = UDim2.new(0, 15, 0, 10)
+	logoContainer.Position = UDim2.new(0.5, -36, 0, 10)
 	logoContainer.BackgroundTransparency = 1
 	logoContainer.Parent = leftCol
 
@@ -434,7 +434,7 @@ local function Build()
 
 	local mainTitle = Instance.new("TextLabel")
 	mainTitle.Size = UDim2.new(1, 0, 0, 22)
-	mainTitle.Position = UDim2.new(0, 0, 0, 92)
+	mainTitle.Position = UDim2.new(0, 0, 0, 90)
 	mainTitle.Text = "Reaper Hub"
 	mainTitle.TextColor3 = Color3.new(1, 1, 1)
 	mainTitle.TextSize = 18
@@ -445,7 +445,7 @@ local function Build()
 
 	local subTitle = Instance.new("TextLabel")
 	subTitle.Size = UDim2.new(1, 0, 0, 14)
-	subTitle.Position = UDim2.new(0, 0, 0, 116)
+	subTitle.Position = UDim2.new(0, 0, 0, 114)
 	subTitle.Text = "Key System"
 	subTitle.TextColor3 = Configuration.Colors.TextSec
 	subTitle.TextSize = 12
@@ -554,28 +554,15 @@ local function Build()
 	paste.BackgroundTransparency = 1
 	paste.Parent = inputFrame
 
-	-- 3. Buttons Row (Redeem & Get Key)
+	-- 3. Buttons Row (Get Key & Verify)
 	local btnRow = Instance.new("Frame")
 	btnRow.Size = UDim2.new(1, 0, 0, 42)
 	btnRow.BackgroundTransparency = 1
 	btnRow.Parent = rightCol
 
-	local redeem = Instance.new("TextButton")
-	redeem.Size = UDim2.new(0.5, -4, 1, 0)
-	redeem.BackgroundColor3 = Configuration.Colors.Primary
-	redeem.Text = "Verify"
-	redeem.TextColor3 = Color3.new(1, 1, 1)
-	redeem.Font = Enum.Font.GothamBold
-	redeem.TextSize = 13
-	redeem.AutoButtonColor = false
-	redeem.Parent = btnRow
-	Utils.Round(redeem, 12)
-
 	local getKey = Instance.new("TextButton")
 	getKey.Size = UDim2.new(0.5, -4, 1, 0)
-	getKey.Position = UDim2.new(0.5, 4, 0, 0)
-	getKey.BackgroundColor3 = Color3.new(1, 1, 1)
-	getKey.BackgroundTransparency = 0.955
+	getKey.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
 	getKey.Text = "Get Key"
 	getKey.TextColor3 = Color3.new(1, 1, 1)
 	getKey.Font = Enum.Font.GothamBold
@@ -584,6 +571,25 @@ local function Build()
 	getKey.Parent = btnRow
 	Utils.Round(getKey, 12)
 	Utils.Stroke(getKey, Color3.new(1, 1, 1), 1, 0.94)
+
+	local verifyBtn = Instance.new("TextButton")
+	verifyBtn.Size = UDim2.new(0.5, -4, 1, 0)
+	verifyBtn.Position = UDim2.new(0.5, 4, 0, 0)
+	verifyBtn.BackgroundColor3 = Configuration.Colors.Primary
+	verifyBtn.Text = "Verify"
+	verifyBtn.TextColor3 = Color3.new(1, 1, 1)
+	verifyBtn.Font = Enum.Font.GothamBold
+	verifyBtn.TextSize = 13
+	verifyBtn.AutoButtonColor = false
+	verifyBtn.Parent = btnRow
+	Utils.Round(verifyBtn, 12)
+
+	local VerifyGradient = Instance.new("UIGradient")
+	VerifyGradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(239, 68, 68)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(153, 27, 27))
+	})
+	VerifyGradient.Parent = verifyBtn
 
 	local function ApplyHover(btn)
 		local baseColor = btn.BackgroundColor3
@@ -594,7 +600,7 @@ local function Build()
 			Utils.Tween(btn, {BackgroundColor3 = baseColor}, 0.2)
 		end)
 	end
-	ApplyHover(redeem)
+	ApplyHover(verifyBtn)
 	ApplyHover(getKey)
 
 	local spinConnection
@@ -644,17 +650,17 @@ local function Build()
 		sImg.Image = icon
 	end
 
-	-- ปุ่ม Redeem (ยืนยันคีย์)
-	redeem.MouseButton1Click:Connect(function()
+	-- ปุ่ม Verify (ยืนยันคีย์)
+	verifyBtn.MouseButton1Click:Connect(function()
 		local userKey = box.Text:gsub("%s+", "")
 		SetStatus("verifying")
-		redeem.Text = "..."
-		redeem.Active = false
+		verifyBtn.Text = "..."
+		verifyBtn.Active = false
 
 		local result = API.check_key(userKey)
 
-		redeem.Active = true
-		redeem.Text = "Redeem"
+		verifyBtn.Active = true
+		verifyBtn.Text = "Verify"
 
 		if result and result.valid then
 			saveVerifiedKey(userKey)
@@ -686,7 +692,7 @@ local function Build()
 		end
 	end)
 
-	-- ปุ่ม Paste
+-- ปุ่ม Paste
 	paste.MouseButton1Click:Connect(function()
 		local clipText = getclipboard and getclipboard() or nil
 		if clipText and clipText ~= "" then
