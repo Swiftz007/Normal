@@ -1,4 +1,4 @@
---4
+--5
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -163,7 +163,7 @@ local Icons = {
 	Info = "rbxassetid://94529541997278",
 	Copy = "rbxassetid://107485544510830",
 	ErrorFolder = "rbxassetid://113312905787220",
-	ReaperIcon = "rbxassetid://86279908104891"
+	ReaperIcon = "rbxassetid://86279908104891" -- คืนค่าไอคอนรูปตัว R ดั้งเดิม
 }
 
 local Configuration = {
@@ -411,15 +411,15 @@ local function Build()
 	body.BackgroundTransparency = 1
 	body.Parent = main
 
-	-- ซ้าย: โลโก้และชื่อ Hub (จัดเซ็นเตอร์และแก้จุดกึ่งกลางของรูปภาพ)
+	-- ซ้าย: โลโก้และชื่อ Hub (จัดกึ่งกลางตรงกันเป๊ะ)
 	local leftCol = Instance.new("Frame")
 	leftCol.Size = UDim2.new(0, 150, 1, 0)
 	leftCol.BackgroundTransparency = 1
 	leftCol.Parent = body
 
 	local logoContainer = Instance.new("Frame")
-	logoContainer.Size = UDim2.fromOffset(72, 72)
-	logoContainer.Position = UDim2.new(0.5, -36, 0, 10)
+	logoContainer.Size = UDim2.fromOffset(64, 64)
+	logoContainer.Position = UDim2.new(0.5, -32, 0, 14) -- ปรับ Offset ให้กึ่งกลางสมมาตรกับข้อความด้านล่าง
 	logoContainer.BackgroundTransparency = 1
 	logoContainer.Parent = leftCol
 
@@ -434,7 +434,7 @@ local function Build()
 
 	local mainTitle = Instance.new("TextLabel")
 	mainTitle.Size = UDim2.new(1, 0, 0, 22)
-	mainTitle.Position = UDim2.new(0, 0, 0, 90)
+	mainTitle.Position = UDim2.new(0, 0, 0, 92)
 	mainTitle.Text = "Reaper Hub"
 	mainTitle.TextColor3 = Color3.new(1, 1, 1)
 	mainTitle.TextSize = 18
@@ -445,7 +445,7 @@ local function Build()
 
 	local subTitle = Instance.new("TextLabel")
 	subTitle.Size = UDim2.new(1, 0, 0, 14)
-	subTitle.Position = UDim2.new(0, 0, 0, 114)
+	subTitle.Position = UDim2.new(0, 0, 0, 116)
 	subTitle.Text = "Key System"
 	subTitle.TextColor3 = Configuration.Colors.TextSec
 	subTitle.TextSize = 12
@@ -692,7 +692,7 @@ local function Build()
 		end
 	end)
 
--- ปุ่ม Paste
+	-- ปุ่ม Paste
 	paste.MouseButton1Click:Connect(function()
 		local clipText = getclipboard and getclipboard() or nil
 		if clipText and clipText ~= "" then
