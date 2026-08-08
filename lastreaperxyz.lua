@@ -1,4 +1,4 @@
---7
+--8
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -163,7 +163,7 @@ local Icons = {
 	Info = "rbxassetid://94529541997278",
 	Copy = "rbxassetid://107485544510830",
 	ErrorFolder = "rbxassetid://113312905787220",
-	ReaperIcon = "rbxassetid://131279093559313" -- 🟢 ใช้โลโก้ใหม่ที่คุณต้องการ
+	ReaperIcon = "rbxassetid://131279093559313"
 }
 
 local Configuration = {
@@ -171,7 +171,7 @@ local Configuration = {
 	Window = {Size = UDim2.new(0, 520, 0, 255)},
 	Colors = {
 		Bg = Color3.fromRGB(10, 10, 12),
-		Primary = Color3.fromRGB(239, 68, 68),
+		Primary = Color3.fromRGB(220, 38, 38), -- ปรับโทนสีแดงให้เข้มขึ้นกำลังดี อ่านง่ายสบายตา
 		PrimaryDark = Color3.fromRGB(153, 27, 27),
 		StatusIdle = Color3.fromRGB(249, 115, 22),
 		StatusSuccess = Color3.fromRGB(16, 185, 129),
@@ -420,7 +420,7 @@ local function Build()
 	local logoContainer = Instance.new("Frame")
 	logoContainer.Size = UDim2.fromOffset(72, 72)
 	logoContainer.Position = UDim2.new(0.5, -36, 0, 10)
-	logoContainer.BackgroundTransparency = 1 -- 🟢 ปิดพื้นหลัง
+	logoContainer.BackgroundTransparency = 1
 	logoContainer.BorderSizePixel = 0
 	logoContainer.Parent = leftCol
 
@@ -430,7 +430,7 @@ local function Build()
 	sIcon.AnchorPoint = Vector2.new(0.5, 0.5)
 	sIcon.Image = Icons.ReaperIcon
 	sIcon.ScaleType = Enum.ScaleType.Fit
-	sIcon.BackgroundTransparency = 1 -- 🟢 ปิดพื้นหลังรูปภาพ
+	sIcon.BackgroundTransparency = 1
 	sIcon.Parent = logoContainer
 
 	local mainTitle = Instance.new("TextLabel")
@@ -584,13 +584,6 @@ local function Build()
 	verifyBtn.AutoButtonColor = false
 	verifyBtn.Parent = btnRow
 	Utils.Round(verifyBtn, 12)
-
-	local VerifyGradient = Instance.new("UIGradient")
-	VerifyGradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(239, 68, 68)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(153, 27, 27))
-	})
-	VerifyGradient.Parent = verifyBtn
 
 	local function ApplyHover(btn)
 		local baseColor = btn.BackgroundColor3
