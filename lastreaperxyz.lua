@@ -1,4 +1,4 @@
---1
+--2
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -168,7 +168,7 @@ local Icons = {
 
 local Configuration = {
 	ScreenGuiName = "ReaperHubHorizontalKeyUI",
-	Window = {Size = UDim2.new(0, 560, 0, 240)}, -- ปรับความสูงขึ้นเป็น 240
+	Window = {Size = UDim2.new(0, 520, 0, 255)}, -- ปรับความกว้างลดลง (520) และเพิ่มความสูงขึ้น (255)
 	Colors = {
 		Bg = Color3.fromRGB(10, 10, 12),
 		Primary = Color3.fromRGB(239, 68, 68),
@@ -406,21 +406,21 @@ local function Build()
 
 	-- Body Content Container (Horizontal Split Layout)
 	local body = Instance.new("Frame")
-	body.Size = UDim2.new(1, -40, 1, -55)
-	body.Position = UDim2.new(0, 20, 0, 45)
+	body.Size = UDim2.new(1, -36, 1, -50)
+	body.Position = UDim2.new(0, 18, 0, 45)
 	body.BackgroundTransparency = 1
 	body.Parent = main
 
 	-- ซ้าย: โลโก้ใสไม่มีพื้นหลังและชื่อ Hub
 	local leftCol = Instance.new("Frame")
-	leftCol.Size = UDim2.new(0, 160, 1, 0)
+	leftCol.Size = UDim2.new(0, 150, 1, 0)
 	leftCol.BackgroundTransparency = 1
 	leftCol.Parent = body
 
 	local logoContainer = Instance.new("Frame")
-	logoContainer.Size = UDim2.fromOffset(68, 68)
-	logoContainer.Position = UDim2.new(0, 0, 0, 10)
-	logoContainer.BackgroundTransparency = 1 -- 🟢 ตั้งค่าให้พื้นหลังโปร่งใสไม่มีกรอบสี
+	logoContainer.Size = UDim2.fromOffset(72, 72)
+	logoContainer.Position = UDim2.new(0, 15, 0, 10)
+	logoContainer.BackgroundTransparency = 1
 	logoContainer.Parent = leftCol
 
 	local sIcon = Instance.new("ImageLabel")
@@ -434,35 +434,35 @@ local function Build()
 
 	local mainTitle = Instance.new("TextLabel")
 	mainTitle.Size = UDim2.new(1, 0, 0, 22)
-	mainTitle.Position = UDim2.new(0, 0, 0, 86)
+	mainTitle.Position = UDim2.new(0, 0, 0, 92)
 	mainTitle.Text = "Reaper Hub"
 	mainTitle.TextColor3 = Color3.new(1, 1, 1)
 	mainTitle.TextSize = 18
 	mainTitle.Font = Enum.Font.GothamBold
-	mainTitle.TextXAlignment = Enum.TextXAlignment.Left
+	mainTitle.TextXAlignment = Enum.TextXAlignment.Center
 	mainTitle.BackgroundTransparency = 1
 	mainTitle.Parent = leftCol
 
 	local subTitle = Instance.new("TextLabel")
 	subTitle.Size = UDim2.new(1, 0, 0, 14)
-	subTitle.Position = UDim2.new(0, 0, 0, 110)
+	subTitle.Position = UDim2.new(0, 0, 0, 116)
 	subTitle.Text = "Key System"
 	subTitle.TextColor3 = Configuration.Colors.TextSec
 	subTitle.TextSize = 12
 	subTitle.Font = Enum.Font.Gotham
-	subTitle.TextXAlignment = Enum.TextXAlignment.Left
+	subTitle.TextXAlignment = Enum.TextXAlignment.Center
 	subTitle.BackgroundTransparency = 1
 	subTitle.Parent = leftCol
 
 	-- ขวา: สถานะ, กล่องกรอกคีย์ และปุ่มกด
 	local rightCol = Instance.new("Frame")
-	rightCol.Size = UDim2.new(1, -175, 1, 0)
-	rightCol.Position = UDim2.new(0, 175, 0, 0)
+	rightCol.Size = UDim2.new(1, -165, 1, 0)
+	rightCol.Position = UDim2.new(0, 165, 0, 0)
 	rightCol.BackgroundTransparency = 1
 	rightCol.Parent = body
 
 	local listLayout = Instance.new("UIListLayout")
-	listLayout.Padding = UDim.new(0, 12)
+	listLayout.Padding = UDim.new(0, 10)
 	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	listLayout.Parent = rightCol
 
