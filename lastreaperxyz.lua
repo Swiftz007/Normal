@@ -1,4 +1,4 @@
---2
+--3
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -563,7 +563,7 @@ local function Build()
 	local redeem = Instance.new("TextButton")
 	redeem.Size = UDim2.new(0.5, -4, 1, 0)
 	redeem.BackgroundColor3 = Configuration.Colors.Primary
-	redeem.Text = "Redeem"
+	redeem.Text = "Verify"
 	redeem.TextColor3 = Color3.new(1, 1, 1)
 	redeem.Font = Enum.Font.GothamBold
 	redeem.TextSize = 13
