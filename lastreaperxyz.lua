@@ -1,4 +1,4 @@
---6
+--7
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -163,7 +163,7 @@ local Icons = {
 	Info = "rbxassetid://94529541997278",
 	Copy = "rbxassetid://107485544510830",
 	ErrorFolder = "rbxassetid://113312905787220",
-	ReaperIcon = "rbxassetid://86279908104891" -- คืนค่าไอคอนรูปตัว R ดั้งเดิม
+	ReaperIcon = "rbxassetid://131279093559313" -- 🟢 ใช้โลโก้ใหม่ที่คุณต้องการ
 }
 
 local Configuration = {
@@ -411,16 +411,17 @@ local function Build()
 	body.BackgroundTransparency = 1
 	body.Parent = main
 
-	-- ซ้าย: โลโก้และชื่อ Hub (จัดกึ่งกลางตรงกันเป๊ะ)
+	-- ซ้าย: โลโก้และชื่อ Hub (จัดกึ่งกลาง โปร่งใส ไม่มีพื้นหลัง ไม่มีกรอบ)
 	local leftCol = Instance.new("Frame")
 	leftCol.Size = UDim2.new(0, 150, 1, 0)
 	leftCol.BackgroundTransparency = 1
 	leftCol.Parent = body
 
 	local logoContainer = Instance.new("Frame")
-	logoContainer.Size = UDim2.fromOffset(64, 64)
-	logoContainer.Position = UDim2.new(0.5, -32, 0, 14) -- ปรับ Offset ให้กึ่งกลางสมมาตรกับข้อความด้านล่าง
-	logoContainer.BackgroundTransparency = 1
+	logoContainer.Size = UDim2.fromOffset(72, 72)
+	logoContainer.Position = UDim2.new(0.5, -36, 0, 10)
+	logoContainer.BackgroundTransparency = 1 -- 🟢 ปิดพื้นหลัง
+	logoContainer.BorderSizePixel = 0
 	logoContainer.Parent = leftCol
 
 	local sIcon = Instance.new("ImageLabel")
@@ -429,12 +430,12 @@ local function Build()
 	sIcon.AnchorPoint = Vector2.new(0.5, 0.5)
 	sIcon.Image = Icons.ReaperIcon
 	sIcon.ScaleType = Enum.ScaleType.Fit
-	sIcon.BackgroundTransparency = 1
+	sIcon.BackgroundTransparency = 1 -- 🟢 ปิดพื้นหลังรูปภาพ
 	sIcon.Parent = logoContainer
 
 	local mainTitle = Instance.new("TextLabel")
 	mainTitle.Size = UDim2.new(1, 0, 0, 22)
-	mainTitle.Position = UDim2.new(0, 0, 0, 92)
+	mainTitle.Position = UDim2.new(0, 0, 0, 90)
 	mainTitle.Text = "Reaper Hub"
 	mainTitle.TextColor3 = Color3.new(1, 1, 1)
 	mainTitle.TextSize = 18
@@ -445,7 +446,7 @@ local function Build()
 
 	local subTitle = Instance.new("TextLabel")
 	subTitle.Size = UDim2.new(1, 0, 0, 14)
-	subTitle.Position = UDim2.new(0, 0, 0, 116)
+	subTitle.Position = UDim2.new(0, 0, 0, 114)
 	subTitle.Text = "Key System"
 	subTitle.TextColor3 = Configuration.Colors.TextSec
 	subTitle.TextSize = 12
