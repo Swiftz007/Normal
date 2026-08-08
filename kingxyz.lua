@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 81
+-- 🔥 Lib Load Screen Reaper Hub 82
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1114,22 +1114,24 @@ local function startKeyTimer()
                 if data.hwid == "" or data.hwid == nil or data.hwid == gethwid() then
                     local targetTime = tonumber(data.expiresAt) / 1000 -- แปลงเป็นวินาที
                     
-                    -- 5. ลูปอัปเดตเวลา (ทำงานในเครื่อง ไม่กินเน็ต ไม่หน่วง)
-                    while true do
-                        local timeLeft = targetTime - os.time()
-                        
-                        if timeLeft > 0 then
-                            local h = math.floor(timeLeft % / 3600)
-                            local m = math.floor((timeLeft % 3600) / 60)
-                            local s = math.floor(timeLeft % 60)
-                            
-                            ExpiryLabel:SetDesc(string.format("%d h %d m %d s", h, m, s))
-                        else
-                            ExpiryLabel:SetDesc("Status: Key Expired")
-                            break
-                        end
-                        task.wait(1) -- อัปเดตทุก 1 วินาที
-                    end
+                   -- 5. ลูปอัปเดตเวลา (แก้ไขให้วงเล็บสมดุลและโชว์ชั่วโมงตรง)
+while true do
+    local timeLeft = targetTime - os.time()
+    
+    if timeLeft > 0 then
+        -- แก้ไข: ลบวงเล็บที่เกินออก และลบ % 86400 ออก
+        local h = math.floor(timeLeft / 3600) 
+        local m = math.floor((timeLeft % 3600) / 60)
+        local s = math.floor(timeLeft % 60)
+        
+        ExpiryLabel:SetDesc(string.format("%d h %d m %d s", h, m, s))
+    else
+        ExpiryLabel:SetDesc("Status: Key Expired")
+        break
+    end
+    task.wait(1)
+end
+
                     return
                 end
             end
