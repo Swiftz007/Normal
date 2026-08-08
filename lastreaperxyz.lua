@@ -1,4 +1,4 @@
---8
+--9
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -12,7 +12,6 @@ local GETKEY_URL = "https://lastreaperx.netlify.app/"
 local DATABASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys/"
 local SAVE_FILE_NAME = "reaper_saved_key.txt"
 
--- ฟังก์ชันดึง HWID
 local function GetHWID()
     local success, hwidValue = pcall(function()
         return gethwid and gethwid() or nil
@@ -38,9 +37,6 @@ local function SafeHttpRequest(requestData)
     return nil
 end
 
--- ===================================================
--- 🟢 ฟังก์ชันรันสคริปต์หลัก (ภาษาและ Webhook เดิม)
--- ===================================================
 local function RunMainScript()
     if _G.Script_Language == "Thai" then
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/Thaixyz.lua"))()
@@ -52,9 +48,6 @@ local function RunMainScript()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libwebhook2.lua"))()
 end
 
--- ===================================================
--- 🔑 KEY CHECKING ENGINE (เชื่อมต่อ Firebase โดยตรง)
--- ===================================================
 local API = {}
 
 function API.get_key_link()
@@ -69,7 +62,6 @@ function API.check_key(key)
         }
     end
 
-    -- ตรวจสอบรูปแบบคีย์ REAPER-XXX-XXX-XXX
     if not string.match(key, "^REAPER%-[A-Z0-9]+%-[A-Z0-9]+%-[A-Z0-9]+$") then
         return {
             valid = false,
@@ -95,7 +87,6 @@ function API.check_key(key)
         }
     end
 
-    -- ตรวจสอบวันหมดอายุ
     if keyData.expiresAt and keyData.expiresAt > 0 then
         if (os.time() * 1000) > keyData.expiresAt then
             return {
@@ -105,7 +96,6 @@ function API.check_key(key)
         end
     end
 
-    -- ตรวจสอบและผูก HWID
     local currentHWID = GetHWID()
     if not keyData.hwid or keyData.hwid == "" then
         SafeHttpRequest({
@@ -127,9 +117,6 @@ function API.check_key(key)
     }
 end
 
--- ===================================================
--- 💾 FILE SYSTEM SAVING
--- ===================================================
 local function hasFileSystemSupport()
     local hasWrite = pcall(function() return type(writefile) == "function" end)
     local hasRead = pcall(function() return type(readfile) == "function" end)
@@ -151,9 +138,6 @@ local function loadVerifiedKey()
     return content
 end
 
--- ===================================================
--- 🎨 UI CONFIG & ICONS (REAPER RED THEME)
--- ===================================================
 local Icons = {
 	Lock = "rbxassetid://114355063515473",
 	Key = "rbxassetid://93569468678423",
@@ -163,7 +147,7 @@ local Icons = {
 	Info = "rbxassetid://94529541997278",
 	Copy = "rbxassetid://107485544510830",
 	ErrorFolder = "rbxassetid://113312905787220",
-	ReaperIcon = "rbxassetid://131279093559313"
+	ReaperIcon = "rbxassetid://131279093559313" -- 🟢 ใช้ไอคอน REAPER ที่ถูกต้อง
 }
 
 local Configuration = {
@@ -171,7 +155,7 @@ local Configuration = {
 	Window = {Size = UDim2.new(0, 520, 0, 255)},
 	Colors = {
 		Bg = Color3.fromRGB(10, 10, 12),
-		Primary = Color3.fromRGB(220, 38, 38), -- ปรับโทนสีแดงให้เข้มขึ้นกำลังดี อ่านง่ายสบายตา
+		Primary = Color3.fromRGB(239, 68, 68),
 		PrimaryDark = Color3.fromRGB(153, 27, 27),
 		StatusIdle = Color3.fromRGB(249, 115, 22),
 		StatusSuccess = Color3.fromRGB(16, 185, 129),
@@ -180,7 +164,7 @@ local Configuration = {
 		TextMain = Color3.fromRGB(255, 255, 255),
 		TextSec = Color3.fromRGB(161, 161, 170),
 		TextMuted = Color3.fromRGB(113, 113, 122),
-		Border = Color3.fromRGB(255, 255, 255),
+		Border = Color3.fromRGB(239, 68, 68),
 		TrafficRed = Color3.fromRGB(255, 95, 87),
 		TrafficYellow = Color3.fromRGB(254, 188, 46),
 		TrafficGreen = Color3.fromRGB(40, 200, 64),
@@ -237,9 +221,6 @@ local function SetBlur(enabled)
 	end
 end
 
--- ===================================================
--- 🔔 TOAST NOTIFICATION SYSTEM
--- ===================================================
 local ToastSystem = {ActiveToasts = {}, MaxToasts = 3, ToastSpacing = 10}
 
 ToastSystem.Create = function(parent, message, toastType, duration)
@@ -345,9 +326,6 @@ ToastSystem.RepositionToasts = function()
 	end
 end
 
--- ===================================================
--- 🏗️ MAIN HORIZONTAL UI BUILDER (NO SCROLLING)
--- ===================================================
 local function Build()
 	local parent = game:GetService("CoreGui")
 	local old = parent:FindFirstChild(Configuration.ScreenGuiName)
@@ -362,16 +340,15 @@ local function Build()
 
 	local main = Instance.new("Frame")
 	main.Size = Configuration.Window.Size
-	main.Position = UDim2.new(0.5, 0, 0.5, 40)
+	main.Position = UDim2.new(0.5, 0, 0.5, 0)
 	main.AnchorPoint = Vector2.new(0.5, 0.5)
 	main.BackgroundColor3 = Configuration.Colors.Bg
 	main.BackgroundTransparency = 0.2
 	main.ClipsDescendants = true
 	main.Parent = screen
 	Utils.Round(main, 24)
-	Utils.Stroke(main, Color3.new(1, 1, 1), 1, 0.92)
+	Utils.Stroke(main, Configuration.Colors.Border, 1, 0.85)
 
-	-- Top Bar (Traffic Dots & Title)
 	local bar = Instance.new("Frame")
 	bar.Size = UDim2.new(1, 0, 0, 40)
 	bar.BackgroundTransparency = 1
@@ -404,14 +381,12 @@ local function Build()
 	titleText.BackgroundTransparency = 1
 	titleText.Parent = bar
 
-	-- Body Content Container (Horizontal Split Layout)
 	local body = Instance.new("Frame")
 	body.Size = UDim2.new(1, -36, 1, -50)
 	body.Position = UDim2.new(0, 18, 0, 45)
 	body.BackgroundTransparency = 1
 	body.Parent = main
 
-	-- ซ้าย: โลโก้และชื่อ Hub (จัดกึ่งกลาง โปร่งใส ไม่มีพื้นหลัง ไม่มีกรอบ)
 	local leftCol = Instance.new("Frame")
 	leftCol.Size = UDim2.new(0, 150, 1, 0)
 	leftCol.BackgroundTransparency = 1
@@ -455,7 +430,6 @@ local function Build()
 	subTitle.BackgroundTransparency = 1
 	subTitle.Parent = leftCol
 
-	-- ขวา: สถานะ, กล่องกรอกคีย์ และปุ่มกด
 	local rightCol = Instance.new("Frame")
 	rightCol.Size = UDim2.new(1, -165, 1, 0)
 	rightCol.Position = UDim2.new(0, 165, 0, 0)
@@ -467,7 +441,6 @@ local function Build()
 	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	listLayout.Parent = rightCol
 
-	-- 1. Status Card (แนวนอน)
 	local statusCard = Instance.new("Frame")
 	statusCard.Size = UDim2.new(1, 0, 0, 48)
 	statusCard.BackgroundColor3 = Color3.new(1, 1, 1)
@@ -516,7 +489,6 @@ local function Build()
 	sValue.BackgroundTransparency = 1
 	sValue.Parent = statusCard
 
-	-- 2. Input Frame
 	local inputFrame = Instance.new("Frame")
 	inputFrame.Size = UDim2.new(1, 0, 0, 44)
 	inputFrame.BackgroundColor3 = Color3.new(1, 1, 1)
@@ -555,7 +527,6 @@ local function Build()
 	paste.BackgroundTransparency = 1
 	paste.Parent = inputFrame
 
-	-- 3. Buttons Row (Get Key & Verify)
 	local btnRow = Instance.new("Frame")
 	btnRow.Size = UDim2.new(1, 0, 0, 42)
 	btnRow.BackgroundTransparency = 1
@@ -644,7 +615,6 @@ local function Build()
 		sImg.Image = icon
 	end
 
-	-- ปุ่ม Verify (ยืนยันคีย์)
 	verifyBtn.MouseButton1Click:Connect(function()
 		local userKey = box.Text:gsub("%s+", "")
 		SetStatus("verifying")
@@ -676,7 +646,6 @@ local function Build()
 		end
 	end)
 
-	-- ปุ่ม Get Key
 	getKey.MouseButton1Click:Connect(function()
 		if setclipboard then
 			setclipboard(API.get_key_link())
@@ -686,7 +655,6 @@ local function Build()
 		end
 	end)
 
-	-- ปุ่ม Paste
 	paste.MouseButton1Click:Connect(function()
 		local clipText = getclipboard and getclipboard() or nil
 		if clipText and clipText ~= "" then
@@ -697,7 +665,6 @@ local function Build()
 		end
 	end)
 
-	-- Drag System
 	local dragging, dragStart, startPos
 	bar.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -721,9 +688,6 @@ local function Build()
 	return screen
 end
 
--- ===================================================
--- 🚀 MAIN INITIALIZATION LOGIC
--- ===================================================
 local savedKey = loadVerifiedKey()
 local keyToCheck = savedKey or getgenv().SCRIPT_KEY
 
