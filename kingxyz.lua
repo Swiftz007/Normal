@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 82
+-- 🔥 Lib Load Screen Reaper Hub 83
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1124,7 +1124,7 @@ while true do
         local m = math.floor((timeLeft % 3600) / 60)
         local s = math.floor(timeLeft % 60)
         
-        ExpiryLabel:SetDesc(string.format("%d h %d m %d s", h, m, s))
+        ExpiryLabel:SetDesc(string.format("%d Hour : %d Minute : %d Second", h, m, s))
     else
         ExpiryLabel:SetDesc("Status: Key Expired")
         break
