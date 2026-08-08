@@ -21,6 +21,7 @@ local Lighting = game:GetService("Lighting")
 local lighting = Lighting
 local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
+local Stats = game:GetService("Stats")
 
 --local Players = game:GetService("Players")
 --local LocalPlayer = Players.LocalPlayer
@@ -37,7 +38,7 @@ local lp = LocalPlayer
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.3",
+SubTitle = "lib Beta 20.4",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "Reaper",
@@ -1060,13 +1061,6 @@ Tabs.ESP:AddInput("HitboxSizeInput", {
 
 
 
--- Stats 🔥
---========================
--- SERVICES
---========================
-local Players = game:GetService("Players")
-local Stats = game:GetService("Stats")
-local RunService = game:GetService("RunService")
 
 --========================
 -- TIME
@@ -1080,9 +1074,59 @@ local function formatTime(s)
     return string.format("%02d:%02d:%02d", h, m, sec)
 end
 
---========================
--- UI (Fluent)
---========================
+
+-- Key Times
+--=========================
+-- 🔑 KEY EXPIRY DISPLAY (MINIMAL)
+--=========================
+local FIREBASE_BASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys"
+local KEY_FILE = "reaper_saved_key.txt"
+
+-- สร้าง Paragraph ไว้ในแท็บ Status
+local ExpiryLabel = Tabs.Status:AddParagraph({
+    Title = "Key Remaining Time",
+    Content = "Loading..."
+})
+
+local function updateKeyTime()
+    task.spawn(function()
+        if not isfile(KEY_FILE) then 
+            ExpiryLabel:SetDesc("Key not found")
+            return 
+        end
+        
+        local savedKey = readfile(KEY_FILE)
+        local success, response = pcall(function()
+            return game:HttpGet(string.format("%s/%s.json", FIREBASE_BASE_URL, savedKey))
+        end)
+
+        if success and response ~= "null" then
+            local data = HttpService:JSONDecode(response)
+            
+            -- ตรวจสอบ HWID และเวลา (ถ้าผ่านค่อยแสดงเวลา)
+            if data.hwid == gethwid() then
+                local timeLeft = (data.expiresAt / 1000) - os.time()
+                
+                if timeLeft > 0 then
+                    local d = math.floor(timeLeft / 86400)
+                    local h = math.floor((timeLeft % 86400) / 3600)
+                    local m = math.floor((timeLeft % 3600) / 60)
+                    
+                    ExpiryLabel:SetDesc(string.format("%d Days %d Hours %d Mins", d, h, m))
+                    return
+                end
+            end
+        end
+        
+        -- ถ้าไม่ผ่านเงื่อนไขใดๆ (หมดอายุ/HWID ไม่ตรง/หาคีย์ไม่เจอ) ให้แสดงข้อความเดียวจบ
+        ExpiryLabel:SetDesc("No Active Session")
+    end)
+end
+
+-- เรียกใช้งาน
+updateKeyTime()
+
+
 -- แสดงข้อมูล Profile ในแท็บ Status ที่อยู่ใน Table Tabs
 Tabs.Status:AddParagraph({
     Title = "Player Profile",
