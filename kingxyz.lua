@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 79
+-- 🔥 Lib Load Screen Reaper Hub 80
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1078,7 +1078,7 @@ end
 
 -- Key Times
 --=========================
--- 🔑 KEY EXPIRY DISPLAY (FIXED)
+-- 🔑 KEY EXPIRY DISPLAY (REAL-TIME & OPTIMIZED)
 --=========================
 local FIREBASE_BASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys"
 local KEY_FILE = "reaper_saved_key.txt"
@@ -1086,54 +1086,63 @@ local KEY_FILE = "reaper_saved_key.txt"
 -- สร้าง Paragraph ไว้ในแท็บ Status
 local ExpiryLabel = Tabs.Status:AddParagraph({
     Title = "Key Remaining Time",
-    Content = "Loading..."
+    Content = "Fetching data..."
 })
 
-local function updateKeyTime()
+local function startKeyTimer()
     task.spawn(function()
-        -- 1. ตรวจสอบไฟล์
+        -- 1. ตรวจสอบไฟล์คีย์
         if not isfile(KEY_FILE) then 
             ExpiryLabel:SetDesc("Status: No key file found")
             return 
         end
         
-        -- 2. อ่านคีย์และลบช่องว่าง/ขึ้นบรรทัดใหม่ที่อาจติดมา (สำคัญมาก)
+        -- 2. อ่านคีย์และล้างช่องว่าง (ป้องกัน URL พัง)
         local rawKey = readfile(KEY_FILE)
-        local savedKey = rawKey:gsub("%s+", "") -- ลบ spaces, tabs, newlines ทั้งหมด
+        local savedKey = rawKey:gsub("%s+", "") 
         
-        -- 3. ดึงข้อมูลจาก Firebase
+        -- 3. ดึงข้อมูลจาก Firebase (ดึงแค่ครั้งเดียว!)
         local success, response = pcall(function()
             return game:HttpGet(string.format("%s/%s.json", FIREBASE_BASE_URL, savedKey))
         end)
 
         if success and response and response ~= "null" then
-            local data = HttpService:JSONDecode(response)
+            local decodeSuccess, data = pcall(function() return HttpService:JSONDecode(response) end)
             
-            -- 4. ตรวจสอบข้อมูลภายใน
-            if data and data.expiresAt then
-                -- เช็ค HWID (ถ้าในเบสมีค่า ต้องตรงกับเครื่องนี้)
+            if decodeSuccess and data and data.expiresAt then
+                -- 4. ตรวจสอบ HWID
                 if data.hwid == "" or data.hwid == nil or data.hwid == gethwid() then
-                    local timeLeft = (tonumber(data.expiresAt) / 1000) - os.time()
+                    local targetTime = tonumber(data.expiresAt) / 1000 -- แปลงเป็นวินาที
                     
-                    if timeLeft > 0 then
-                        local d = math.floor(timeLeft / 86400)
-                        local h = math.floor((timeLeft % 86400) / 3600)
-                        local m = math.floor((timeLeft % 3600) / 60)
+                    -- 5. ลูปอัปเดตเวลา (ทำงานในเครื่อง ไม่กินเน็ต ไม่หน่วง)
+                    while true do
+                        local timeLeft = targetTime - os.time()
                         
-                        ExpiryLabel:SetDesc(string.format("%d Days %d Hours %d Mins", d, h, m))
-                        return
+                        if timeLeft > 0 then
+                            local h = math.floor((timeLeft % 86400) / 3600)
+                            local m = math.floor((timeLeft % 3600) / 60)
+                            local s = math.floor(timeLeft % 60)
+                            
+                            ExpiryLabel:SetDesc(string.format("%d h %d m %d s", h, m, s))
+                        else
+                            ExpiryLabel:SetDesc("Status: Key Expired")
+                            break
+                        end
+                        task.wait(1) -- อัปเดตทุก 1 วินาที
                     end
+                    return
                 end
             end
         end
         
-        -- หากไม่เข้าเงื่อนไขด้านบนเลย
+        -- กรณีเกิด Error หรือข้อมูลไม่ถูกต้อง
         ExpiryLabel:SetDesc("Status: No Active Session")
     end)
 end
 
--- เรียกใช้งาน
-updateKeyTime()
+-- สั่งเริ่มทำงาน
+startKeyTimer()
+
 
 
 
