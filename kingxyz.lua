@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 84
+-- 🔥 Lib Load Screen Reaper Hub 85
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1078,13 +1078,16 @@ end
 
 -- Key Times
 --=========================
--- 🔑 KEY EXPIRY DISPLAY (DYNAMIC & REAL-TIME)
+-- 🔑 KEY EXPIRY DISPLAY & AUTO REJOIN
 --=========================
 local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 local FIREBASE_BASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys"
 local KEY_FILE = "reaper_saved_key.txt"
 
--- สร้าง Paragraph ไว้ในแท็บ Status
 local ExpiryLabel = Tabs.Status:AddParagraph({
     Title = "Key Remaining Time",
     Content = "Fetching data..."
@@ -1092,17 +1095,14 @@ local ExpiryLabel = Tabs.Status:AddParagraph({
 
 local function startKeyTimer()
     task.spawn(function()
-        -- 1. ตรวจสอบไฟล์คีย์
         if not isfile(KEY_FILE) then 
             ExpiryLabel:SetDesc("Status: No key file found")
             return 
         end
         
-        -- 2. อ่านคีย์และล้างช่องว่าง
         local rawKey = readfile(KEY_FILE)
         local savedKey = rawKey:gsub("%s+", "") 
         
-        -- 3. ดึงข้อมูลจาก Firebase
         local success, response = pcall(function()
             return game:HttpGet(string.format("%s/%s.json", FIREBASE_BASE_URL, savedKey))
         end)
@@ -1111,11 +1111,9 @@ local function startKeyTimer()
             local decodeSuccess, data = pcall(function() return HttpService:JSONDecode(response) end)
             
             if decodeSuccess and data and data.expiresAt then
-                -- 4. ตรวจสอบ HWID (Security Check)
                 if data.hwid == "" or data.hwid == nil or data.hwid == gethwid() then
-                    local targetTime = tonumber(data.expiresAt) / 1000 -- แปลง ms เป็นวินาที
+                    local targetTime = tonumber(data.expiresAt) / 1000 
                     
-                    -- 5. ลูปอัปเดตเวลาแบบ Dynamic
                     while true do
                         local timeLeft = targetTime - os.time()
                         
@@ -1127,23 +1125,27 @@ local function startKeyTimer()
                             
                             local displayStr = ""
                             
+                            -- [คงไว้ตามต้นฉบับของคุณเป๊ะๆ]
                             if d > 0 then
-                                -- กรณีเหลือมากกว่า 1 วัน
                                 displayStr = string.format("%d Days : %d Hours : %d Minutes : %d s", d, h, m, s)
                             elseif h > 0 then
-                                -- กรณีเหลือไม่ถึง 1 วัน
                                 displayStr = string.format("%d Hours : %d Minutes : %d s", h, m, s)
                             elseif m > 0 then
-                                -- กรณีเหลือไม่ถึง 1 ชั่วโมง
                                 displayStr = string.format("%d Minutes : %d s", m, s)
                             else
-                                -- กรณีเหลือไม่ถึง 1 นาที
                                 displayStr = string.format("%d s", s)
                             end
                             
                             ExpiryLabel:SetDesc(displayStr)
                         else
-                            ExpiryLabel:SetDesc("Status: Key Expired")
+                            -- [ส่วนที่ปรับปรุง: เมื่อหมดเวลาให้ Rejoin รัวๆ]
+                            ExpiryLabel:SetDesc("Status: Key Expired!")
+                            while true do
+                                pcall(function()
+                                    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+                                end)
+                                task.wait(0.5) -- ความเร็วในการพยายาม Rejoin (0.5 วินาที)
+                            end
                             break
                         end
                         task.wait(1)
@@ -1152,14 +1154,12 @@ local function startKeyTimer()
                 end
             end
         end
-        
-        -- กรณีเกิด Error หรือข้อมูลไม่ถูกต้อง
         ExpiryLabel:SetDesc("Status: No Active Session")
     end)
 end
 
--- สั่งเริ่มทำงาน
 startKeyTimer()
+
 
 
 
