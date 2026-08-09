@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 83
+-- 🔥 Lib Load Screen Reaper Hub 84
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1078,8 +1078,9 @@ end
 
 -- Key Times
 --=========================
--- 🔑 KEY EXPIRY DISPLAY (REAL-TIME & OPTIMIZED)
+-- 🔑 KEY EXPIRY DISPLAY (DYNAMIC & REAL-TIME)
 --=========================
+local HttpService = game:GetService("HttpService")
 local FIREBASE_BASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys"
 local KEY_FILE = "reaper_saved_key.txt"
 
@@ -1097,11 +1098,11 @@ local function startKeyTimer()
             return 
         end
         
-        -- 2. อ่านคีย์และล้างช่องว่าง (ป้องกัน URL พัง)
+        -- 2. อ่านคีย์และล้างช่องว่าง
         local rawKey = readfile(KEY_FILE)
         local savedKey = rawKey:gsub("%s+", "") 
         
-        -- 3. ดึงข้อมูลจาก Firebase (ดึงแค่ครั้งเดียว!)
+        -- 3. ดึงข้อมูลจาก Firebase
         local success, response = pcall(function()
             return game:HttpGet(string.format("%s/%s.json", FIREBASE_BASE_URL, savedKey))
         end)
@@ -1110,28 +1111,43 @@ local function startKeyTimer()
             local decodeSuccess, data = pcall(function() return HttpService:JSONDecode(response) end)
             
             if decodeSuccess and data and data.expiresAt then
-                -- 4. ตรวจสอบ HWID
+                -- 4. ตรวจสอบ HWID (Security Check)
                 if data.hwid == "" or data.hwid == nil or data.hwid == gethwid() then
-                    local targetTime = tonumber(data.expiresAt) / 1000 -- แปลงเป็นวินาที
+                    local targetTime = tonumber(data.expiresAt) / 1000 -- แปลง ms เป็นวินาที
                     
-                   -- 5. ลูปอัปเดตเวลา (แก้ไขให้วงเล็บสมดุลและโชว์ชั่วโมงตรง)
-while true do
-    local timeLeft = targetTime - os.time()
-    
-    if timeLeft > 0 then
-        -- แก้ไข: ลบวงเล็บที่เกินออก และลบ % 86400 ออก
-        local h = math.floor(timeLeft / 3600) 
-        local m = math.floor((timeLeft % 3600) / 60)
-        local s = math.floor(timeLeft % 60)
-        
-        ExpiryLabel:SetDesc(string.format("%d Hour : %d Minute : %d Second", h, m, s))
-    else
-        ExpiryLabel:SetDesc("Status: Key Expired")
-        break
-    end
-    task.wait(1)
-end
-
+                    -- 5. ลูปอัปเดตเวลาแบบ Dynamic
+                    while true do
+                        local timeLeft = targetTime - os.time()
+                        
+                        if timeLeft > 0 then
+                            local d = math.floor(timeLeft / 86400)
+                            local h = math.floor((timeLeft % 86400) / 3600)
+                            local m = math.floor((timeLeft % 3600) / 60)
+                            local s = math.floor(timeLeft % 60)
+                            
+                            local displayStr = ""
+                            
+                            if d > 0 then
+                                -- กรณีเหลือมากกว่า 1 วัน
+                                displayStr = string.format("%d Days : %d Hours : %d Minutes : %d s", d, h, m, s)
+                            elseif h > 0 then
+                                -- กรณีเหลือไม่ถึง 1 วัน
+                                displayStr = string.format("%d Hours : %d Minutes : %d s", h, m, s)
+                            elseif m > 0 then
+                                -- กรณีเหลือไม่ถึง 1 ชั่วโมง
+                                displayStr = string.format("%d Minutes : %d s", m, s)
+                            else
+                                -- กรณีเหลือไม่ถึง 1 นาที
+                                displayStr = string.format("%d s", s)
+                            end
+                            
+                            ExpiryLabel:SetDesc(displayStr)
+                        else
+                            ExpiryLabel:SetDesc("Status: Key Expired")
+                            break
+                        end
+                        task.wait(1)
+                    end
                     return
                 end
             end
@@ -1144,6 +1160,7 @@ end
 
 -- สั่งเริ่มทำงาน
 startKeyTimer()
+
 
 
 
