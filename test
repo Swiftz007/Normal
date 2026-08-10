@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 3
+-- 🔥 Lib Load Screen Reaper Hub 4
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1769,18 +1769,6 @@ IgnoreDropdown:OnChanged(function(Value)
     end
 end)
 
--- ปุ่ม Refresh รายชื่อ (อัปเดตทั้งคู่)
-Tabs.Main:AddButton({
-    Title = "Refresh List",
-    Description = "",
-    Callback = function()
-        local names = getPlayerNames()
-        PlayerDropdown:SetValues(names)
-        IgnoreDropdown:SetValues(names)
-    end
-})
-
--- ตั้งค่าอื่นๆ
 local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
     Title = "Target Part",
     Values = {"Head", "Body", "Leg"},
@@ -1789,14 +1777,6 @@ local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
 })
 PartDropdown:OnChanged(function(Value)
     AimbotSettings.TargetPart = Value
-end)
--- Aimbot
-local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
-    Title = "Enable Aimbot",
-    Default = false
-})
-AimbotToggle:OnChanged(function(Value)
-    AimbotSettings.Enabled = Value
 end)
 
 local SmoothDropdown = Tabs.Main:AddDropdown("SmoothDropdown", {
@@ -1815,6 +1795,27 @@ SmoothDropdown:OnChanged(function(Value)
         AimbotSettings.Smoothness = 1.0  -- ล็อคติดเป้าทันที
     end
 end)
+
+-- ปุ่ม Refresh รายชื่อ (อัปเดตทั้งคู่)
+Tabs.Main:AddButton({
+    Title = "Refresh List",
+    Description = "",
+    Callback = function()
+        local names = getPlayerNames()
+        PlayerDropdown:SetValues(names)
+        IgnoreDropdown:SetValues(names)
+    end
+})
+
+-- Aimbot
+local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
+    Title = "Enable Aimbot",
+    Default = false
+})
+AimbotToggle:OnChanged(function(Value)
+    AimbotSettings.Enabled = Value
+end)
+
 
 
 --========================================================
