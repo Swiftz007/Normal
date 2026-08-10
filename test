@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 2
+-- 🔥 Lib Load Screen Reaper Hub 3
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1612,8 +1612,10 @@ local AimbotSettings = {
     TargetPart = "Head",
     Mode = "Random", 
     SelectedPlayerName = nil,
-    IgnoredPlayers = {} -- เก็บรายชื่อผู้เล่นที่จะไม่ล็อค (Multi-select)
+    IgnoredPlayers = {},
+    Smoothness = 1 -- ค่าเริ่มต้น (1 = ล็อคตาย)
 }
+
 
 local function getPlayerNames()
     local names = {}
@@ -1709,11 +1711,14 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
         if CurrentTarget and CurrentTarget.Character then
             local targetPart = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
             if targetPart then
-                if AimbotSettings.Mode == "Select" and AimbotSettings.WallCheck and not IsVisible(targetPart) then
-                    -- ติดกำแพงในโหมด Select (ไม่ขยับกล้อง)
-                else
-                    Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
-                end
+                -- ตรวจสอบว่าเป้าหมายติดกำแพงหรือไม่ (ถ้าเปิด Wall Check ไว้)
+if AimbotSettings.WallCheck and not IsVisible(targetPart) then
+    CurrentTarget = nil -- ถ้าติดกำแพงให้ยกเลิกการล็อค
+else
+    -- ระบบดูด (Smoothing)
+    local targetCFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
+    Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, AimbotSettings.Smoothness)
+end
             end
         end
     else
@@ -1792,6 +1797,23 @@ local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
 })
 AimbotToggle:OnChanged(function(Value)
     AimbotSettings.Enabled = Value
+end)
+
+local SmoothDropdown = Tabs.Main:AddDropdown("SmoothDropdown", {
+    Title = "Aimbot Level",
+    Values = {"Low", "Medium", "High"},
+    Multi = false,
+    Default = "High",
+})
+
+SmoothDropdown:OnChanged(function(Value)
+    if Value == "Low" then
+        AimbotSettings.Smoothness = 0.05 -- หันจอหนีง่ายมาก
+    elseif Value == "Medium" then
+        AimbotSettings.Smoothness = 0.15 -- หนืดพอสมควร
+    elseif Value == "High" then
+        AimbotSettings.Smoothness = 1.0  -- ล็อคติดเป้าทันที
+    end
 end)
 
 
