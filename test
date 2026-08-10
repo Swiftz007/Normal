@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 1
+-- 🔥 Lib Load Screen Reaper Hub 2
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -211,62 +211,65 @@ end
 -- 🔥 CHARACTER CACHE
 --=========================
 local function SetupCharacter(plr, char)
-    local hrp = char:WaitForChild("HumanoidRootPart", 5)
-    local head = char:WaitForChild("Head", 5)
+    task.spawn(function()
+        -- รอชิ้นส่วนสำคัญ 10 วินาที (กันพวกโหลดช้าแล้ว ESP ไม่ขึ้น)
+        local hrp = char:WaitForChild("HumanoidRootPart", 10)
+        local head = char:WaitForChild("Head", 10)
+        local hum = char:WaitForChild("Humanoid", 10)
 
-    if not hrp or not head then return end
-
-    Cache[plr] = {
-        hrp = hrp,
-        head = head
-    }
+        if hrp and head and hum then
+            -- บันทึกลงตะกร้า Cache
+            Cache[plr] = { 
+                hrp = hrp, 
+                head = head, 
+                hum = hum 
+            }
+            
+            -- ถ้าตัวละครตาย ให้เคลียร์ Cache ทันทีเพื่อให้ ESP หายไป
+            hum.Died:Connect(function() 
+                Cache[plr] = nil 
+            end)
+        end
+    end)
 end
 
+
+  
 --=========================
--- 🔥 INIT ESP
+-- 🔥 ESP LOGIC CONNECTOR
 --=========================
 local function InitESP()
-    ClearESP()
-
-    for _,plr in ipairs(Players:GetPlayers()) do
+    for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LP then
-            ESPObjects[plr] = CreateESP()
-
-            if plr.Character then
-                SetupCharacter(plr, plr.Character)
-            end
-
-            plr.CharacterAdded:Connect(function(char)
-                SetupCharacter(plr, char)
-            end)
+            -- 1. สร้าง Object Drawing รอไว้
+            if not ESPObjects[plr] then ESPObjects[plr] = CreateESP() end
+            -- 2. สั่งให้เริ่มเก็บข้อมูลตัวละคร (ถ้าตัวละครโหลดแล้ว)
+            if plr.Character then SetupCharacter(plr, plr.Character) end
+            -- 3. ดักจับตอนเกิดใหม่
+            plr.CharacterAdded:Connect(function(char) SetupCharacter(plr, char) end)
         end
     end
 end
 
---=========================
--- 🔥 PLAYER EVENTS
---=========================
+-- ดักจับผู้เล่นใหม่ที่เพิ่งเข้าเซิร์ฟเวอร์
 Players.PlayerAdded:Connect(function(plr)
     if plr == LP then return end
-
-    if State.ESP_Box or State.ESP_Line then
-    ESPObjects[plr] = CreateESP()
-end
-
-
-    plr.CharacterAdded:Connect(function(char)
-        SetupCharacter(plr, char)
-    end)
+    if not ESPObjects[plr] then ESPObjects[plr] = CreateESP() end
+    plr.CharacterAdded:Connect(function(char) SetupCharacter(plr, char) end)
 end)
 
+-- ลบข้อมูลทิ้งเมื่อผู้เล่นออกจากเกม (กัน Memory Leak)
 Players.PlayerRemoving:Connect(function(plr)
     if ESPObjects[plr] then
-        ESPObjects[plr].box:Remove()
-        ESPObjects[plr].line:Remove()
+        if ESPObjects[plr].box then ESPObjects[plr].box:Remove() end
+        if ESPObjects[plr].line then ESPObjects[plr].line:Remove() end
         ESPObjects[plr] = nil
     end
     Cache[plr] = nil
 end)
+
+
+
 
 --=========================
 -- 🔥 START LOOP (ANTI DUPLICATE)
