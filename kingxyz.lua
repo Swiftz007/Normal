@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 85
+-- 🔥 Lib Load Screen Reaper Hub 1
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -23,9 +23,6 @@ local lighting = Lighting
 local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
 local Stats = game:GetService("Stats")
-
---local Players = game:GetService("Players")
---local LocalPlayer = Players.LocalPlayer
 
 --=========================
 -- 🔥 PLAYER / CAMERA / WORLD
@@ -73,7 +70,8 @@ local State = {
     JP = false,
     INFJ = false,
     NC = false,
-    ESP = false,
+    ESP_Box = false, 
+    ESP_Line = false,
 	MemClean = false
 }
 
@@ -213,61 +211,65 @@ end
 -- 🔥 CHARACTER CACHE
 --=========================
 local function SetupCharacter(plr, char)
-    local hrp = char:WaitForChild("HumanoidRootPart", 5)
-    local head = char:WaitForChild("Head", 5)
+    task.spawn(function()
+        -- รอชิ้นส่วนสำคัญ 10 วินาที (กันพวกโหลดช้าแล้ว ESP ไม่ขึ้น)
+        local hrp = char:WaitForChild("HumanoidRootPart", 10)
+        local head = char:WaitForChild("Head", 10)
+        local hum = char:WaitForChild("Humanoid", 10)
 
-    if not hrp or not head then return end
-
-    Cache[plr] = {
-        hrp = hrp,
-        head = head
-    }
+        if hrp and head and hum then
+            -- บันทึกลงตะกร้า Cache
+            Cache[plr] = { 
+                hrp = hrp, 
+                head = head, 
+                hum = hum 
+            }
+            
+            -- ถ้าตัวละครตาย ให้เคลียร์ Cache ทันทีเพื่อให้ ESP หายไป
+            hum.Died:Connect(function() 
+                Cache[plr] = nil 
+            end)
+        end
+    end)
 end
 
+
+  
 --=========================
--- 🔥 INIT ESP
+-- 🔥 ESP LOGIC CONNECTOR
 --=========================
 local function InitESP()
-    ClearESP()
-
-    for _,plr in ipairs(Players:GetPlayers()) do
+    for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LP then
-            ESPObjects[plr] = CreateESP()
-
-            if plr.Character then
-                SetupCharacter(plr, plr.Character)
-            end
-
-            plr.CharacterAdded:Connect(function(char)
-                SetupCharacter(plr, char)
-            end)
+            -- 1. สร้าง Object Drawing รอไว้
+            if not ESPObjects[plr] then ESPObjects[plr] = CreateESP() end
+            -- 2. สั่งให้เริ่มเก็บข้อมูลตัวละคร (ถ้าตัวละครโหลดแล้ว)
+            if plr.Character then SetupCharacter(plr, plr.Character) end
+            -- 3. ดักจับตอนเกิดใหม่
+            plr.CharacterAdded:Connect(function(char) SetupCharacter(plr, char) end)
         end
     end
 end
 
---=========================
--- 🔥 PLAYER EVENTS
---=========================
+-- ดักจับผู้เล่นใหม่ที่เพิ่งเข้าเซิร์ฟเวอร์
 Players.PlayerAdded:Connect(function(plr)
     if plr == LP then return end
-
-    if State.ESP then
-        ESPObjects[plr] = CreateESP()
-    end
-
-    plr.CharacterAdded:Connect(function(char)
-        SetupCharacter(plr, char)
-    end)
+    if not ESPObjects[plr] then ESPObjects[plr] = CreateESP() end
+    plr.CharacterAdded:Connect(function(char) SetupCharacter(plr, char) end)
 end)
 
+-- ลบข้อมูลทิ้งเมื่อผู้เล่นออกจากเกม (กัน Memory Leak)
 Players.PlayerRemoving:Connect(function(plr)
     if ESPObjects[plr] then
-        ESPObjects[plr].box:Remove()
-        ESPObjects[plr].line:Remove()
+        if ESPObjects[plr].box then ESPObjects[plr].box:Remove() end
+        if ESPObjects[plr].line then ESPObjects[plr].line:Remove() end
         ESPObjects[plr] = nil
     end
     Cache[plr] = nil
 end)
+
+
+
 
 --=========================
 -- 🔥 START LOOP (ANTI DUPLICATE)
@@ -278,53 +280,62 @@ local function StartESP()
     end
 
     ESPConnection = RunService.RenderStepped:Connect(function()
-        if not State.ESP then return end
+        -- 1. เช็คว่าถ้าปิดทั้งคู่ ให้ซ่อน Object ทั้งหมดแล้วหยุดทำงานเฟรมนี้
+        if not State.ESP_Box and not State.ESP_Line then 
+            for _, obj in pairs(ESPObjects) do
+                obj.box.Visible = false
+                obj.line.Visible = false
+            end
+            return 
+        end
 
-        local camPos = Camera.ViewportSize
+        local camSize = Camera.ViewportSize
 
-        for plr,obj in pairs(ESPObjects) do
+        for plr, obj in pairs(ESPObjects) do
             local data = Cache[plr]
-            if not data then
+            if not data or not data.hrp or not data.head then
                 obj.box.Visible = false
                 obj.line.Visible = false
                 continue
             end
 
-            local hrp = data.hrp
-            local head = data.head
-
-            if not hrp or not head then
-                obj.box.Visible = false
-                obj.line.Visible = false
-                continue
-            end
-
-            local rootPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+            local rootPos, onScreen = Camera:WorldToViewportPoint(data.hrp.Position)
 
             if onScreen then
-                local headPos = Camera:WorldToViewportPoint(head.Position)
-
+                local headPos = Camera:WorldToViewportPoint(data.head.Position)
                 local height = math.abs(headPos.Y - rootPos.Y) * 2
                 local width = height / 1.5
 
-                -- BOX
-                obj.box.Size = Vector2.new(width, height)
-                obj.box.Position = Vector2.new(rootPos.X - width/2, rootPos.Y - height/2)
-                obj.box.Color = BoxColor
-                obj.box.Visible = true
+                -- 🔥 แยกเปิด-ปิด BOX
+                if State.ESP_Box then
+                    obj.box.Size = Vector2.new(width, height)
+                    obj.box.Position = Vector2.new(rootPos.X - width/2, rootPos.Y - height/2)
+                    obj.box.Color = BoxColor
+                    obj.box.Visible = true
+                else
+                    obj.box.Visible = false
+                end
 
-                -- LINE
-                obj.line.From = Vector2.new(camPos.X/2, camPos.Y)
-                obj.line.To = Vector2.new(rootPos.X, rootPos.Y)
-                obj.line.Color = LineColor
-                obj.line.Visible = true
+                -- 🔥 แยกเปิด-ปิด LINE
+                if State.ESP_Line then
+                    obj.line.From = Vector2.new(camSize.X/2, camSize.Y)
+                    obj.line.To = Vector2.new(rootPos.X, rootPos.Y)
+                    obj.line.Color = LineColor
+                    obj.line.Visible = true
+                else
+                    obj.line.Visible = false
+                end
             else
+                -- ถ้าไม่อยู่บนหน้าจอ ให้ซ่อน
                 obj.box.Visible = false
                 obj.line.Visible = false
             end
         end
     end)
 end
+
+
+
 
 --=========================
 -- 🔥 ENABLE ESP
@@ -545,6 +556,7 @@ local spinSpeed = 20
 local spinConnection
 
 -- ดึง HRP แบบชัวร์
+
 local function getHRP()
     local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     return char:WaitForChild("HumanoidRootPart")
@@ -609,8 +621,6 @@ Tabs.Player:AddSlider("SpinSpeed", {
 })
 
 -- ESP Chams🔥
-local LocalPlayer = Players.LocalPlayer
-
 local ChamsCache = {} -- ตะกร้าเก็บ Highlight เพื่อลดภาระการหา (Optimization)
 
 -- [[ 1. LOGIC: ระบบ Chams ที่ปรับจูนมาเพื่อความลื่น (วางไว้ด้านบน) ]]
@@ -656,8 +666,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- [[ 2. UI TOGGLE (วางไว้ด้านล่างสุดตามสั่ง) ]]
--- สมมติว่าคุณประกาศ Tabs ไว้ด้านบนแล้ว
 Tabs.ESP:AddToggle("ChamsToggle", {
     Title = "ESP Chams (Rainbow)",
     Default = false,
@@ -668,21 +676,30 @@ Tabs.ESP:AddToggle("ChamsToggle", {
 
 
 --ESP
-Tabs.ESP:AddToggle("ESP", {
-Title = "ESP Enable",
-Default = false,
-Callback = function(v)
-State.ESP = v
-
-if v then  
-        task.wait(0.1)  
-        InitESP()  
-    else  
-        ClearESP()  
-    end  
-end
-
+-- Toggle สำหรับ Box
+Tabs.ESP:AddToggle("ESP_Box_Toggle", {
+    Title = "ESP Box",
+    Default = false,
+    Callback = function(v)
+        State.ESP_Box = v
+        if v and next(ESPObjects) == nil then 
+            InitESP() 
+        end
+    end
 })
+
+-- Toggle สำหรับ Line
+Tabs.ESP:AddToggle("ESP_Line_Toggle", {
+    Title = "ESP Line",
+    Default = false,
+    Callback = function(v)
+        State.ESP_Line = v
+        if v and next(ESPObjects) == nil then 
+            InitESP() 
+        end
+    end
+})
+
 
 Tabs.ESP:AddColorpicker("BoxColor", {
 Title = "Box Color",
@@ -706,21 +723,14 @@ end
 
 -- ESP NAME & Health bar🔥
 --========================
--- SERVICES
---========================
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local Camera = workspace.CurrentCamera
-
-local LocalPlayer = Players.LocalPlayer
-
---========================
 -- SETTINGS
 --========================
-local MaxDistance = 2500
+local MaxDistance = 3500
 
 _G.NameESPEnabled = false
 _G.HealthESPEnabled = false
+_G.DistanceESPEnabled = false -- เพิ่มบรรทัดนี้
+
 
 --========================
 -- CACHE
@@ -874,35 +884,26 @@ RunService.RenderStepped:Connect(function()
         local X = RootPos.X - Width / 2
         local Y = RootPos.Y - Height / 2
 
+                --========================
+        -- NAME & DISTANCE ESP
         --========================
-        -- NAME ESP
-        --========================
-        if _G.NameESPEnabled then
-
+        if _G.NameESPEnabled or _G.DistanceESPEnabled then
             ESP.Name.Visible = true
+            ESP.Name.Size = math.clamp(16 - (Distance / 120), 13, 16)
+            ESP.Name.Position = Vector2.new(RootPos.X, Y - 16)
 
-            local Size = math.clamp(
-                16 - (Distance / 120),
-                13,
-                16
-            )
+            local NameTag = _G.NameESPEnabled and Player.Name or ""
+            local DistTag = _G.DistanceESPEnabled and string.format("[%dm]", math.floor(Distance)) or ""
 
-            ESP.Name.Size = Size
-
-            ESP.Name.Text = string.format(
-                "%s [%dm]",
-                Player.Name,
-                math.floor(Distance)
-            )
-
-            ESP.Name.Position = Vector2.new(
-                RootPos.X,
-                Y - 16
-            )
-
+            if _G.NameESPEnabled and _G.DistanceESPEnabled then
+                ESP.Name.Text = NameTag .. " " .. DistTag
+            else
+                ESP.Name.Text = NameTag .. DistTag
+            end
         else
             ESP.Name.Visible = false
         end
+
 
         --========================
         -- HEALTH BAR
@@ -975,6 +976,14 @@ Tabs.ESP:AddToggle("HealthESP", {
     Default = false,
     Callback = function(v)
         _G.HealthESPEnabled = v
+    end
+})
+
+Tabs.ESP:AddToggle("DistanceESP", {
+    Title = "ESP Distance",
+    Default = false,
+    Callback = function(v)
+        _G.DistanceESPEnabled = v
     end
 })
 
@@ -1603,8 +1612,10 @@ local AimbotSettings = {
     TargetPart = "Head",
     Mode = "Random", 
     SelectedPlayerName = nil,
-    IgnoredPlayers = {} -- เก็บรายชื่อผู้เล่นที่จะไม่ล็อค (Multi-select)
+    IgnoredPlayers = {},
+    Smoothness = 1 -- ค่าเริ่มต้น (1 = ล็อคตาย)
 }
+
 
 local function getPlayerNames()
     local names = {}
@@ -1700,11 +1711,14 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
         if CurrentTarget and CurrentTarget.Character then
             local targetPart = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
             if targetPart then
-                if AimbotSettings.Mode == "Select" and AimbotSettings.WallCheck and not IsVisible(targetPart) then
-                    -- ติดกำแพงในโหมด Select (ไม่ขยับกล้อง)
-                else
-                    Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
-                end
+                -- ตรวจสอบว่าเป้าหมายติดกำแพงหรือไม่ (ถ้าเปิด Wall Check ไว้)
+if AimbotSettings.WallCheck and not IsVisible(targetPart) then
+    CurrentTarget = nil -- ถ้าติดกำแพงให้ยกเลิกการล็อค
+else
+    -- ระบบดูด (Smoothing)
+    local targetCFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
+    Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, AimbotSettings.Smoothness)
+end
             end
         end
     else
@@ -1755,6 +1769,33 @@ IgnoreDropdown:OnChanged(function(Value)
     end
 end)
 
+local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
+    Title = "Target Part",
+    Values = {"Head", "Body", "Leg"},
+    Multi = false,
+    Default = 1,
+})
+PartDropdown:OnChanged(function(Value)
+    AimbotSettings.TargetPart = Value
+end)
+
+local SmoothDropdown = Tabs.Main:AddDropdown("SmoothDropdown", {
+    Title = "Aimbot Level",
+    Values = {"Low", "Medium", "High"},
+    Multi = false,
+    Default = "High",
+})
+
+SmoothDropdown:OnChanged(function(Value)
+    if Value == "Low" then
+        AimbotSettings.Smoothness = 0.05 -- หันจอหนีง่ายมาก
+    elseif Value == "Medium" then
+        AimbotSettings.Smoothness = 0.15 -- หนืดพอสมควร
+    elseif Value == "High" then
+        AimbotSettings.Smoothness = 1.0  -- ล็อคติดเป้าทันที
+    end
+end)
+
 -- ปุ่ม Refresh รายชื่อ (อัปเดตทั้งคู่)
 Tabs.Main:AddButton({
     Title = "Refresh List",
@@ -1766,16 +1807,6 @@ Tabs.Main:AddButton({
     end
 })
 
--- ตั้งค่าอื่นๆ
-local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
-    Title = "Target Part",
-    Values = {"Head", "Body", "Leg"},
-    Multi = false,
-    Default = 1,
-})
-PartDropdown:OnChanged(function(Value)
-    AimbotSettings.TargetPart = Value
-end)
 -- Aimbot
 local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
     Title = "Enable Aimbot",
@@ -1784,6 +1815,7 @@ local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
 AimbotToggle:OnChanged(function(Value)
     AimbotSettings.Enabled = Value
 end)
+
 
 
 --========================================================
