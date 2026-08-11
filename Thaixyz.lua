@@ -37,7 +37,7 @@ local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz00
 
 
 local Tabs = {
-Status = Window:AddTab({ Title = "Status", Icon = "signal-high" }),
+Status = Window:AddTab({ Title = "สถานะ", Icon = "signal-high" }),
 Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
 Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 Player = Window:AddTab({ Title = "Player", Icon = "user" }),
