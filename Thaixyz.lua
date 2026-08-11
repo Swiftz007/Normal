@@ -17,6 +17,7 @@ local lighting = Lighting
 local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
 local Stats = game:GetService("Stats")
+local LogService = game:GetService("LogService")
 
 local LocalPlayer = Players.LocalPlayer
 local LP = LocalPlayer
@@ -2120,7 +2121,6 @@ Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
 local stroke = Instance.new("UIStroke", main)
 stroke.Transparency = 0.85
 
---// HEADER
 local header = Instance.new("Frame", main)
 header.Size = UDim2.new(1,0,0,32)
 header.BackgroundColor3 = Color3.fromRGB(28,28,34)
@@ -2135,7 +2135,6 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 14
 title.TextColor3 = Color3.new(1,1,1)
 
---// SCROLL
 local scroll = Instance.new("ScrollingFrame", main)
 scroll.Position = UDim2.new(0,0,0,34)
 scroll.Size = UDim2.new(1,0,1,-70)
@@ -2152,13 +2151,11 @@ local padding = Instance.new("UIPadding", scroll)
 padding.PaddingLeft = UDim.new(0,6)
 padding.PaddingTop = UDim.new(0,6)
 
---// BOTTOM
 local bottom = Instance.new("Frame", main)
 bottom.Size = UDim2.new(1,0,0,32)
 bottom.Position = UDim2.new(0,0,1,-32)
 bottom.BackgroundColor3 = Color3.fromRGB(24,24,30)
 
---// CLEAR BUTTON
 local clear = Instance.new("TextButton", bottom)
 clear.Size = UDim2.new(0,70,0,24)
 clear.Position = UDim2.new(1,-80,0.5,-12)
@@ -2170,7 +2167,6 @@ clear.TextColor3 = Color3.new(1,1,1)
 
 Instance.new("UICorner", clear)
 
---// CLEAR FUNCTION
 clear.MouseButton1Click:Connect(function()
 
 	for _,v in ipairs(logItems) do
@@ -2184,7 +2180,6 @@ clear.MouseButton1Click:Connect(function()
 	scroll.CanvasPosition = Vector2.new(0,0)
 end)
 
---// CREATE LOG UI
 local function createLog(text, msgType)
 
 	local container = Instance.new("Frame")
@@ -2234,7 +2229,6 @@ local function createLog(text, msgType)
 	label.Text = "["..time.."] "..prefix.."  "..tostring(text)
 	label.TextColor3 = color
 
-	-- hover effect
 	container.MouseEnter:Connect(function()
 		container.BackgroundColor3 = bg:Lerp(Color3.new(1,1,1), 0.05)
 	end)
@@ -2248,7 +2242,6 @@ local function createLog(text, msgType)
 	return container
 end
 
---// ADD LOG
 local function addLog(text, msgType)
 
 	local item = createLog(text, msgType)
@@ -2256,7 +2249,6 @@ local function addLog(text, msgType)
 
 	table.insert(logItems, item)
 
-	-- LIMIT
 	if #logItems > MAX_LOGS then
 
 		local old = table.remove(logItems, 1)
@@ -2266,7 +2258,6 @@ local function addLog(text, msgType)
 		end
 	end
 
-	-- AUTO SCROLL
 	task.defer(function()
 
 		scroll.CanvasPosition = Vector2.new(
@@ -2276,17 +2267,14 @@ local function addLog(text, msgType)
 	end)
 end
 
---// LOAD OLD LOGS
 for _,log in ipairs(LogService:GetLogHistory()) do
 	addLog(log.message, log.messageType)
 end
 
---// LISTEN NEW LOGS
 LogService.MessageOut:Connect(function(message, messageType)
 	addLog(message, messageType)
 end)
 
---// TOGGLE
 Tabs.Misc:AddToggle("Console", {
 	Title = "คอนโซล",
 	Default = false,
@@ -2297,10 +2285,6 @@ Tabs.Misc:AddToggle("Console", {
 	end
 })
 
---=========================
--- ⚙ SETTINGS TAB
---=========================
-
 InterfaceManager:SetLibrary(Fluent)
 SaveManager:SetLibrary(Fluent)
 
@@ -2310,21 +2294,14 @@ SaveManager:SetFolder("ReaperHub/configs")
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
-SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
+SaveManager:LoadAutoloadConfig()
 
 Window:SelectTab(1)
--- Lib Toggle
---=========================
--- TOGGLE BUTTON
---=========================
+
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
 end
 
-
---=========================
--- GUI
---=========================
 local gui = Instance.new("ScreenGui")
 gui.Name = "ToggleUI"
 gui.ResetOnSpawn = false
@@ -2332,9 +2309,6 @@ gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999999
 gui.Parent = game.CoreGui
 
---=========================
--- BORDER
---=========================
 local border = Instance.new("Frame")
 border.Parent = gui
 border.Size = UDim2.new(0,0,0,0)
@@ -2346,9 +2320,6 @@ local borderCorner = Instance.new("UICorner")
 borderCorner.CornerRadius = UDim.new(0,14)
 borderCorner.Parent = border
 
---=========================
--- BUTTON
---=========================
 local button = Instance.new("ImageButton")
 button.Parent = gui
 button.Size = UDim2.new(0,60,0,60)
@@ -2363,18 +2334,12 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0,12)
 corner.Parent = button
 
---=========================
--- IMAGE
---=========================
 local imgOn = "rbxassetid://86279908104891"
 local imgOff = "rbxassetid://86279908104891"
 
 button.Image = imgOn
 button.ScaleType = Enum.ScaleType.Fit
 
---=========================
--- AUTO ALIGN
---=========================
 local function UpdateBorder()
 
     local offset = (border.Size.X.Offset - button.Size.X.Offset) / 2
@@ -2389,9 +2354,6 @@ end
 
 UpdateBorder()
 
---=========================
--- DRAG SYSTEM
---=========================
 local dragging = false
 local dragStart, startPos
 
@@ -2431,10 +2393,7 @@ UIS.InputEnded:Connect(function(input)
         dragging = false
     end
 end)
-
---=========================
--- TOGGLE
---=========================
+=
 local isOpen = true
 
 button.MouseButton1Click:Connect(function()
@@ -2448,10 +2407,6 @@ button.MouseButton1Click:Connect(function()
     button.Image = isOpen and imgOff or imgOn
 
 end)
-
-
-
-
--- Load Success 
+ 
 task.wait(2)
 print("Reaper Hub Loaded")
