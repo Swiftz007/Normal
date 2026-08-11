@@ -1634,7 +1634,6 @@ RunService.RenderStepped:Connect(function()
             
             task.spawn(function()
                 if AF_Platform == "มือถือ" then
-                    -- โหมดมือถือ: ใช้พิกัดปุ่ม
                     VIM:SendTouchEvent(99, 0, AF_Pos.X, AF_Pos.Y, game)
                     task.wait(AF_HoldTime)
                     VIM:SendTouchEvent(99, 2, AF_Pos.X, AF_Pos.Y, game)
