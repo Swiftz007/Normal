@@ -615,7 +615,8 @@ local function CreateESP(Player)
     Name.Visible = false
     Name.Center = true
     Name.Outline = true
-    Name.Font = 2
+    Name.OutlineColor = Color3.fromRGB(0, 0, 0)
+    Name.Font = 3
     Name.Size = 13
     Name.Color = Color3.fromRGB(255,255,255)
     Name.Transparency = 1
@@ -718,7 +719,7 @@ RunService.RenderStepped:Connect(function()
 
         if _G.NameESPEnabled or _G.DistanceESPEnabled then
             ESP.Name.Visible = true
-            ESP.Name.Size = math.clamp(16 - (Distance / 120), 13, 16)
+            ESP.Name.Size = math.clamp(18 - (Distance / 120), 14, 18)
             ESP.Name.Position = Vector2.new(RootPos.X, Y - 16)
 
             local NameTag = _G.NameESPEnabled and Player.Name or ""
@@ -1634,6 +1635,7 @@ RunService.RenderStepped:Connect(function()
             
             task.spawn(function()
                 if AF_Platform == "มือถือ" then
+                    -- โหมดมือถือ: ใช้พิกัดปุ่ม
                     VIM:SendTouchEvent(99, 0, AF_Pos.X, AF_Pos.Y, game)
                     task.wait(AF_HoldTime)
                     VIM:SendTouchEvent(99, 2, AF_Pos.X, AF_Pos.Y, game)
@@ -1706,9 +1708,9 @@ Tabs.Main:AddToggle("AutoFireV3", {
             if AF_Platform == "มือถือ" then
                 AF_Saved = false
                 AnchorGui.Enabled = true
-                SpawnNotify("กด Save เพื่อให้ทำงาน")
+                SpawnNotify("Press Save to working")
             else
-                SpawnNotify("โหมดคอมพิวเตอร์")
+                SpawnNotify("PC Mode")
             end
         else
             AnchorGui.Enabled = false
