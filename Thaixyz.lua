@@ -1638,12 +1638,10 @@ RunService.RenderStepped:Connect(function()
                     task.wait(AF_HoldTime)
                     VIM:SendTouchEvent(99, 2, AF_Pos.X, AF_Pos.Y, game)
                 else
-                    -- โหมด PC: ใช้คลิกเมาส์ซ้าย
-    -- โหมด PC: ใช้ VIM แทนเพื่อแก้ปัญหากล้องสะบัดขึ้นฟ้า
+						
     local viewportSize = Camera.ViewportSize
     local centerX, centerY = viewportSize.X / 2, viewportSize.Y / 2
     
-    -- ส่งสัญญาณคลิกซ้ายไปที่กลางจอโดยตรง
     VIM:SendMouseButtonEvent(centerX, centerY, 0, true, game, 0)
     task.wait(AF_HoldTime)
     VIM:SendMouseButtonEvent(centerX, centerY, 0, false, game, 0)
@@ -1656,7 +1654,6 @@ end
     end
 end)
 
---// [UI สำหรับตั้งปุ่ม Mobile]
 local AnchorGui = Instance.new("ScreenGui", CoreGui)
 AnchorGui.Name = "ReaperAnchor"
 AnchorGui.IgnoreGuiInset = true
@@ -1688,7 +1685,6 @@ SaveBtn.MouseButton1Click:Connect(function()
     SpawnNotify("บันทึกพิกัด มือถือ สำเร็จ!")
 end)
 
---// [UI Integration]
 Tabs.Main:AddDropdown("AF_Platform", {
     Title = "แพลตฟอร์ม",
     Values = {"มือถือ", "คอมพิวเตอร์"},
@@ -1734,8 +1730,6 @@ Tabs.Main:AddDropdown("FireMode", {
     end
 })
 
-
--- wall Check
 local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
     Title = "เช็คกำแพง",
     Default = true
@@ -1744,11 +1738,6 @@ WallCheckToggle:OnChanged(function(Value)
     AimbotSettings.WallCheck = Value
 end)
 
-
--- Full Bright
---=========================
--- 🔥 FULL BRIGHT SYSTEM (SLIDER)
---=========================
 local DefaultLighting = {
     Ambient = Lighting.Ambient,
     OutdoorAmbient = Lighting.OutdoorAmbient,
@@ -1757,9 +1746,8 @@ local DefaultLighting = {
     FogEnd = Lighting.FogEnd
 }
 
-local CurrentBrightness = 2 -- ค่าเริ่มต้นในสคริปต์ (ไม่กระทบเกมจนกว่าจะเปิด)
+local CurrentBrightness = 2
 
--- 1. Slider สำหรับเลือกค่า (ปรับรอไว้ก่อนได้)
 Tabs.Misc:AddSlider("BrightnessSlider", {
     Title = "ระดับความสว่าง",
     Description = "",
@@ -1769,29 +1757,25 @@ Tabs.Misc:AddSlider("BrightnessSlider", {
     Rounding = 1,
     Callback = function(Value)
         CurrentBrightness = Value
-        -- ถ้าเปิด Toggle อยู่ ให้เปลี่ยนค่าทันทีที่เลื่อน Slider
         if _G.FullBrightEnabled then
             Lighting.Brightness = CurrentBrightness
         end
     end
 })
 
--- 2. Toggle สำหรับสั่งเปิด/ปิด (ตัวควบคุมหลัก)
 Tabs.Misc:AddToggle("FullBrightToggle", {
     Title = "เพิ่มแสงสว่าง",
     Default = false,
     Callback = function(Value)
-        _G.FullBrightEnabled = Value -- เก็บสถานะไว้เช็คใน Slider
+        _G.FullBrightEnabled = Value
         
         if Value then
-            -- เมื่อเปิด: สั่งเปลี่ยนค่า Lighting ทั้งหมด
             Lighting.Ambient = Color3.fromRGB(255, 255, 255)
             Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
             Lighting.Brightness = CurrentBrightness
             Lighting.ClockTime = 14
             Lighting.FogEnd = 100000
         else
-            -- เมื่อปิด: คืนค่าเดิมของเกมทันที
             Lighting.Ambient = DefaultLighting.Ambient
             Lighting.OutdoorAmbient = DefaultLighting.OutdoorAmbient
             Lighting.Brightness = DefaultLighting.Brightness
@@ -1802,24 +1786,18 @@ Tabs.Misc:AddToggle("FullBrightToggle", {
 })
 
 
-
--- Memmory clear
---=========================
--- 🔥 MEMORY CLEANER LOGIC
---=========================
 local function StartCleanLoop()
-    local threshold = 200 * 1024 -- 200MB
+    local threshold = 200 * 1024
     task.spawn(function()
         while State.MemClean do
             if gcinfo() > threshold then
                 collectgarbage("collect")
             end
-            task.wait(60) -- เช็คทุก 60 วินาที
+            task.wait(60)
         end
     end)
 end
 
--- Memory Cleanup Toggle (No Notification)
 Tabs.Misc:AddToggle("MemCleanup", {
     Title = "ล้างหน่วยความจำ",
     Default = false,
@@ -1831,8 +1809,6 @@ Tabs.Misc:AddToggle("MemCleanup", {
     end
 })
 
-
--- Safe Mode
 local SafeModeActive = false
 local SafeModeType = "ลอยขึ้น"
 local OriginalPos = nil
@@ -1845,14 +1821,13 @@ local function HandleSafeMode(state)
     if not hrp then return end
 
     if state then
-        -- [ ขาขึ้น ]
         OriginalPos = hrp.CFrame 
         local targetCFrame = hrp.CFrame + Vector3.new(0, SafeAltitude, 0)
 
         if SafeModeType == "ทันที" then
             hrp.CFrame = targetCFrame
             task.wait(0.1)
-            if SafeModeActive then hrp.Anchored = true end -- เช็คซ้ำว่ายังเปิดอยู่ไหม
+            if SafeModeActive then hrp.Anchored = true end
         else
             hrp.Anchored = false
             local tweenIn = game:GetService("TweenService"):Create(
@@ -1866,7 +1841,6 @@ local function HandleSafeMode(state)
             end)
         end
     else
-        -- [ ขาลง ]
         hrp.Anchored = false
         if OriginalPos then
             if SafeModeType == "ทันที" then
@@ -1882,8 +1856,6 @@ local function HandleSafeMode(state)
     end
 end
 
--- --- UI Section ---
--- 1. เลือกโหมด (Dropdown) - อยู่ด้านบนตามสั่ง
 Tabs.Misc:AddDropdown("SafeModeType", {
     Title = "ตัวเลือกโหมดปลอดภัย",
     Description = "",
@@ -1894,7 +1866,6 @@ Tabs.Misc:AddDropdown("SafeModeType", {
     end
 })
 
--- 2. ปุ่มเปิดปิด (Toggle) - อยู่ด้านล่าง
 Tabs.Misc:AddToggle("SafeModeToggle", {
     Title = "โหมดปลอดภัย",
     Description = "ขึ้นไปอยู่บนฟ้าสูงที่สุด",
@@ -1905,8 +1876,6 @@ Tabs.Misc:AddToggle("SafeModeToggle", {
     end
 })
 
-
--- Max Zoom
 local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
 
 Tabs.Misc:AddToggle("MaxZoom", {
@@ -1923,8 +1892,6 @@ Tabs.Misc:AddToggle("MaxZoom", {
     end
 })
 
--- Anti Afk
--- ลบ UI เก่า
 if game.CoreGui:FindFirstChild("REAPER_AFK_UI") then
     game.CoreGui.REAPER_AFK_UI:Destroy()
 end
@@ -1934,10 +1901,9 @@ ScreenGui.Name = "REAPER_AFK_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
--- Main Frame (ปรับให้ยาวขึ้น)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 300, 0, 150) -- เพิ่มความกว้างเป็น 300
+MainFrame.Size = UDim2.new(0, 300, 0, 150)
 MainFrame.Position = UDim2.new(0.5, -150, 0.05, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BackgroundTransparency = 0.1
@@ -1945,19 +1911,16 @@ MainFrame.BorderSizePixel = 0
 MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
 
--- UICorner (ขอบมน)
 local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 12)
 UICorner.Parent = MainFrame
 
--- UIStroke (ขอบสีแดง)
 local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.fromRGB(255, 0, 0) -- สีแดง
+UIStroke.Color = Color3.fromRGB(255, 0, 0)
 UIStroke.Thickness = 2
 UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 UIStroke.Parent = MainFrame
 
--- Logo
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
 Logo.Size = UDim2.new(0, 60, 0, 60)
@@ -1966,7 +1929,6 @@ Logo.BackgroundTransparency = 1
 Logo.Image = "rbxassetid://131279093559313"
 Logo.Parent = MainFrame
 
--- REAPER HUB | ANTI AFK Text
 local Title = Instance.new("TextLabel")
 Title.Name = "Title"
 Title.Size = UDim2.new(1, 0, 0, 25)
@@ -1978,7 +1940,6 @@ Title.Font = Enum.Font.GothamBold
 Title.TextSize = 18
 Title.Parent = MainFrame
 
--- Timer Label (เลขล้วน)
 local TimerLabel = Instance.new("TextLabel")
 TimerLabel.Name = "TimerLabel"
 TimerLabel.Size = UDim2.new(1, 0, 0, 30)
@@ -2029,15 +1990,10 @@ Tabs.Misc:AddToggle("AntiAFK", {
     end
 })
 
-
-
-
--- FPS BOOST
 local saved = {}
 local connection = nil
 
 local function optimizeObject(v)
-    -- ตรวจสอบว่าวัตถุอยู่ใน Workspace เท่านั้น (ป้องกัน UI)
     if not v:IsDescendantOf(workspace) then return end
 
     if v:IsA("Texture") or v:IsA("Decal") then
@@ -2045,7 +2001,6 @@ local function optimizeObject(v)
         v.Transparency = 1
     elseif v:IsA("BasePart") then
         if not saved[v] then
-            -- เก็บค่าเดิมในรูปแบบ Table เพื่อคืนค่าได้ครบถ้วน
             saved[v] = {
                 Material = v.Material,
                 Reflectance = v.Reflectance,
@@ -2060,12 +2015,10 @@ end
 
 local function applyOptimize(state)
     if state then
-        -- 1. จัดการเฉพาะใน Workspace
         for _, v in ipairs(workspace:GetDescendants()) do
             optimizeObject(v)
         end
 
-        -- 2. ดักจับวัตถุใหม่ที่โหลดเข้า Workspace เท่านั้น
         connection = workspace.DescendantAdded:Connect(function(v)
             task.defer(function() 
                 if v and v.Parent then optimizeObject(v) end 
@@ -2074,13 +2027,11 @@ local function applyOptimize(state)
         
         lighting.GlobalShadows = false
     else
-        -- ปิดการดักจับ
         if connection then
             connection:Disconnect()
             connection = nil
         end
 
-        -- 3. คืนค่าเดิม (Restoration Logic)
         for obj, data in pairs(saved) do
             if obj and obj.Parent then
                 if typeof(data) == "table" then
@@ -2093,13 +2044,11 @@ local function applyOptimize(state)
             end
         end
         
-        -- เคลียร์ Memory
         table.clear(saved)
         lighting.GlobalShadows = true
     end
 end
 
--- FPS Toggle
 Tabs.Misc:AddToggle("FPSBoost", {
     Title = "เพิ่มประสิทธิภาพ",
     Default = false
@@ -2107,15 +2056,8 @@ Tabs.Misc:AddToggle("FPSBoost", {
     applyOptimize(v)
 end)
 
-
-
---=========================
--- 🔥 FPS CAP SYSTEM (FIXED)
---=========================
-
 local SelectedFPS = 60
 
--- Slider
 Tabs.Misc:AddSlider("FPSCapSlider", {
     Title = "FPS Cap",
     Description = "",
@@ -2129,7 +2071,6 @@ Tabs.Misc:AddSlider("FPSCapSlider", {
     end
 })
 
--- Button
 Tabs.Misc:AddButton({
     Title = "ตั้งเฟรมเรท",
     Description = "",
@@ -2158,20 +2099,10 @@ Tabs.Misc:AddButton({
     end
 })
 
-
-
-
-
--- Console
---// SERVICES
-local LogService = game:GetService("LogService")
-
---// STATE
 local consoleEnabled = false
 local MAX_LOGS = 1000
 local logItems = {}
 
---// GUI
 local gui = Instance.new("ScreenGui")
 gui.Name = "ReaperConsole"
 gui.Parent = game.CoreGui
