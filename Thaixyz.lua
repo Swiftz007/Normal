@@ -1703,12 +1703,12 @@ Tabs.Main:AddToggle("AutoFireV3", {
     Callback = function(state)
         AF_Enabled = state
         if state then
-            if AF_Platform == "Mobile" then
+            if AF_Platform == "มือถือ" then
                 AF_Saved = false
                 AnchorGui.Enabled = true
-                SpawnNotify("Press Save to working")
+                SpawnNotify("กด Save เพื่อให้ทำงาน")
             else
-                SpawnNotify("PC Mode")
+                SpawnNotify("โหมดคอมพิวเตอร์")
             end
         else
             AnchorGui.Enabled = false
