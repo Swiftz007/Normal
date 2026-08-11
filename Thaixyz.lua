@@ -853,7 +853,7 @@ Tabs.ESP:AddToggle("HitboxToggle", {
     Default = false,
     Callback = function(v)
         hitboxEnabled = v
-        refreshAll() -- อัปเดตทุกคนทันทีที่กดปุ่ม
+        refreshAll()
     end
 })
 
@@ -863,14 +863,12 @@ Tabs.ESP:AddInput("HitboxSizeInput", {
     Default = tostring(hitboxSize),
     Placeholder = "...",
     NumericOnly = true,
-    Finished = false, -- เปลี่ยนค่าทันทีที่พิมพ์
+    Finished = false,
     Callback = function(v)
         local num = tonumber(v)
         if num then
-            -- จำกัดค่าไว้ที่ 1 - 50 เพื่อความปลอดภัย
             hitboxSize = math.clamp(num, minSize, maxSize)
             
-            -- ถ้าเปิดใช้งานอยู่ ให้รีเฟรชขนาดทันทีที่พิมพ์เลข
             if hitboxEnabled then
                 refreshAll()
             end
@@ -878,12 +876,6 @@ Tabs.ESP:AddInput("HitboxSizeInput", {
     end
 })
 
-
-
-
---========================
--- TIME
---========================
 local startTime = tick()
 
 local function formatTime(s)
@@ -893,11 +885,6 @@ local function formatTime(s)
     return string.format("%02d:%02d:%02d", h, m, sec)
 end
 
-
--- Key Times
---=========================
--- 🔑 KEY EXPIRY DISPLAY & AUTO REJOIN
---=========================
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
@@ -956,13 +943,12 @@ local function startKeyTimer()
                             
                             ExpiryLabel:SetDesc(displayStr)
                         else
-                            -- [ส่วนที่ปรับปรุง: เมื่อหมดเวลาให้ Rejoin รัวๆ]
                             ExpiryLabel:SetDesc("Status: Key Expired!")
                             while true do
                                 pcall(function()
                                     TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
                                 end)
-                                task.wait(0.5) -- ความเร็วในการพยายาม Rejoin (0.5 วินาที)
+                                task.wait(0.5)
                             end
                             break
                         end
@@ -979,11 +965,6 @@ end
 startKeyTimer()
 
 
-
-
-
-
--- แสดงข้อมูล Profile ในแท็บ Status ที่อยู่ใน Table Tabs
 Tabs.Status:AddParagraph({
     Title = "โปรไฟล์ผู้เล่น",
     Content = "ชื่อเล่น: " .. lp.DisplayName .. "\nชื่อจริง: @" .. lp.Name
@@ -1009,25 +990,19 @@ local FPSLabel = Tabs.Status:AddParagraph({
     Content = "Loading..."
 })
 
---========================
--- FPS (REALISTIC)
---========================
 local fps = 60
 local frameCount = 0
 local timeElapsed = 0
 
 RunService.RenderStepped:Connect(function(dt)
-    -- กันค่าเพี้ยน
     if dt <= 0 or dt > 0.1 then return end
 
     frameCount += 1
     timeElapsed += dt
 
-    -- อัปเดตทุก 0.5 วิ
     if timeElapsed >= 0.5 then
         local rawFps = frameCount / timeElapsed
 
-        -- จำกัดค่า
         rawFps = math.clamp(rawFps, 15, 240)
 
         fps = math.floor(rawFps + 0.5)
@@ -1037,20 +1012,14 @@ RunService.RenderStepped:Connect(function(dt)
     end
 end)
 
---========================
--- LOOP UPDATE
---========================
 task.spawn(function()
     while true do
         pcall(function()
 
-            -- TIME
             TimeLabel:SetDesc(formatTime(tick() - startTime))
 
-            -- PLAYERS
             PlayerLabel:SetDesc(#Players:GetPlayers())
 
-            -- PING (กันพัง)
             local ping = 0
             pcall(function()
                 ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
@@ -1058,7 +1027,6 @@ task.spawn(function()
 
             PingLabel:SetDesc(ping .. " ms")
 
-            -- FPS
             FPSLabel:SetDesc(fps)
 
         end)
@@ -1067,7 +1035,6 @@ task.spawn(function()
     end
 end)
 
--- Credit
 Tabs.Credit:AddParagraph({
     Title = "เครดิต",
     Content = "สร้างโดย REAPER"
@@ -1077,7 +1044,6 @@ Tabs.Credit:AddParagraph({
     Title = "UI Library",
     Content = "Fluent X Reaper"
 })
-
 
 local canClick = true
 
@@ -1128,7 +1094,6 @@ Tabs.Credit:AddButton({
         text.Font = Enum.Font.SourceSansSemibold
         text.TextSize = 14
 
-        -- 👉 เข้า
         local tweenIn = TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
             Position = UDim2.new(1, -300, 0, 20)
         })
@@ -1136,14 +1101,13 @@ Tabs.Credit:AddButton({
 
         task.wait(2.5)
 
-        -- 👉 ออก (สำคัญ: ต้องรอให้ tween จบก่อน destroy)
         local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
             Position = UDim2.new(1, 300, 0, 20),
             BackgroundTransparency = 1
         })
 
         tweenOut:Play()
-        tweenOut.Completed:Wait() -- 🔥 จุดสำคัญมาก
+        tweenOut.Completed:Wait()
 
         gui:Destroy()
 
@@ -1152,7 +1116,6 @@ Tabs.Credit:AddButton({
     end
 })
 
--- Teleport
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
@@ -1169,25 +1132,18 @@ local function getList()
     return list
 end
 
--- =========================
--- DROPDOWN (ต้องมี ID + ห้ามมั่ว)
--- =========================
 local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
     Title = "เลือกผู้เล่น",
     Values = getList(),
     Multi = false
 })
 
--- 🔥 IMPORTANT: delay bind กัน Fluent บัค
 task.defer(function()
     Dropdown:OnChanged(function(value)
         selectedPlayer = Players:FindFirstChild(value)
     end)
 end)
 
--- =========================
--- REFRESH (แบบไม่พัง)
--- =========================
 Tabs.Teleport:AddButton({
     Title = "รีเฟรชผู้เล่น",
     Callback = function()
@@ -1201,9 +1157,6 @@ Tabs.Teleport:AddButton({
     end
 })
 
--- =========================
--- TELEPORT
--- =========================
 Tabs.Teleport:AddToggle("tp", {
     Title = "เทเลพอร์ต",
     Default = false
@@ -1240,9 +1193,6 @@ local spectating = false
 local originalCameraSubject = nil
 local Camera = workspace.CurrentCamera
 
--- =========================
--- SPECTATE TOGGLE
--- =========================
 Tabs.Teleport:AddToggle("spec", {
     Title = "มองผู้เล่น",
     Default = false
@@ -1274,14 +1224,10 @@ Tabs.Teleport:AddToggle("spec", {
     end
 end)
 
--- =========================
--- UPDATE TARGET (เวลาเปลี่ยน dropdown)
--- =========================
 task.defer(function()
     Dropdown:OnChanged(function(value)
         selectedPlayer = Players:FindFirstChild(value)
 
-        -- ถ้ากำลัง spectate อยู่ → เปลี่ยนทันที
         if spectating and selectedPlayer and selectedPlayer.Character then
             local humanoid = selectedPlayer.Character:FindFirstChildOfClass("Humanoid")
             if humanoid then
@@ -1291,8 +1237,6 @@ task.defer(function()
     end)
 end)
 
--- Server 🌟
--- Join low server
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
@@ -1313,7 +1257,7 @@ end
 local function findLowServer()
     local cursor = nil
 
-    for i = 1, 5 do -- ลองดึงหลายหน้า
+    for i = 1, 5 do
         local data = getServers(cursor)
 
         for _, server in ipairs(data.data) do
@@ -1327,7 +1271,6 @@ local function findLowServer()
     end
 end
 
--- 🔘 ปุ่ม
 Tabs.Server:AddButton({
     Title = "เข้าร่วมเซิร์ฟเวอร์คนน้อย",
     Description = "",
@@ -1340,7 +1283,6 @@ Tabs.Server:AddButton({
     end
 })
 
--- Server ⚔️ Rejoim
 Tabs.Server:AddButton({
     Title = "กลับเข้าเซิร์ฟเดิม",
     Description = "",
@@ -1364,14 +1306,12 @@ Tabs.Server:AddButton({
     end
 })
 
--- JobID
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 
 local LocalPlayer = Players.LocalPlayer
 local currentJobIdInput = ""
 
--- 📋 Copy JobId
 Tabs.Server:AddButton({
     Title = "คัดลอก Job ID",
     Description = "คัดลอก Job ID เซิร์ฟเวอร์ปัจจุบัน",
@@ -1382,7 +1322,6 @@ Tabs.Server:AddButton({
     end
 })
 
--- ⌨️ Input JobId
 Tabs.Server:AddInput("JobIdInput", {
     Title = "Job ID",
     Default = "",
@@ -1392,7 +1331,6 @@ Tabs.Server:AddInput("JobIdInput", {
     end
 })
 
--- 🚀 Join JobId
 Tabs.Server:AddButton({
     Title = "เข้าร่วมเซิร์ฟเวอร์",
     Description = "",
@@ -1407,14 +1345,12 @@ Tabs.Server:AddButton({
     end
 })
 
--- main tab
 local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 
--- === 1. ปรับปรุง Settings เพิ่ม IgnoredPlayers ===
 local AimbotSettings = {
     Enabled = false,
     WallCheck = true,
@@ -1422,7 +1358,7 @@ local AimbotSettings = {
     Mode = "สุ่ม", 
     SelectedPlayerName = nil,
     IgnoredPlayers = {},
-    Smoothness = 1 -- ค่าเริ่มต้น (1 = ล็อคตาย)
+    Smoothness = 1
 }
 
 
@@ -1461,13 +1397,12 @@ local function IsVisible(targetPart)
     return rayResult == nil
 end
 
--- === 2. ปรับปรุงฟังก์ชันหาเป้าหมายให้รองรับ Ignore List ===
 local function GetClosestTargetToMouse()
     local target = nil
     local shortestDistance = math.huge
     for _, player in pairs(Players:GetPlayers()) do
-        -- ตรวจสอบว่าอยู่ในรายชื่อที่ Ignore หรือไม่ (เฉพาะโหมด Random)
-        if AimbotSettings.Mode == "สุ่ม" and table.find(AimbotSettings.IgnoredPlayers, player.Name) then
+       
+		if AimbotSettings.Mode == "สุ่ม" and table.find(AimbotSettings.IgnoredPlayers, player.Name) then
             continue 
         end
 
@@ -1492,12 +1427,10 @@ end
 
 local CurrentTarget = nil
 
--- === 3. ระบบหลัก: BindToRenderStep ===
 RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, function()
     if AimbotSettings.Enabled then
         
         if AimbotSettings.Mode == "สุ่ม" then
-            -- เช็คเงื่อนไข: ถ้าเป้าหมายเดิมตาย/หลุด/หรือเพิ่งถูกเพิ่มเข้า Ignore List ให้หาใหม่
             if not CurrentTarget or not CurrentTarget.Character or 
                not getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart) or 
                CurrentTarget.Character.Humanoid.Health <= 0 or 
@@ -1507,8 +1440,8 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
                 CurrentTarget = GetClosestTargetToMouse()
             end
         elseif AimbotSettings.Mode == "เลือก" then
-            -- โหมด Select: ล็อคเฉพาะคนที่เราเลือก (ไม่สน Ignore List ตามคำขอ)
-            local targetPlayer = Players:FindFirstChild(AimbotSettings.SelectedPlayerName or "")
+          
+				local targetPlayer = Players:FindFirstChild(AimbotSettings.SelectedPlayerName or "")
             if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") and targetPlayer.Character.Humanoid.Health > 0 then
                 CurrentTarget = targetPlayer
             else
@@ -1516,15 +1449,12 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
             end
         end
 
-        -- การล็อคกล้อง
         if CurrentTarget and CurrentTarget.Character then
             local targetPart = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
             if targetPart then
-                -- ตรวจสอบว่าเป้าหมายติดกำแพงหรือไม่ (ถ้าเปิด Wall Check ไว้)
 if AimbotSettings.WallCheck and not IsVisible(targetPart) then
-    CurrentTarget = nil -- ถ้าติดกำแพงให้ยกเลิกการล็อค
+    CurrentTarget = nil
 else
-    -- ระบบดูด (Smoothing)
     local targetCFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
     Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, AimbotSettings.Smoothness)
 end
@@ -1535,9 +1465,6 @@ end
     end
 end)
 
--- === 4. UI Section (Fluent/Library Context) ===
-
--- เลือกโหมด
 local ModeDropdown = Tabs.Main:AddDropdown("ModeDropdown", {
     Title = "โหมดล็อกเป้า",
     Values = {"สุ่ม", "เลือก"},
@@ -1549,7 +1476,6 @@ ModeDropdown:OnChanged(function(Value)
     CurrentTarget = nil 
 end)
 
--- Dropdown สำหรับเลือกเป้าหมายเดี่ยว (Select Mode)
 local PlayerDropdown = Tabs.Main:AddDropdown("PlayerDropdown", {
     Title = "เลือกผู้เล่น",
     Values = getPlayerNames(),
@@ -1560,16 +1486,14 @@ PlayerDropdown:OnChanged(function(Value)
     AimbotSettings.SelectedPlayerName = Value
 end)
 
--- [เพิ่มใหม่] Multi-Select Dropdown สำหรับ Ignore List (Random Mode)
 local IgnoreDropdown = Tabs.Main:AddDropdown("IgnoreDropdown", {
     Title = "ไม่สนใจผู้เล่น",
     Description = "",
     Values = getPlayerNames(),
-    Multi = true, -- เปิดใช้งานเลือกได้หลายคน
+    Multi = true,
     Default = {},
 })
 IgnoreDropdown:OnChanged(function(Value)
-    -- ใน Multi-dropdown 'Value' จะเป็น Table ของชื่อที่ถูกเลือก
     AimbotSettings.IgnoredPlayers = {}
     for name, state in pairs(Value) do
         if state then
@@ -1597,15 +1521,14 @@ local SmoothDropdown = Tabs.Main:AddDropdown("SmoothDropdown", {
 
 SmoothDropdown:OnChanged(function(Value)
     if Value == "ตํ่า" then
-        AimbotSettings.Smoothness = 0.05 -- หันจอหนีง่ายมาก
+        AimbotSettings.Smoothness = 0.05
     elseif Value == "กลาง" then
-        AimbotSettings.Smoothness = 0.15 -- หนืดพอสมควร
+        AimbotSettings.Smoothness = 0.15
     elseif Value == "สูง" then
-        AimbotSettings.Smoothness = 1.0  -- ล็อคติดเป้าทันที
+        AimbotSettings.Smoothness = 1.0
     end
 end)
-
--- ปุ่ม Refresh รายชื่อ (อัปเดตทั้งคู่)
+)
 Tabs.Main:AddButton({
     Title = "รีเฟรชรายชื่อ",
     Description = "",
@@ -1616,7 +1539,6 @@ Tabs.Main:AddButton({
     end
 })
 
--- Aimbot
 local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
     Title = "ล็อกเป้า",
     Default = false
@@ -1625,13 +1547,8 @@ AimbotToggle:OnChanged(function(Value)
     AimbotSettings.Enabled = Value
 end)
 
-
-
---========================================================
--- 🔥 [NEW] AUTO FIRE - REAPER HUB PC & MOBILE
---========================================================
 local AF_Enabled = false
-local AF_Platform = "มือถือ" -- Default
+local AF_Platform = "มือถือ"
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
@@ -1640,7 +1557,6 @@ local AF_Delay = 0.3
 local AF_HoldTime = 0.05 
 local IsShooting = false 
 
---// [ระบบแจ้งเตือน REAPER STYLE - คงความสวยงามตามเดิม]
 local function SpawnNotify(msg)
     task.spawn(function()
         if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
@@ -1660,7 +1576,7 @@ local function SpawnNotify(msg)
         icon.Size = UDim2.new(0, 40, 0, 40)
         icon.Position = UDim2.new(0, 12, 0, 15)
         icon.BackgroundTransparency = 1
-        icon.Image = "rbxassetid://131279093559313" -- ไอคอนเดิมของคุณ
+        icon.Image = "rbxassetid://131279093559313"
         local text = Instance.new("TextLabel", frame)
         text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 60, 0, 0)
@@ -1681,7 +1597,6 @@ local function SpawnNotify(msg)
     end)
 end
 
---// [ระบบตรวจจับเป้าหมาย]
 local function GetHumanoid(part)
     local char = part.Parent
     while char and char ~= workspace do
@@ -1706,7 +1621,6 @@ local function CheckTarget()
     return false
 end
 
---// [ระบบส่ง Input แยกตาม Platform]
 RunService.RenderStepped:Connect(function()
     if not AF_Enabled then return end
     if AF_Platform == "มือถือ" and not AF_Saved then return end
