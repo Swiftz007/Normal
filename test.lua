@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 4
+-- 🔥 Lib Load Screen Reaper Hub 3
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -36,10 +36,10 @@ local lp = LocalPlayer
 --=========================
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "lib Beta 20.5",
+SubTitle = "Universal",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
-Theme = "Reaper",
+Theme = "ExtremeReaper",
 MinimizeKey = Enum.KeyCode.RightControl
 })
 
@@ -740,27 +740,31 @@ local ESPCache = {}
 --========================
 -- CREATE ESP
 --========================
+--========================
+-- CREATE ESP (Billboard Version)
+--========================
 local function CreateESP(Player)
+    if Player == LocalPlayer then return end
 
-    if Player == LocalPlayer then
-        return
-    end
+    -- สร้าง Billboard สำหรับชื่อและระยะทาง (คมชัดกว่า)
+    local Billboard = Instance.new("BillboardGui")
+    Billboard.Name = "ReaperTag"
+    Billboard.AlwaysOnTop = true
+    Billboard.Size = UDim2.new(0, 200, 0, 50)
+    Billboard.ExtentsOffset = Vector3.new(0, 3, 0)
+    Billboard.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-    --========================
-    -- NAME
-    --========================
-    local Name = Drawing.new("Text")
-    Name.Visible = false
-    Name.Center = true
-    Name.Outline = true
-    Name.Font = 2
-    Name.Size = 13
-    Name.Color = Color3.fromRGB(255,255,255)
-    Name.Transparency = 1
+    local NameLabel = Instance.new("TextLabel", Billboard)
+    NameLabel.BackgroundTransparency = 1
+    NameLabel.Size = UDim2.new(1, 0, 1, 0)
+    NameLabel.Text = ""
+    NameLabel.Font = Enum.Font.RobotoMono -- ฟอนต์ RobotoMono ตามสั่ง
+    NameLabel.TextSize = 14
+    NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    NameLabel.TextStrokeTransparency = 0
+    NameLabel.RichText = true
 
-    --========================
-    -- HEALTH OUTLINE
-    --========================
+    -- ระบบแถบเลือด Drawing (คงไว้ตามเดิม)
     local HealthOutline = Drawing.new("Square")
     HealthOutline.Visible = false
     HealthOutline.Filled = true
@@ -768,9 +772,6 @@ local function CreateESP(Player)
     HealthOutline.Color = Color3.fromRGB(0,0,0)
     HealthOutline.Transparency = 0.6
 
-    --========================
-    -- HEALTH BAR
-    --========================
     local HealthBar = Drawing.new("Square")
     HealthBar.Visible = false
     HealthBar.Filled = true
@@ -779,38 +780,30 @@ local function CreateESP(Player)
     HealthBar.Transparency = 1
 
     ESPCache[Player] = {
-        Name = Name,
+        Billboard = Billboard,
+        NameLabel = NameLabel,
         HealthOutline = HealthOutline,
         HealthBar = HealthBar
     }
 end
 
---========================
--- REMOVE ESP
---========================
 local function RemoveESP(Player)
-
     local ESP = ESPCache[Player]
-
     if ESP then
-
-        for _,v in pairs(ESP) do
-            v:Remove()
-        end
-
+        if ESP.Billboard then ESP.Billboard:Destroy() end
+        if ESP.HealthOutline then ESP.HealthOutline:Remove() end
+        if ESP.HealthBar then ESP.HealthBar:Remove() end
         ESPCache[Player] = nil
     end
 end
 
---========================
--- HIDE ESP
---========================
 local function HideESP(ESP)
-
-    ESP.Name.Visible = false
+    if ESP.Billboard then ESP.Billboard.Enabled = false end
     ESP.HealthOutline.Visible = false
     ESP.HealthBar.Visible = false
 end
+
+
 
 --========================
 -- PLAYER HANDLING
@@ -887,22 +880,30 @@ RunService.RenderStepped:Connect(function()
                 --========================
         -- NAME & DISTANCE ESP
         --========================
+                --========================
+        -- NAME & DISTANCE ESP (Format: NAME [ Distance ])
+        --========================
         if _G.NameESPEnabled or _G.DistanceESPEnabled then
-            ESP.Name.Visible = true
-            ESP.Name.Size = math.clamp(16 - (Distance / 120), 13, 16)
-            ESP.Name.Position = Vector2.new(RootPos.X, Y - 16)
-
-            local NameTag = _G.NameESPEnabled and Player.Name or ""
-            local DistTag = _G.DistanceESPEnabled and string.format("[%dm]", math.floor(Distance)) or ""
-
+            ESP.Billboard.Enabled = true
+            ESP.Billboard.Parent = Head
+            
+            local NameTag = _G.NameESPEnabled and Player.Name or "" -- ใช้ Username
+            local DistTag = _G.DistanceESPEnabled and string.format(" <font color='#AAAAAA'>[ %dm ]</font>", math.floor(Distance)) or ""
+            
+            -- รวมข้อความ NAME [ Distance ]
             if _G.NameESPEnabled and _G.DistanceESPEnabled then
-                ESP.Name.Text = NameTag .. " " .. DistTag
+                ESP.NameLabel.Text = NameTag .. " " .. DistTag
             else
-                ESP.Name.Text = NameTag .. DistTag
+                ESP.NameLabel.Text = NameTag .. DistTag
             end
+            
+            -- ปรับขนาดตามระยะทาง
+            ESP.NameLabel.TextSize = math.clamp(16 - (Distance / 150), 12, 16)
         else
-            ESP.Name.Visible = false
+            if ESP.Billboard then ESP.Billboard.Enabled = false end
         end
+
+
 
 
         --========================
@@ -1429,7 +1430,20 @@ end)
 
 local spectating = false
 local originalCameraSubject = nil
+
+local localPlayer = Players.LocalPlayer
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+	
+	
+local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
+local LogService = game:GetService("LogService")
 
 -- =========================
 -- SPECTATE TOGGLE
@@ -1439,8 +1453,6 @@ Tabs.Teleport:AddToggle("spec", {
     Default = false
 }):OnChanged(function(state)
     spectating = state
-
-    local localPlayer = Players.LocalPlayer
 
     if state then
         if selectedPlayer and selectedPlayer.Character then
@@ -1556,10 +1568,6 @@ Tabs.Server:AddButton({
 })
 
 -- JobID
-local TeleportService = game:GetService("TeleportService")
-local Players = game:GetService("Players")
-
-local LocalPlayer = Players.LocalPlayer
 local currentJobIdInput = ""
 
 -- 📋 Copy JobId
@@ -1599,12 +1607,6 @@ Tabs.Server:AddButton({
 })
 
 -- main tab
-local Camera = workspace.CurrentCamera
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-
 -- === 1. ปรับปรุง Settings เพิ่ม IgnoredPlayers ===
 local AimbotSettings = {
     Enabled = false,
@@ -2185,8 +2187,6 @@ Tabs.Misc:AddToggle("SafeModeToggle", {
 
 
 -- Max Zoom
-local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
-
 Tabs.Misc:AddToggle("MaxZoom", {
     Title = "Max Zoom",
     Default = false,
@@ -2306,8 +2306,6 @@ Tabs.Misc:AddToggle("AntiAFK", {
         end
     end
 })
-
-
 
 
 -- FPS BOOST
@@ -2438,12 +2436,7 @@ Tabs.Misc:AddButton({
 
 
 
-
-
 -- Console
---// SERVICES
-local LogService = game:GetService("LogService")
-
 --// STATE
 local consoleEnabled = false
 local MAX_LOGS = 1000
@@ -2659,7 +2652,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
-Window:SelectTab(3)
+Window:SelectTab(1)
 -- Lib Toggle
 --=========================
 -- TOGGLE BUTTON
