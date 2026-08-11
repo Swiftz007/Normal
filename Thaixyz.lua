@@ -38,14 +38,14 @@ local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz00
 
 local Tabs = {
 Status = Window:AddTab({ Title = "สถานะ", Icon = "signal-high" }),
-Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
-Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-Player = Window:AddTab({ Title = "Player", Icon = "user" }),
-ESP = Window:AddTab({ Title = "ESP", Icon = "box" }),
-Teleport = Window:AddTab({ Title = "Teleport", Icon = "menu" }),
-Server = Window:AddTab({ Title = "Server", Icon = "server" }),
-Misc = Window:AddTab({ Title = "Misc", Icon = "copy" }),
-Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+Credit = Window:AddTab({ Title = "เครดิต", Icon = "code" }),
+Main = Window:AddTab({ Title = "หน้าหลัก", Icon = "home" }),
+Player = Window:AddTab({ Title = "ผู้เล่น", Icon = "user" }),
+ESP = Window:AddTab({ Title = "มองทะลุ", Icon = "box" }),
+Teleport = Window:AddTab({ Title = "เทเลพอร์ต", Icon = "menu" }),
+Server = Window:AddTab({ Title = "เซิร์ฟเวอร์", Icon = "server" }),
+Misc = Window:AddTab({ Title = "เพิ่มเติม", Icon = "copy" }),
+Settings = Window:AddTab({ Title = "ตั้งค่า", Icon = "settings" })
 }
 
 local State = {
