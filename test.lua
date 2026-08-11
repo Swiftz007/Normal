@@ -23,6 +23,18 @@ local lighting = Lighting
 local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
 local Stats = game:GetService("Stats")
+local TeleportService = game:GetService("TeleportService")
+local localPlayer = Players.LocalPlayer
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")	
+local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
+local LogService = game:GetService("LogService")
 
 --=========================
 -- 🔥 PLAYER / CAMERA / WORLD
@@ -1431,20 +1443,6 @@ end)
 local spectating = false
 local originalCameraSubject = nil
 
-local localPlayer = Players.LocalPlayer
-local TeleportService = game:GetService("TeleportService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-	
-	
-local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
-local LogService = game:GetService("LogService")
-
 -- =========================
 -- SPECTATE TOGGLE
 -- =========================
@@ -1496,11 +1494,6 @@ end)
 
 -- Server 🌟
 -- Join low server
-local HttpService = game:GetService("HttpService")
-local TeleportService = game:GetService("TeleportService")
-local Players = game:GetService("Players")
-
-local LocalPlayer = Players.LocalPlayer
 local PlaceId = game.PlaceId
 
 local function getServers(cursor)
