@@ -1,61 +1,60 @@
-local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/LoadLib.lua"))() 
-local hwid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/HwidSystem.lua"))()
+local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/InterfaceManager.lua"))()
 
 
---=========================
--- 🔥 SERVICES
---=========================
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-local LP = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 local VIM = game:GetService("VirtualInputManager")
 local CoreGui = game:GetService("CoreGui")
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
+local VU = game:GetService("VirtualUser")
+local Lighting = game:GetService("Lighting")
+local lighting = Lighting
+local VirtualUser = game:GetService("VirtualUser")
+local LocalPlayer = Players.LocalPlayer
+local Stats = game:GetService("Stats")
 
---=========================
--- 🔥 WINDOW
---=========================
+local LocalPlayer = Players.LocalPlayer
+local LP = LocalPlayer
+local Camera = workspace.CurrentCamera
+local lp = LocalPlayer
+
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Thai Version",
+SubTitle = "Universal Thai",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
-Theme = "Reaper",
+Theme = "ExtremeReaper",
 MinimizeKey = Enum.KeyCode.RightControl
 })
 
 local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Icon.lua"))()
 
---=========================
--- 🔥Tab
---=========================
+
 local Tabs = {
-Status = Window:AddTab({ Title = "สถานะ", Icon = "signal-high" }),
-Credit = Window:AddTab({ Title = "เครดิต", Icon = "code" }),
-Main = Window:AddTab({ Title = "หน้าหลัก", Icon = "home" }),
-Player = Window:AddTab({ Title = "ผู้เล่น", Icon = "user" }),
-ESP = Window:AddTab({ Title = "มอง", Icon = "box" }),
-Teleport = Window:AddTab({ Title = "เทเลพอร์ต", Icon = "menu" }),
-Server = Window:AddTab({ Title = "เซิร์ฟเวอร์", Icon = "server" }),
-Misc = Window:AddTab({ Title = "เพิ่มเติม", Icon = "copy" }),
-Settings = Window:AddTab({ Title = "ตั้งค่า", Icon = "settings" })
+Status = Window:AddTab({ Title = "Status", Icon = "signal-high" }),
+Credit = Window:AddTab({ Title = "Credit", Icon = "code" }),
+Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+Player = Window:AddTab({ Title = "Player", Icon = "user" }),
+ESP = Window:AddTab({ Title = "ESP", Icon = "box" }),
+Teleport = Window:AddTab({ Title = "Teleport", Icon = "menu" }),
+Server = Window:AddTab({ Title = "Server", Icon = "server" }),
+Misc = Window:AddTab({ Title = "Misc", Icon = "copy" }),
+Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
---=========================
--- 🔥 STATE
---=========================
 local State = {
     WS = false,
     JP = false,
     INFJ = false,
     NC = false,
-    ESP = false,
+    ESP_Box = false, 
+    ESP_Line = false,
 	MemClean = false
 }
 
@@ -67,9 +66,6 @@ local DefaultJP = 50
 
 local initialized = false
 
---=========================
--- 🔥 NOCLIP LOGIC
---=========================
 local NoclipConnection
 local function SetNoclip(state)
     State.NC = state
@@ -87,20 +83,15 @@ local function SetNoclip(state)
         if NoclipConnection then
             NoclipConnection:Disconnect()
             NoclipConnection = nil
-        end
-        -- คืนค่า CanCollide ให้ตัวละคร (Optional: ปกติ Roblox จะคืนค่าให้เองเมื่อหยุดเซ็ต false)
+        end  
     end
 end
 
 
---=========================
--- 🔥 CHARACTER HOOK
---=========================
 local function HookChar(char)
     local hum = char:WaitForChild("Humanoid")
     task.wait(0.1)
 
-    -- 🔥 FIX: ล็อก default แค่ครั้งเดียว (กันค่าค้าง/เพี้ยนตอน respawn)
     if not initialized then
         DefaultWS = hum.WalkSpeed
         DefaultJP = hum.UseJumpPower and hum.JumpPower or 50
@@ -111,42 +102,27 @@ end
 if LP.Character then HookChar(LP.Character) end
 LP.CharacterAdded:Connect(HookChar)
 
---=========================
--- 🔥 GET HUM
---=========================
 local function GetHum()
     local c = LP.Character
     return c and c:FindFirstChildOfClass("Humanoid")
 end
 
---=========================
--- 🔥 MOVEMENT
---=========================
 RunService.RenderStepped:Connect(function()
     local char = LP.Character
     local hum = char and char:FindFirstChildOfClass("Humanoid")
     if not hum then return end
 
-    -- WalkSpeed
     if State.WS then
         hum.WalkSpeed = WSValue
-    else
-        hum.WalkSpeed = DefaultWS
     end
 
-    -- JumpPower
-    hum.UseJumpPower = true
     if State.JP then
+        hum.UseJumpPower = true
         hum.JumpPower = JPValue
-    else
-        hum.JumpPower = DefaultJP
     end
 end)
 
 
---=========================
--- 🔥 INFINITE JUMP
---=========================
 UIS.JumpRequest:Connect(function()
     if State.INFJ then
         local hum = GetHum()
@@ -156,20 +132,14 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
---=========================
--- 🔥 ESP SYSTEM (OPTIMIZED FINAL)
---=========================
 local ESPObjects = {}
 local Cache = {}
 
-local BoxColor = Color3.fromRGB(255,0,0)
-local LineColor = Color3.fromRGB(0,255,0)
+local BoxColor = Color3.fromRGB(255,255,255)
+local LineColor = Color3.fromRGB(255,255,255)
 
 local ESPConnection
 
---=========================
--- 🔥 CREATE ESP
---=========================
 local function CreateESP()
     local box = Drawing.new("Square")
     box.Visible = false
@@ -183,9 +153,6 @@ local function CreateESP()
     return {box = box, line = line}
 end
 
---=========================
--- 🔥 CLEAR ESP (NO LEAK)
---=========================
 local function ClearESP()
     for plr,v in pairs(ESPObjects) do
         if v.box then v.box:Remove() end
@@ -195,115 +162,100 @@ local function ClearESP()
     Cache = {}
 end
 
---=========================
--- 🔥 CHARACTER CACHE
---=========================
 local function SetupCharacter(plr, char)
-    local hrp = char:WaitForChild("HumanoidRootPart", 5)
-    local head = char:WaitForChild("Head", 5)
+    task.spawn(function()
+        local hrp = char:WaitForChild("HumanoidRootPart", 10)
+        local head = char:WaitForChild("Head", 10)
+        local hum = char:WaitForChild("Humanoid", 10)
 
-    if not hrp or not head then return end
-
-    Cache[plr] = {
-        hrp = hrp,
-        head = head
-    }
+        if hrp and head and hum then
+            Cache[plr] = { 
+                hrp = hrp, 
+                head = head, 
+                hum = hum 
+            }
+            
+            hum.Died:Connect(function() 
+                Cache[plr] = nil 
+            end)
+        end
+    end)
 end
 
---=========================
--- 🔥 INIT ESP
---=========================
 local function InitESP()
-    ClearESP()
-
-    for _,plr in ipairs(Players:GetPlayers()) do
+    for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LP then
-            ESPObjects[plr] = CreateESP()
-
-            if plr.Character then
-                SetupCharacter(plr, plr.Character)
-            end
-
-            plr.CharacterAdded:Connect(function(char)
-                SetupCharacter(plr, char)
-            end)
+            if not ESPObjects[plr] then ESPObjects[plr] = CreateESP() end
+            if plr.Character then SetupCharacter(plr, plr.Character) end
+            plr.CharacterAdded:Connect(function(char) SetupCharacter(plr, char) end)
         end
     end
 end
 
---=========================
--- 🔥 PLAYER EVENTS
---=========================
 Players.PlayerAdded:Connect(function(plr)
     if plr == LP then return end
-
-    if State.ESP then
-        ESPObjects[plr] = CreateESP()
-    end
-
-    plr.CharacterAdded:Connect(function(char)
-        SetupCharacter(plr, char)
-    end)
+    if not ESPObjects[plr] then ESPObjects[plr] = CreateESP() end
+    plr.CharacterAdded:Connect(function(char) SetupCharacter(plr, char) end)
 end)
 
 Players.PlayerRemoving:Connect(function(plr)
     if ESPObjects[plr] then
-        ESPObjects[plr].box:Remove()
-        ESPObjects[plr].line:Remove()
+        if ESPObjects[plr].box then ESPObjects[plr].box:Remove() end
+        if ESPObjects[plr].line then ESPObjects[plr].line:Remove() end
         ESPObjects[plr] = nil
     end
     Cache[plr] = nil
 end)
 
---=========================
--- 🔥 START LOOP (ANTI DUPLICATE)
---=========================
+
 local function StartESP()
     if ESPConnection then
         ESPConnection:Disconnect()
     end
 
     ESPConnection = RunService.RenderStepped:Connect(function()
-        if not State.ESP then return end
+        if not State.ESP_Box and not State.ESP_Line then 
+            for _, obj in pairs(ESPObjects) do
+                obj.box.Visible = false
+                obj.line.Visible = false
+            end
+            return 
+        end
 
-        local camPos = Camera.ViewportSize
+        local camSize = Camera.ViewportSize
 
-        for plr,obj in pairs(ESPObjects) do
+        for plr, obj in pairs(ESPObjects) do
             local data = Cache[plr]
-            if not data then
+            if not data or not data.hrp or not data.head then
                 obj.box.Visible = false
                 obj.line.Visible = false
                 continue
             end
 
-            local hrp = data.hrp
-            local head = data.head
-
-            if not hrp or not head then
-                obj.box.Visible = false
-                obj.line.Visible = false
-                continue
-            end
-
-            local rootPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+            local rootPos, onScreen = Camera:WorldToViewportPoint(data.hrp.Position)
 
             if onScreen then
-                local headPos = Camera:WorldToViewportPoint(head.Position)
-
+                local headPos = Camera:WorldToViewportPoint(data.head.Position)
                 local height = math.abs(headPos.Y - rootPos.Y) * 2
                 local width = height / 1.5
 
-                -- BOX
-                obj.box.Size = Vector2.new(width, height)
-                obj.box.Position = Vector2.new(rootPos.X - width/2, rootPos.Y - height/2)
-                obj.box.Color = BoxColor
-                obj.box.Visible = true
+                if State.ESP_Box then
+                    obj.box.Size = Vector2.new(width, height)
+                    obj.box.Position = Vector2.new(rootPos.X - width/2, rootPos.Y - height/2)
+                    obj.box.Color = BoxColor
+                    obj.box.Visible = true
+                else
+                    obj.box.Visible = false
+                end
 
-                -- LINE
-                obj.line.From = Vector2.new(camPos.X/2, camPos.Y)
-                obj.line.To = Vector2.new(rootPos.X, rootPos.Y)
-                obj.line.Color = LineColor
-                obj.line.Visible = true
+                if State.ESP_Line then
+                    obj.line.From = Vector2.new(camSize.X/2, camSize.Y)
+                    obj.line.To = Vector2.new(rootPos.X, rootPos.Y)
+                    obj.line.Color = LineColor
+                    obj.line.Visible = true
+                else
+                    obj.line.Visible = false
+                end
             else
                 obj.box.Visible = false
                 obj.line.Visible = false
@@ -312,17 +264,12 @@ local function StartESP()
     end)
 end
 
---=========================
--- 🔥 ENABLE ESP
---=========================
+
 InitESP()
 StartESP()
 
---=========================
--- 🔥 UI
---=========================
 Tabs.Player:AddInput("WSV", {
-Title = "ค่าความเร็ว",
+Title = "ระดับความเร็ววิ่ง",
 Default = "16",
 Callback = function(v)
 WSValue = tonumber(v) or 16
@@ -330,13 +277,21 @@ end
 })
 
 Tabs.Player:AddToggle("WS", {
-Title = "วิ่งเร็ว",
-Default = false,
-Callback = function(v) State.WS = v end
+    Title = "วิ่งเร็ว",
+    Default = false,
+    Callback = function(v) 
+        State.WS = v 
+        if not v then 
+            local hum = GetHum()
+            if hum then 
+                hum.WalkSpeed = DefaultWS 
+            end 
+        end
+    end
 })
 
 Tabs.Player:AddInput("JPV", {
-Title = "ค่าความสูงกระโดด",
+Title = "ระดับความสูงกระโดด",
 Default = "50",
 Callback = function(v)
 JPValue = tonumber(v) or 50
@@ -344,21 +299,56 @@ end
 })
 
 Tabs.Player:AddToggle("JP", {
-Title = "กระโดดสูง",
-Default = false,
-Callback = function(v) State.JP = v 
-end
+    Title = "กระโดดสูง",
+    Default = false,
+    Callback = function(v) 
+        State.JP = v 
+        if not v then 
+            local hum = GetHum()
+            if hum then 
+                hum.JumpPower = DefaultJP
+                hum.UseJumpPower = false
+            end 
+        end
+    end
 })
 
--- Fly Mode 🔥
--- === ตัวแปรระบบบิน ===
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
+local DefaultGravity = workspace.Gravity
+local TargetGravityValue = 196.2
+
+Tabs.Player:AddSlider("GravitySlider", {
+    Title = "ระดับแรงโน้มถ่วง",
+    Description = "",
+    Default = 196.2,
+    Min = 0,
+    Max = 1000,
+    Rounding = 1,
+    Callback = function(Value)
+        TargetGravityValue = Value
+        if _G.GravityEnabled then
+            workspace.Gravity = Value
+        end
+    end
+})
+
+Tabs.Player:AddToggle("GravityToggle", {
+    Title = "เปิดใช้แรงโน้มถ่วง",
+    Default = false,
+    Callback = function(Value)
+        _G.GravityEnabled = Value
+        
+        if Value then
+            workspace.Gravity = TargetGravityValue
+        else
+            workspace.Gravity = DefaultGravity
+        end
+    end
+})
+
 local flying = false
 local speed = 60
 local bv, bg
 
--- === ฟังก์ชันหยุดบิน ===
 local function stopFlying()
     if bv then bv:Destroy() bv = nil end
     if bg then bg:Destroy() bg = nil end
@@ -368,16 +358,12 @@ local function stopFlying()
     end
 end
 
--- === ฟังก์ชันเริ่มบิน ===
 local function startFlying()
     local char = LocalPlayer.Character
-    -- รอให้ชิ้นส่วนตัวละครโหลดครบก่อนเริ่มบิน (กันบัคตอนเกิดใหม่)
     local root = char:WaitForChild("HumanoidRootPart", 5)
     local hum = char:WaitForChild("Humanoid", 5)
     
     if not root or not hum then return end
-    
-    -- ล้างของเก่าก่อนสร้างใหม่ (กันซ้อน)
     if bv then bv:Destroy() end
     if bg then bg:Destroy() end
     
@@ -393,7 +379,6 @@ local function startFlying()
     
     hum.PlatformStand = true
     
-    -- ลูปการเคลื่อนที่
     task.spawn(function()
         while flying and char == LocalPlayer.Character do
             RunService.RenderStepped:Wait()
@@ -412,18 +397,15 @@ local function startFlying()
     end)
 end
 
--- === ระบบทำงานต่ออัตโนมัติเมื่อเกิดใหม่ ===
 LocalPlayer.CharacterAdded:Connect(function(newCharacter)
     if flying then
-        -- รอแป๊บนึงให้ระบบฟิสิกส์ของตัวละครใหม่พร้อม
         task.wait(0.5) 
         if flying then startFlying() end
     end
 end)
 
--- === เพิ่มเข้า Fluent UI (Tabs.Player) ===
 Tabs.Player:AddToggle("FlyToggle", {
-    Title = "โหมดบิน", 
+    Title = "บิน", 
     Default = false,
     Callback = function(Value)
         flying = Value
@@ -437,7 +419,7 @@ Tabs.Player:AddToggle("FlyToggle", {
 
 Tabs.Player:AddSlider("FlySpeed", {
     Title = "ความเร็วบิน",
-    Description = "ปรับความเร็วการบิน",
+    Description = "",
     Default = 60,
     Min = 10,
     Max = 300,
@@ -455,35 +437,24 @@ Callback = function(v) State.INFJ = v
 	end
 })
 
-Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
-    Title = "เดินทะลุ",
+Tabs.Player:AddToggle("NC", {
+    Title = "ทะลุสิ่งกีดขวาง",
     Description = "",
     Default = false,
     Callback = function(Value)
-        SetNoclip(Value) -- ส่งค่าไปให้ฟังก์ชันจัดการต่อ
+        SetNoclip(Value)
     end
 })
-
-
--- มึงอย่ามาล้อเล่นกับเดอะหมุน
---================ SPIN PLAYER FIX =================--
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local LocalPlayer = Players.LocalPlayer
 
 local spinning = false
 local spinSpeed = 20
 local spinConnection
 
--- ดึง HRP แบบชัวร์
 local function getHRP()
     local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     return char:WaitForChild("HumanoidRootPart")
 end
 
--- เริ่มหมุน (ใช้ dt กันเฟรมเรท)
 local function startSpin()
     if spinConnection then
         spinConnection:Disconnect()
@@ -493,12 +464,10 @@ local function startSpin()
         local hrp = getHRP()
         if not hrp then return end
 
-        -- ใช้ dt ทำให้ลื่นขึ้น
         hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed * dt * 60), 0)
     end)
 end
 
--- หยุด
 local function stopSpin()
     if spinConnection then
         spinConnection:Disconnect()
@@ -506,7 +475,6 @@ local function stopSpin()
     end
 end
 
--- รีตัวไม่พัง
 LocalPlayer.CharacterAdded:Connect(function()
     if spinning then
         task.wait(1)
@@ -514,7 +482,6 @@ LocalPlayer.CharacterAdded:Connect(function()
     end
 end)
 
--- Toggle
 Tabs.Player:AddToggle("SpinPlayer", {
     Title = "หมุนผู้เล่น",
     Default = false,
@@ -529,7 +496,6 @@ Tabs.Player:AddToggle("SpinPlayer", {
     end
 })
 
--- Slider
 Tabs.Player:AddSlider("SpinSpeed", {
     Title = "ความเร็วหมุน",
     Min = 1,
@@ -541,22 +507,15 @@ Tabs.Player:AddSlider("SpinSpeed", {
     end
 })
 
--- ESP Chams🔥
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
+local ChamsCache = {}
 
-local ChamsCache = {} -- ตะกร้าเก็บ Highlight เพื่อลดภาระการหา (Optimization)
-
--- [[ 1. LOGIC: ระบบ Chams ที่ปรับจูนมาเพื่อความลื่น (วางไว้ด้านบน) ]]
 RunService.Heartbeat:Connect(function()
     if not _G.ChamsEnabled then 
-        -- ถ้าปิดอยู่ และในตะกร้ายังมีของ ให้เคลียร์ทิ้งทีเดียว
         if next(ChamsCache) ~= nil then
             for char, hl in pairs(ChamsCache) do
                 if hl then hl:Destroy() end
             end
-            ChamsCache = {} -- ล้างตะกร้า
+            ChamsCache = {}
         end
         return 
     end
@@ -566,14 +525,12 @@ RunService.Heartbeat:Connect(function()
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character then
             local char = player.Character
-            local highlight = ChamsCache[char] -- ดึงจากตะกร้า (เร็วที่สุด)
+            local highlight = ChamsCache[char]
 
             if not highlight then
-                -- ถ้าหาในตะกร้าไม่เจอ ให้ไปดูในตัวละคร (เผื่อคนเพิ่งเกิด)
                 highlight = char:FindFirstChild("FullChams")
                 
                 if not highlight then
-                    -- สร้างใหม่และตั้งค่าพื้นฐาน (ทำแค่ครั้งเดียว!)
                     highlight = Instance.new("Highlight")
                     highlight.Name = "FullChams"
                     highlight.Parent = char
@@ -581,46 +538,47 @@ RunService.Heartbeat:Connect(function()
                     highlight.FillTransparency = 0.5
                     highlight.OutlineColor = Color3.new(1, 1, 1)
                 end
-                -- เก็บเข้าตะกร้าไว้ใช้ในเฟรมถัดไป
                 ChamsCache[char] = highlight
             end
             
-            -- บรรทัดเดียวที่รันทุกเฟรม: เปลี่ยนสี (เบามาก)
             highlight.FillColor = rainbowColor
         end
     end
 end)
 
--- [[ 2. UI TOGGLE (วางไว้ด้านล่างสุดตามสั่ง) ]]
--- สมมติว่าคุณประกาศ Tabs ไว้ด้านบนแล้ว
 Tabs.ESP:AddToggle("ChamsToggle", {
-    Title = "มองตัวผู้เล่นสีรุ้ง",
+    Title = "แสดงตัวละครสีรุ้ง",
     Default = false,
     Callback = function(v)
         _G.ChamsEnabled = v
     end
 })
 
-
---ESP
-Tabs.ESP:AddToggle("ESP", {
-Title = "เปิดมองผู้เล้น",
-Default = false,
-Callback = function(v)
-State.ESP = v
-
-if v then  
-        task.wait(0.1)  
-        InitESP()  
-    else  
-        ClearESP()  
-    end  
-end
-
+Tabs.ESP:AddToggle("ESP_Box_Toggle", {
+    Title = "แสดงกรอบผู้เล่น",
+    Default = false,
+    Callback = function(v)
+        State.ESP_Box = v
+        if v and next(ESPObjects) == nil then 
+            InitESP() 
+        end
+    end
 })
 
+Tabs.ESP:AddToggle("ESP_Line_Toggle", {
+    Title = "แสดงเส้นติดตามผู้เล่น",
+    Default = false,
+    Callback = function(v)
+        State.ESP_Line = v
+        if v and next(ESPObjects) == nil then 
+            InitESP() 
+        end
+    end
+})
+
+
 Tabs.ESP:AddColorpicker("BoxColor", {
-Title = "Box Color",
+Title = "สีของกรอบ",
 Default = BoxColor,
 Callback = function(v)
 if typeof(v) == "Color3" then
@@ -630,7 +588,7 @@ end
 })
 
 Tabs.ESP:AddColorpicker("LineColor", {
-Title = "Line Color",
+Title = "สีของเส้นติดตาม",
 Default = LineColor,
 Callback = function(v)
 if typeof(v) == "Color3" then
@@ -639,41 +597,20 @@ end
 end
 })
 
--- ESP NAME & Health bar🔥
---========================
--- SERVICES
---========================
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local Camera = workspace.CurrentCamera
-
-local LocalPlayer = Players.LocalPlayer
-
---========================
--- SETTINGS
---========================
-local MaxDistance = 2500
+local MaxDistance = 3500
 
 _G.NameESPEnabled = false
 _G.HealthESPEnabled = false
+_G.DistanceESPEnabled = false
 
---========================
--- CACHE
---========================
 local ESPCache = {}
 
---========================
--- CREATE ESP
---========================
 local function CreateESP(Player)
 
     if Player == LocalPlayer then
         return
     end
 
-    --========================
-    -- NAME
-    --========================
     local Name = Drawing.new("Text")
     Name.Visible = false
     Name.Center = true
@@ -683,9 +620,6 @@ local function CreateESP(Player)
     Name.Color = Color3.fromRGB(255,255,255)
     Name.Transparency = 1
 
-    --========================
-    -- HEALTH OUTLINE
-    --========================
     local HealthOutline = Drawing.new("Square")
     HealthOutline.Visible = false
     HealthOutline.Filled = true
@@ -693,9 +627,6 @@ local function CreateESP(Player)
     HealthOutline.Color = Color3.fromRGB(0,0,0)
     HealthOutline.Transparency = 0.6
 
-    --========================
-    -- HEALTH BAR
-    --========================
     local HealthBar = Drawing.new("Square")
     HealthBar.Visible = false
     HealthBar.Filled = true
@@ -710,9 +641,6 @@ local function CreateESP(Player)
     }
 end
 
---========================
--- REMOVE ESP
---========================
 local function RemoveESP(Player)
 
     local ESP = ESPCache[Player]
@@ -727,9 +655,6 @@ local function RemoveESP(Player)
     end
 end
 
---========================
--- HIDE ESP
---========================
 local function HideESP(ESP)
 
     ESP.Name.Visible = false
@@ -737,9 +662,6 @@ local function HideESP(ESP)
     ESP.HealthBar.Visible = false
 end
 
---========================
--- PLAYER HANDLING
---========================
 for _,Player in ipairs(Players:GetPlayers()) do
     CreateESP(Player)
 end
@@ -747,9 +669,6 @@ end
 Players.PlayerAdded:Connect(CreateESP)
 Players.PlayerRemoving:Connect(RemoveESP)
 
---========================
--- MAIN RENDER
---========================
 RunService.RenderStepped:Connect(function()
 
     for Player,ESP in pairs(ESPCache) do
@@ -759,9 +678,6 @@ RunService.RenderStepped:Connect(function()
         local Root = Character and Character:FindFirstChild("HumanoidRootPart")
         local Head = Character and Character:FindFirstChild("Head")
 
-        --========================
-        -- VALIDATION
-        --========================
         if not Character
         or not Humanoid
         or not Root
@@ -772,9 +688,6 @@ RunService.RenderStepped:Connect(function()
             continue
         end
 
-        --========================
-        -- DISTANCE
-        --========================
         local Distance = (Camera.CFrame.Position - Root.Position).Magnitude
 
         if Distance > MaxDistance then
@@ -782,9 +695,6 @@ RunService.RenderStepped:Connect(function()
             continue
         end
 
-        --========================
-        -- VIEWPORT
-        --========================
         local RootPos, OnScreen = Camera:WorldToViewportPoint(Root.Position)
 
         if not OnScreen then
@@ -800,48 +710,29 @@ RunService.RenderStepped:Connect(function()
             Root.Position - Vector3.new(0,3,0)
         )
 
-        --========================
-        -- SCALE
-        --========================
         local Height = math.abs(HeadPos.Y - LegPos.Y)
         local Width = Height / 2
 
         local X = RootPos.X - Width / 2
         local Y = RootPos.Y - Height / 2
 
-        --========================
-        -- NAME ESP
-        --========================
-        if _G.NameESPEnabled then
-
+        if _G.NameESPEnabled or _G.DistanceESPEnabled then
             ESP.Name.Visible = true
+            ESP.Name.Size = math.clamp(16 - (Distance / 120), 13, 16)
+            ESP.Name.Position = Vector2.new(RootPos.X, Y - 16)
 
-            local Size = math.clamp(
-                16 - (Distance / 120),
-                13,
-                16
-            )
+            local NameTag = _G.NameESPEnabled and Player.Name or ""
+            local DistTag = _G.DistanceESPEnabled and string.format("[%dm]", math.floor(Distance)) or ""
 
-            ESP.Name.Size = Size
-
-            ESP.Name.Text = string.format(
-                "%s [%dm]",
-                Player.Name,
-                math.floor(Distance)
-            )
-
-            ESP.Name.Position = Vector2.new(
-                RootPos.X,
-                Y - 16
-            )
-
+            if _G.NameESPEnabled and _G.DistanceESPEnabled then
+                ESP.Name.Text = NameTag .. " " .. DistTag
+            else
+                ESP.Name.Text = NameTag .. DistTag
+            end
         else
             ESP.Name.Visible = false
         end
 
-        --========================
-        -- HEALTH BAR
-        --========================
         if _G.HealthESPEnabled then
 
             local HealthPercent = math.clamp(
@@ -855,7 +746,6 @@ RunService.RenderStepped:Connect(function()
             local BarX = X - 7
             local BarY = Y
 
-            -- OUTLINE
             ESP.HealthOutline.Visible = true
             ESP.HealthOutline.Size = Vector2.new(
                 4,
@@ -867,7 +757,6 @@ RunService.RenderStepped:Connect(function()
                 BarY - 1
             )
 
-            -- BAR
             ESP.HealthBar.Visible = true
             ESP.HealthBar.Size = Vector2.new(
                 2,
@@ -879,7 +768,6 @@ RunService.RenderStepped:Connect(function()
                 BarY + (Height - BarHeight)
             )
 
-            -- HEALTH COLOR
             ESP.HealthBar.Color = Color3.fromRGB(
                 255 - (255 * HealthPercent),
                 255 * HealthPercent,
@@ -894,11 +782,8 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
---========================
--- TOGGLES
---========================
 Tabs.ESP:AddToggle("NameESP", {
-    Title = "มองชื่อ",
+    Title = "แสดงชื่อผู้เล่น",
     Default = false,
     Callback = function(v)
         _G.NameESPEnabled = v
@@ -906,24 +791,26 @@ Tabs.ESP:AddToggle("NameESP", {
 })
 
 Tabs.ESP:AddToggle("HealthESP", {
-    Title = "มองเลือด",
+    Title = "แสดงเลือดผู้เล่น",
     Default = false,
     Callback = function(v)
         _G.HealthESPEnabled = v
     end
 })
 
--- Add Hitbox 🔥
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+Tabs.ESP:AddToggle("DistanceESP", {
+    Title = "แสดงระยะห่างผู้เล่น",
+    Default = false,
+    Callback = function(v)
+        _G.DistanceESPEnabled = v
+    end
+})
 
--- ค่าเริ่มต้น
 local hitboxEnabled = false
 local hitboxSize = 6
 local minSize = 1
 local maxSize = 50
 
--- ฟังก์ชันจัดการ Hitbox (ตัวนี้จะทำงานแค่ครั้งเดียวเมื่อถูกเรียก)
 local function applyHitbox(player)
     if player == LocalPlayer then return end
 
@@ -933,14 +820,12 @@ local function applyHitbox(player)
     if not root then return end
 
     if hitboxEnabled then
-        -- ขยาย Hitbox
         root.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
         root.Transparency = 0.6
         root.Material = Enum.Material.ForceField
         root.Color = Color3.fromRGB(255, 0, 0)
         root.CanCollide = false
     else
-        -- คืนค่าปกติ
         root.Size = Vector3.new(2, 2, 1)
         root.Transparency = 1
         root.Material = Enum.Material.Plastic
@@ -948,28 +833,24 @@ local function applyHitbox(player)
     end
 end
 
--- ฟังก์ชันอัปเดตทุกคนในเซิร์ฟเวอร์พร้อมกัน (ใช้ตอนเปิด/ปิด หรือเปลี่ยนขนาด)
 local function refreshAll()
     for _, p in ipairs(Players:GetPlayers()) do
         pcall(applyHitbox, p)
     end
 end
 
--- ระบบ Event: จัดการคนที่เกิดใหม่ หรือคนที่เพิ่งเข้าเกม (ไม่ต้องใช้ Loop)
 local function onPlayerAdded(player)
     player.CharacterAdded:Connect(function(char)
-        task.wait(0.5) -- รอตัวละครโหลดเสร็จแป๊บนึง
+        task.wait(0.5)
         applyHitbox(player)
     end)
 end
 
--- รันระบบ Event สำหรับทุกคน
 for _, p in ipairs(Players:GetPlayers()) do onPlayerAdded(p) end
 Players.PlayerAdded:Connect(onPlayerAdded)
 
--- UI: TOGGLE
 Tabs.ESP:AddToggle("HitboxToggle", {
-    Title = "เปิด Hitbox",
+    Title = "ขยายฮิตบ็อกซ์",
     Default = false,
     Callback = function(v)
         hitboxEnabled = v
@@ -979,7 +860,7 @@ Tabs.ESP:AddToggle("HitboxToggle", {
 
 -- UI: INPUT (แทน Slider เดิม)
 Tabs.ESP:AddInput("HitboxSizeInput", {
-    Title = "ขนาดของ Hitbox (" .. minSize .. "-" .. maxSize .. ")",
+    Title = "ขนาดฮิตบ็อกซ์ (" .. minSize .. "-" .. maxSize .. ")",
     Default = tostring(hitboxSize),
     Placeholder = "...",
     NumericOnly = true,
@@ -1000,13 +881,6 @@ Tabs.ESP:AddInput("HitboxSizeInput", {
 
 
 
--- Stats 🔥
---========================
--- SERVICES
---========================
-local Players = game:GetService("Players")
-local Stats = game:GetService("Stats")
-local RunService = game:GetService("RunService")
 
 --========================
 -- TIME
@@ -1020,16 +894,100 @@ local function formatTime(s)
     return string.format("%02d:%02d:%02d", h, m, sec)
 end
 
---========================
--- UI (Fluent)
---========================
+
+-- Key Times
+--=========================
+-- 🔑 KEY EXPIRY DISPLAY & AUTO REJOIN
+--=========================
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
-local lp = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
+
+local FIREBASE_BASE_URL = "https://keysystem-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/keys"
+local KEY_FILE = "reaper_saved_key.txt"
+
+local ExpiryLabel = Tabs.Status:AddParagraph({
+    Title = "เวลาที่เหลือของคีย์",
+    Content = "Fetching data..."
+})
+
+local function startKeyTimer()
+    task.spawn(function()
+        if not isfile(KEY_FILE) then 
+            ExpiryLabel:SetDesc("Status: No key file found")
+            return 
+        end
+        
+        local rawKey = readfile(KEY_FILE)
+        local savedKey = rawKey:gsub("%s+", "") 
+        
+        local success, response = pcall(function()
+            return game:HttpGet(string.format("%s/%s.json", FIREBASE_BASE_URL, savedKey))
+        end)
+
+        if success and response and response ~= "null" then
+            local decodeSuccess, data = pcall(function() return HttpService:JSONDecode(response) end)
+            
+            if decodeSuccess and data and data.expiresAt then
+                if data.hwid == "" or data.hwid == nil or data.hwid == gethwid() then
+                    local targetTime = tonumber(data.expiresAt) / 1000 
+                    
+                    while true do
+                        local timeLeft = targetTime - os.time()
+                        
+                        if timeLeft > 0 then
+                            local d = math.floor(timeLeft / 86400)
+                            local h = math.floor((timeLeft % 86400) / 3600)
+                            local m = math.floor((timeLeft % 3600) / 60)
+                            local s = math.floor(timeLeft % 60)
+                            
+                            local displayStr = ""
+                            
+                            -- [คงไว้ตามต้นฉบับของคุณเป๊ะๆ]
+                            if d > 0 then
+                                displayStr = string.format("%d วัน : %d ชั่วโมง : %d นาที : %d วินาที", d, h, m, s)
+                            elseif h > 0 then
+                                displayStr = string.format("%d ชั่วโมง : %d นาที : %d วินาที", h, m, s)
+                            elseif m > 0 then
+                                displayStr = string.format("%d นาที : %d วินาที", m, s)
+                            else
+                                displayStr = string.format("%d วินาที", s)
+                            end
+                            
+                            ExpiryLabel:SetDesc(displayStr)
+                        else
+                            -- [ส่วนที่ปรับปรุง: เมื่อหมดเวลาให้ Rejoin รัวๆ]
+                            ExpiryLabel:SetDesc("Status: Key Expired!")
+                            while true do
+                                pcall(function()
+                                    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+                                end)
+                                task.wait(0.5) -- ความเร็วในการพยายาม Rejoin (0.5 วินาที)
+                            end
+                            break
+                        end
+                        task.wait(1)
+                    end
+                    return
+                end
+            end
+        end
+        ExpiryLabel:SetDesc("Status: No Active Session")
+    end)
+end
+
+startKeyTimer()
+
+
+
+
+
 
 -- แสดงข้อมูล Profile ในแท็บ Status ที่อยู่ใน Table Tabs
 Tabs.Status:AddParagraph({
     Title = "โปรไฟล์ผู้เล่น",
-    Content = "ชื่อเล่น: " .. lp.DisplayName .. "\nชื่อผู้ใช้: @" .. lp.Name
+    Content = "ชื่อเล่น: " .. lp.DisplayName .. "\nชื่อจริง: @" .. lp.Name
 })
 
 local TimeLabel = Tabs.Status:AddParagraph({
@@ -1038,7 +996,7 @@ local TimeLabel = Tabs.Status:AddParagraph({
 })
 
 local PlayerLabel = Tabs.Status:AddParagraph({
-    Title = "จำนวนผู้เล่น",
+    Title = "ผู้เล่น",
     Content = "Loading..."
 })
 
@@ -1048,7 +1006,7 @@ local PingLabel = Tabs.Status:AddParagraph({
 })
 
 local FPSLabel = Tabs.Status:AddParagraph({
-    Title = "เฟรมต่อวินาที",
+    Title = "เฟรมเรทต่อวินาที",
     Content = "Loading..."
 })
 
@@ -1113,7 +1071,7 @@ end)
 -- Credit
 Tabs.Credit:AddParagraph({
     Title = "เครดิต",
-    Content = "สร้างโดย x2sxqz"
+    Content = "สร้างโดย REAPER"
 })
 
 Tabs.Credit:AddParagraph({
@@ -1121,12 +1079,11 @@ Tabs.Credit:AddParagraph({
     Content = "Fluent X Reaper"
 })
 
-local TweenService = game:GetService("TweenService")
 
 local canClick = true
 
 Tabs.Credit:AddButton({
-    Title = "Discord",
+    Title = "ดิสคอร์ด",
     Description = "https://discord.gg/RPVTDFZyhw",
     Callback = function()
 
@@ -1373,7 +1330,7 @@ end
 
 -- 🔘 ปุ่ม
 Tabs.Server:AddButton({
-    Title = "เข้าเซิร์ฟเวอร์คนน้อย",
+    Title = "เข้าร่วมเซิร์ฟเวอร์คนน้อย",
     Description = "",
     Callback = function()
         local serverId = findLowServer()
@@ -1398,7 +1355,7 @@ Tabs.Server:AddButton({
 })
 
 Tabs.Server:AddButton({
-    Title = "ไปเซิร์ฟเวอร์ใหม่",
+    Title = "ไปเซิร์ฟใหม่",
     Description = "",
     Callback = function()
         game:GetService("TeleportService"):Teleport(
@@ -1438,8 +1395,8 @@ Tabs.Server:AddInput("JobIdInput", {
 
 -- 🚀 Join JobId
 Tabs.Server:AddButton({
-    Title = "เข้าเซิร์ฟเวอร์",
-    Description = "เข้าร่วมเซิร์ฟเวอร์โดยใช้ Job ID",
+    Title = "เข้าร่วมเซิร์ฟเวอร์",
+    Description = "",
     Callback = function()
         if currentJobIdInput == "" then return end
 
@@ -1462,11 +1419,13 @@ local Players = game:GetService("Players")
 local AimbotSettings = {
     Enabled = false,
     WallCheck = true,
-    TargetPart = "Head",
-    Mode = "Random", 
+    TargetPart = "หัว",
+    Mode = "สุ่ม", 
     SelectedPlayerName = nil,
-    IgnoredPlayers = {} -- เก็บรายชื่อผู้เล่นที่จะไม่ล็อค (Multi-select)
+    IgnoredPlayers = {},
+    Smoothness = 1 -- ค่าเริ่มต้น (1 = ล็อคตาย)
 }
+
 
 local function getPlayerNames()
     local names = {}
@@ -1480,11 +1439,11 @@ end
 
 local function getActualPart(character, choice)
     if not character then return nil end
-    if choice == "Head" then
+    if choice == "หัว" then
         return character:FindFirstChild("Head")
-    elseif choice == "Body" then
+    elseif choice == "ตัว" then
         return character:FindFirstChild("HumanoidRootPart")
-    elseif choice == "Leg" then
+    elseif choice == "ขา" then
         return character:FindFirstChild("LeftLowerLeg") or character:FindFirstChild("Left Leg")
     end
     return nil
@@ -1509,7 +1468,7 @@ local function GetClosestTargetToMouse()
     local shortestDistance = math.huge
     for _, player in pairs(Players:GetPlayers()) do
         -- ตรวจสอบว่าอยู่ในรายชื่อที่ Ignore หรือไม่ (เฉพาะโหมด Random)
-        if AimbotSettings.Mode == "Random" and table.find(AimbotSettings.IgnoredPlayers, player.Name) then
+        if AimbotSettings.Mode == "สุ่ม" and table.find(AimbotSettings.IgnoredPlayers, player.Name) then
             continue 
         end
 
@@ -1538,7 +1497,7 @@ local CurrentTarget = nil
 RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, function()
     if AimbotSettings.Enabled then
         
-        if AimbotSettings.Mode == "Random" then
+        if AimbotSettings.Mode == "สุ่ม" then
             -- เช็คเงื่อนไข: ถ้าเป้าหมายเดิมตาย/หลุด/หรือเพิ่งถูกเพิ่มเข้า Ignore List ให้หาใหม่
             if not CurrentTarget or not CurrentTarget.Character or 
                not getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart) or 
@@ -1548,7 +1507,7 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
                 
                 CurrentTarget = GetClosestTargetToMouse()
             end
-        elseif AimbotSettings.Mode == "Select" then
+        elseif AimbotSettings.Mode == "เลือก" then
             -- โหมด Select: ล็อคเฉพาะคนที่เราเลือก (ไม่สน Ignore List ตามคำขอ)
             local targetPlayer = Players:FindFirstChild(AimbotSettings.SelectedPlayerName or "")
             if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") and targetPlayer.Character.Humanoid.Health > 0 then
@@ -1562,11 +1521,14 @@ RunService:BindToRenderStep("AimbotLock", Enum.RenderPriority.Camera.Value + 1, 
         if CurrentTarget and CurrentTarget.Character then
             local targetPart = getActualPart(CurrentTarget.Character, AimbotSettings.TargetPart)
             if targetPart then
-                if AimbotSettings.Mode == "Select" and AimbotSettings.WallCheck and not IsVisible(targetPart) then
-                    -- ติดกำแพงในโหมด Select (ไม่ขยับกล้อง)
-                else
-                    Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
-                end
+                -- ตรวจสอบว่าเป้าหมายติดกำแพงหรือไม่ (ถ้าเปิด Wall Check ไว้)
+if AimbotSettings.WallCheck and not IsVisible(targetPart) then
+    CurrentTarget = nil -- ถ้าติดกำแพงให้ยกเลิกการล็อค
+else
+    -- ระบบดูด (Smoothing)
+    local targetCFrame = CFrame.lookAt(Camera.CFrame.Position, targetPart.Position)
+    Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, AimbotSettings.Smoothness)
+end
             end
         end
     else
@@ -1578,8 +1540,8 @@ end)
 
 -- เลือกโหมด
 local ModeDropdown = Tabs.Main:AddDropdown("ModeDropdown", {
-    Title = "โหมดล็อคเป้า",
-    Values = {"Random", "Select"},
+    Title = "โหมดล็อกเป้า",
+    Values = {"สุ่ม", "เลือก"},
     Multi = false,
     Default = 1,
 })
@@ -1601,7 +1563,7 @@ end)
 
 -- [เพิ่มใหม่] Multi-Select Dropdown สำหรับ Ignore List (Random Mode)
 local IgnoreDropdown = Tabs.Main:AddDropdown("IgnoreDropdown", {
-    Title = "เลือกผู้เล่นที่ไม่สนใจ",
+    Title = "ไม่สนใจผู้เล่น",
     Description = "",
     Values = getPlayerNames(),
     Multi = true, -- เปิดใช้งานเลือกได้หลายคน
@@ -1617,6 +1579,33 @@ IgnoreDropdown:OnChanged(function(Value)
     end
 end)
 
+local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
+    Title = "ส่วนที่ล็อกเป้า",
+    Values = {"หัว", "ตัว", "ขา"},
+    Multi = false,
+    Default = 1,
+})
+PartDropdown:OnChanged(function(Value)
+    AimbotSettings.TargetPart = Value
+end)
+
+local SmoothDropdown = Tabs.Main:AddDropdown("SmoothDropdown", {
+    Title = "ระดับล็อกเป้า",
+    Values = {"ตํ่า", "กลาง", "สูง"},
+    Multi = false,
+    Default = "สูง",
+})
+
+SmoothDropdown:OnChanged(function(Value)
+    if Value == "ตํ่า" then
+        AimbotSettings.Smoothness = 0.05 -- หันจอหนีง่ายมาก
+    elseif Value == "กลาง" then
+        AimbotSettings.Smoothness = 0.15 -- หนืดพอสมควร
+    elseif Value == "สูง" then
+        AimbotSettings.Smoothness = 1.0  -- ล็อคติดเป้าทันที
+    end
+end)
+
 -- ปุ่ม Refresh รายชื่อ (อัปเดตทั้งคู่)
 Tabs.Main:AddButton({
     Title = "รีเฟรชรายชื่อ",
@@ -1628,19 +1617,9 @@ Tabs.Main:AddButton({
     end
 })
 
--- ตั้งค่าอื่นๆ
-local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
-    Title = "เลือกประเภทล็อกเป้า",
-    Values = {"Head", "Body", "Leg"},
-    Multi = false,
-    Default = 1,
-})
-PartDropdown:OnChanged(function(Value)
-    AimbotSettings.TargetPart = Value
-end)
 -- Aimbot
 local AimbotToggle = Tabs.Main:AddToggle("AimbotToggle", {
-    Title = "เปิดใช้งานล็อกเป้า",
+    Title = "ล็อกเป้า",
     Default = false
 })
 AimbotToggle:OnChanged(function(Value)
@@ -1653,11 +1632,11 @@ end)
 -- 🔥 [NEW] AUTO FIRE - REAPER HUB PC & MOBILE
 --========================================================
 local AF_Enabled = false
-local AF_Platform = "Mobile" -- Default
+local AF_Platform = "มือถือ" -- Default
 local AF_Saved = false
 local AF_Pos = nil
 local AF_LastShot = 0
-local AF_Mode = "Normal"
+local AF_Mode = "ปกติ"
 local AF_Delay = 0.3   
 local AF_HoldTime = 0.05 
 local IsShooting = false 
@@ -1731,7 +1710,7 @@ end
 --// [ระบบส่ง Input แยกตาม Platform]
 RunService.RenderStepped:Connect(function()
     if not AF_Enabled then return end
-    if AF_Platform == "Mobile" and not AF_Saved then return end
+    if AF_Platform == "มือถือ" and not AF_Saved then return end
 
     if CheckTarget() and not IsShooting then
         local now = tick()
@@ -1740,18 +1719,24 @@ RunService.RenderStepped:Connect(function()
             IsShooting = true 
             
             task.spawn(function()
-                if AF_Platform == "Mobile" then
+                if AF_Platform == "มือถือ" then
                     -- โหมดมือถือ: ใช้พิกัดปุ่ม
                     VIM:SendTouchEvent(99, 0, AF_Pos.X, AF_Pos.Y, game)
                     task.wait(AF_HoldTime)
                     VIM:SendTouchEvent(99, 2, AF_Pos.X, AF_Pos.Y, game)
                 else
                     -- โหมด PC: ใช้คลิกเมาส์ซ้าย
-                    local mPos = UIS:GetMouseLocation()
-                    VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, true, game, 1)
-                    task.wait(AF_HoldTime)
-                    VIM:SendMouseButtonEvent(mPos.X, mPos.Y, 0, false, game, 1)
-                end
+    -- โหมด PC: ใช้ VIM แทนเพื่อแก้ปัญหากล้องสะบัดขึ้นฟ้า
+    local viewportSize = Camera.ViewportSize
+    local centerX, centerY = viewportSize.X / 2, viewportSize.Y / 2
+    
+    -- ส่งสัญญาณคลิกซ้ายไปที่กลางจอโดยตรง
+    VIM:SendMouseButtonEvent(centerX, centerY, 0, true, game, 0)
+    task.wait(AF_HoldTime)
+    VIM:SendMouseButtonEvent(centerX, centerY, 0, false, game, 0)
+end
+
+
                 IsShooting = false
             end)
         end
@@ -1774,7 +1759,7 @@ Instance.new("UICorner", AnchorFrame).CornerRadius = UDim.new(1, 0)
 local SaveBtn = Instance.new("TextButton", AnchorFrame)
 SaveBtn.Size = UDim2.fromOffset(80, 35)
 SaveBtn.Position = UDim2.new(0.5, -40, 1, 10)
-SaveBtn.Text = "บันทึก"
+SaveBtn.Text = "SAVE"
 SaveBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
 SaveBtn.TextColor3 = Color3.new(1, 1, 1)
 SaveBtn.Font = Enum.Font.SourceSansBold
@@ -1787,19 +1772,19 @@ SaveBtn.MouseButton1Click:Connect(function()
     AF_Pos = Vector2.new(screenPos.X + (size.X/2), screenPos.Y + (size.Y/2) + inset.Y)
     AF_Saved = true
     AnchorGui.Enabled = false 
-    SpawnNotify("บันทึกพิกัด Mobile สำเร็จ!")
+    SpawnNotify("บันทึกพิกัด มือถือ สำเร็จ!")
 end)
 
 --// [UI Integration]
 Tabs.Main:AddDropdown("AF_Platform", {
     Title = "แพลตฟอร์ม",
-    Values = {"Mobile", "PC"},
-    Default = "Mobile",
+    Values = {"มือถือ", "คอมพิวเตอร์"},
+    Default = "มือถือ",
     Callback = function(val)
         AF_Platform = val
         AF_Saved = false
-        if AnchorGui then AnchorGui.Enabled = (val == "Mobile" and AF_Enabled) end
-        SpawnNotify("สลับเป็นโหมด: " .. val)
+        if AnchorGui then AnchorGui.Enabled = (val == "มือถือ" and AF_Enabled) end
+        SpawnNotify("โหมด : " .. val)
     end
 })
 
@@ -1812,9 +1797,9 @@ Tabs.Main:AddToggle("AutoFireV3", {
             if AF_Platform == "Mobile" then
                 AF_Saved = false
                 AnchorGui.Enabled = true
-                SpawnNotify("กรุณาวางเป้าเขียวบนปุ่มยิงแล้วกด SAVE")
+                SpawnNotify("Press Save to working")
             else
-                SpawnNotify("โหมด PC: เริ่มการทำงาน")
+                SpawnNotify("PC Mode")
             end
         else
             AnchorGui.Enabled = false
@@ -1825,18 +1810,16 @@ Tabs.Main:AddToggle("AutoFireV3", {
 
 Tabs.Main:AddDropdown("FireMode", {
     Title = "โหมดยิง",
-    Values = {"Normal", "Spam", "Rapid Click"},
-    Default = "Normal",
+    Values = {"ปกติ", "สแปม", "สูงสุด"},
+    Default = "ปกติ",
     Callback = function(val)
         AF_Mode = val
-        if val == "Normal" then AF_Delay = 0.3; AF_HoldTime = 0.05
-        elseif val == "Spam" then AF_Delay = 0.05; AF_HoldTime = 0.02
-        elseif val == "Rapid Click" then AF_Delay = 0; AF_HoldTime = 0 end
-        SpawnNotify("โหมดการยิง: " .. val)
+        if val == "ปกติ" then AF_Delay = 0.3; AF_HoldTime = 0.05
+        elseif val == "สแปม" then AF_Delay = 0.05; AF_HoldTime = 0.02
+        elseif val == "สูงสุด" then AF_Delay = 0; AF_HoldTime = 0 end
+        SpawnNotify("Fire Mode: " .. val)
     end
 })
-
-
 
 
 -- wall Check
@@ -1847,6 +1830,63 @@ local WallCheckToggle = Tabs.Main:AddToggle("WallCheckToggle", {
 WallCheckToggle:OnChanged(function(Value)
     AimbotSettings.WallCheck = Value
 end)
+
+
+-- Full Bright
+--=========================
+-- 🔥 FULL BRIGHT SYSTEM (SLIDER)
+--=========================
+local DefaultLighting = {
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+    Brightness = Lighting.Brightness,
+    ClockTime = Lighting.ClockTime,
+    FogEnd = Lighting.FogEnd
+}
+
+local CurrentBrightness = 2 -- ค่าเริ่มต้นในสคริปต์ (ไม่กระทบเกมจนกว่าจะเปิด)
+
+-- 1. Slider สำหรับเลือกค่า (ปรับรอไว้ก่อนได้)
+Tabs.Misc:AddSlider("BrightnessSlider", {
+    Title = "ระดับความสว่าง",
+    Description = "",
+    Default = 2,
+    Min = 1,
+    Max = 50,
+    Rounding = 1,
+    Callback = function(Value)
+        CurrentBrightness = Value
+        -- ถ้าเปิด Toggle อยู่ ให้เปลี่ยนค่าทันทีที่เลื่อน Slider
+        if _G.FullBrightEnabled then
+            Lighting.Brightness = CurrentBrightness
+        end
+    end
+})
+
+-- 2. Toggle สำหรับสั่งเปิด/ปิด (ตัวควบคุมหลัก)
+Tabs.Misc:AddToggle("FullBrightToggle", {
+    Title = "เพิ่มแสงสว่าง",
+    Default = false,
+    Callback = function(Value)
+        _G.FullBrightEnabled = Value -- เก็บสถานะไว้เช็คใน Slider
+        
+        if Value then
+            -- เมื่อเปิด: สั่งเปลี่ยนค่า Lighting ทั้งหมด
+            Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+            Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+            Lighting.Brightness = CurrentBrightness
+            Lighting.ClockTime = 14
+            Lighting.FogEnd = 100000
+        else
+            -- เมื่อปิด: คืนค่าเดิมของเกมทันที
+            Lighting.Ambient = DefaultLighting.Ambient
+            Lighting.OutdoorAmbient = DefaultLighting.OutdoorAmbient
+            Lighting.Brightness = DefaultLighting.Brightness
+            Lighting.ClockTime = DefaultLighting.ClockTime
+            Lighting.FogEnd = DefaultLighting.FogEnd
+        end
+    end
+})
 
 
 
@@ -1868,7 +1908,7 @@ end
 
 -- Memory Cleanup Toggle (No Notification)
 Tabs.Misc:AddToggle("MemCleanup", {
-    Title = "เคลียร์หน่วยความจำ",
+    Title = "ล้างหน่วยความจำ",
     Default = false,
     Callback = function(Value)
         State.MemClean = Value
@@ -1880,9 +1920,8 @@ Tabs.Misc:AddToggle("MemCleanup", {
 
 
 -- Safe Mode
-local LP = game:GetService("Players").LocalPlayer -- มั่นใจว่ามีตัวแปรนี้
 local SafeModeActive = false
-local SafeModeType = "Tween"
+local SafeModeType = "ลอยขึ้น"
 local OriginalPos = nil
 local SafeAltitude = 5000 
 
@@ -1897,7 +1936,7 @@ local function HandleSafeMode(state)
         OriginalPos = hrp.CFrame 
         local targetCFrame = hrp.CFrame + Vector3.new(0, SafeAltitude, 0)
 
-        if SafeModeType == "Instant" then
+        if SafeModeType == "ทันที" then
             hrp.CFrame = targetCFrame
             task.wait(0.1)
             if SafeModeActive then hrp.Anchored = true end -- เช็คซ้ำว่ายังเปิดอยู่ไหม
@@ -1917,7 +1956,7 @@ local function HandleSafeMode(state)
         -- [ ขาลง ]
         hrp.Anchored = false
         if OriginalPos then
-            if SafeModeType == "Instant" then
+            if SafeModeType == "ทันที" then
                 hrp.CFrame = OriginalPos
             else
                 game:GetService("TweenService"):Create(
@@ -1935,8 +1974,8 @@ end
 Tabs.Misc:AddDropdown("SafeModeType", {
     Title = "ตัวเลือกโหมดปลอดภัย",
     Description = "",
-    Values = {"Tween", "Instant"},
-    Default = "Tween",
+    Values = {"ลอยขึ้น", "ทันที"},
+    Default = "ลอยขึ้น",
     Callback = function(Value)
         SafeModeType = Value
     end
@@ -1945,7 +1984,7 @@ Tabs.Misc:AddDropdown("SafeModeType", {
 -- 2. ปุ่มเปิดปิด (Toggle) - อยู่ด้านล่าง
 Tabs.Misc:AddToggle("SafeModeToggle", {
     Title = "โหมดปลอดภัย",
-    Description = "",
+    Description = "ขึ้นไปอยู่บนฟ้าสูงที่สุด",
     Default = false,
     Callback = function(Value)
         SafeModeActive = Value
@@ -1955,9 +1994,6 @@ Tabs.Misc:AddToggle("SafeModeToggle", {
 
 
 -- Max Zoom
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
 local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
 
 Tabs.Misc:AddToggle("MaxZoom", {
@@ -1974,28 +2010,72 @@ Tabs.Misc:AddToggle("MaxZoom", {
     end
 })
 
--- Anti AFK
-local VirtualUser = game:GetService("VirtualUser")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+-- Anti Afk
+-- ลบ UI เก่า
+if game.CoreGui:FindFirstChild("REAPER_AFK_UI") then
+    game.CoreGui.REAPER_AFK_UI:Destroy()
+end
 
--- สร้าง UI Timer
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "AntiAFK_Timer"
+ScreenGui.Name = "REAPER_AFK_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
-local Label = Instance.new("TextLabel")
-Label.Size = UDim2.new(0, 220, 0, 50)
-Label.Position = UDim2.new(0.5, -110, 0.15, 0) -- กลางจอด้านบน
-Label.BackgroundTransparency = 0.3
-Label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Label.TextColor3 = Color3.fromRGB(0, 255, 0)
-Label.TextScaled = true
-Label.Visible = false
-Label.Font = Enum.Font.GothamBold
-Label.Text = "ป้องกัน AFK: 00:00"
-Label.Parent = ScreenGui
+-- Main Frame (ปรับให้ยาวขึ้น)
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 300, 0, 150) -- เพิ่มความกว้างเป็น 300
+MainFrame.Position = UDim2.new(0.5, -150, 0.05, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BackgroundTransparency = 0.1
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = false
+MainFrame.Parent = ScreenGui
+
+-- UICorner (ขอบมน)
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+-- UIStroke (ขอบสีแดง)
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(255, 0, 0) -- สีแดง
+UIStroke.Thickness = 2
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke.Parent = MainFrame
+
+-- Logo
+local Logo = Instance.new("ImageLabel")
+Logo.Name = "Logo"
+Logo.Size = UDim2.new(0, 60, 0, 60)
+Logo.Position = UDim2.new(0.5, -30, 0, 10)
+Logo.BackgroundTransparency = 1
+Logo.Image = "rbxassetid://131279093559313"
+Logo.Parent = MainFrame
+
+-- REAPER HUB | ANTI AFK Text
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, 0, 0, 25)
+Title.Position = UDim2.new(0, 0, 0, 75)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Text = "REAPER HUB | ANTI AFK"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.Parent = MainFrame
+
+-- Timer Label (เลขล้วน)
+local TimerLabel = Instance.new("TextLabel")
+TimerLabel.Name = "TimerLabel"
+TimerLabel.Size = UDim2.new(1, 0, 0, 30)
+TimerLabel.Position = UDim2.new(0, 0, 0, 105)
+TimerLabel.BackgroundTransparency = 1
+TimerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TimerLabel.Text = "00:00"
+TimerLabel.Font = Enum.Font.RobotoMono
+TimerLabel.TextSize = 26
+TimerLabel.Parent = MainFrame
 
 local function formatTime(sec)
     local m = math.floor(sec / 60)
@@ -2003,52 +2083,43 @@ local function formatTime(sec)
     return string.format("%02d:%02d", m, s)
 end
 
-local running = false
 local startTime = 0
 
 Tabs.Misc:AddToggle("AntiAFK", {
     Title = "ป้องกันโดนเตะ",
-	Description = "กันโดนเตะเมื่อนิ่ง20นาที",
     Default = false,
     Callback = function(v)
+        getgenv().AntiAFK = v
         if v then
-            getgenv().AntiAFK = true
-            running = true
             startTime = os.time()
-            Label.Visible = true
+            MainFrame.Visible = true
 
-            -- อัปเดตเวลา
             task.spawn(function()
                 while getgenv().AntiAFK do
                     local elapsed = os.time() - startTime
-                    Label.Text = "ป้องกัน AFK: " .. formatTime(elapsed)
+                    TimerLabel.Text = formatTime(elapsed)
                     task.wait(1)
                 end
             end)
 
-            -- Anti AFK loop
             task.spawn(function()
                 while getgenv().AntiAFK do
-                    task.wait(1080)
-
                     VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
                     task.wait(1)
                     VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                    task.wait(1080)
                 end
             end)
-
         else
-            getgenv().AntiAFK = false
-            running = false
-            Label.Visible = false
+            MainFrame.Visible = false
         end
     end
 })
 
--- FPS BOOST
-local workspace = game:GetService("Workspace")
-local lighting = game:GetService("Lighting")
 
+
+
+-- FPS BOOST
 local saved = {}
 local connection = nil
 
@@ -2117,7 +2188,7 @@ end
 
 -- FPS Toggle
 Tabs.Misc:AddToggle("FPSBoost", {
-    Title = "เพิ่มประสิทธิภาพเฟรมเรท",
+    Title = "เพิ่มประสิทธิภาพ",
     Default = false
 }):OnChanged(function(v)
     applyOptimize(v)
@@ -2147,7 +2218,7 @@ Tabs.Misc:AddSlider("FPSCapSlider", {
 
 -- Button
 Tabs.Misc:AddButton({
-    Title = "Set FPS",
+    Title = "ตั้งเฟรมเรท",
     Description = "",
 
     Callback = function()
@@ -2215,7 +2286,7 @@ Instance.new("UICorner", header).CornerRadius = UDim.new(0,10)
 local title = Instance.new("TextLabel", header)
 title.Size = UDim2.new(1,0,1,0)
 title.BackgroundTransparency = 1
-title.Text = "รีเปอร์คอนโซล"
+title.Text = "Reaper Console"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 14
 title.TextColor3 = Color3.new(1,1,1)
@@ -2288,7 +2359,7 @@ local function createLog(text, msgType)
 
 	elseif msgType == Enum.MessageType.MessageWarning then
 
-		prefix = "[คำเตือน]"
+		prefix = "[เตือน]"
 		color = Color3.fromRGB(255,200,0)
 		bg = Color3.fromRGB(55,50,20)
 	end
@@ -2397,33 +2468,15 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
-Window:SelectTab(3)
+Window:SelectTab(1)
 -- Lib Toggle
 --=========================
--- TOGGLE BUTTON + PURE BLUR
+-- TOGGLE BUTTON
 --=========================
 if game.CoreGui:FindFirstChild("ToggleUI") then
     game.CoreGui.ToggleUI:Destroy()
 end
 
-pcall(function()
-    game:GetService("Lighting"):FindFirstChild("MenuBlur"):Destroy()
-end)
-
---=========================
--- SERVICES
---=========================
-local UIS = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
-
---=========================
--- BLUR
---=========================
-local Blur = Instance.new("BlurEffect")
-Blur.Name = "MenuBlur"
-Blur.Size = 40
-Blur.Parent = Lighting
 
 --=========================
 -- GUI
@@ -2536,39 +2589,6 @@ UIS.InputEnded:Connect(function(input)
 end)
 
 --=========================
--- BLUR FUNCTIONS
---=========================
-local function OpenBlur()
-
-    TweenService:Create(
-        Blur,
-        TweenInfo.new(
-            0.3,
-            Enum.EasingStyle.Quad,
-            Enum.EasingDirection.Out
-        ),
-        {
-            Size = 40
-        }
-    ):Play()
-end
-
-local function CloseBlur()
-
-    TweenService:Create(
-        Blur,
-        TweenInfo.new(
-            0.25,
-            Enum.EasingStyle.Quad,
-            Enum.EasingDirection.Out
-        ),
-        {
-            Size = 0
-        }
-    ):Play()
-end
-
---=========================
 -- TOGGLE
 --=========================
 local isOpen = true
@@ -2581,22 +2601,13 @@ button.MouseButton1Click:Connect(function()
         Window:Minimize(not isOpen)
     end
 
-    button.Image = isOpen and imgOn or imgOff
+    button.Image = isOpen and imgOff or imgOn
 
-    -- BLUR
-    if isOpen then
-        OpenBlur()
-    else
-        CloseBlur()
-    end
 end)
+
+
 
 
 -- Load Success 
 task.wait(2)
 print("Reaper Hub Loaded")
-
-
--- Send notify webhook 
-task.wait(1)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Libwebhook.lua"))()
