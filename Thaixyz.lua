@@ -1,3 +1,4 @@
+--4
 --3
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -607,20 +608,25 @@ _G.DistanceESPEnabled = false
 local ESPCache = {}
 
 local function CreateESP(Player)
+    if Player == LocalPlayer then return end
 
-    if Player == LocalPlayer then
-        return
-    end
+    -- สร้างป้ายชื่อแบบ Billboard เพื่อให้ใช้ RobotoMono ได้ชัดๆ
+    local Billboard = Instance.new("BillboardGui")
+    Billboard.Name = "ReaperTag"
+    Billboard.AlwaysOnTop = true
+    Billboard.Size = UDim2.new(0, 200, 0, 50)
+    Billboard.ExtentsOffset = Vector3.new(0, 3, 0)
+    Billboard.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-    local Name = Drawing.new("Text")
-    Name.Visible = false
-    Name.Center = true
-    Name.Outline = true
-    Name.OutlineColor = Color3.fromRGB(0, 0, 0)
-    Name.Font = 0
-    Name.Size = 13
-    Name.Color = Color3.fromRGB(255,255,255)
-    Name.Transparency = 1
+    local NameLabel = Instance.new("TextLabel", Billboard)
+    NameLabel.BackgroundTransparency = 1
+    NameLabel.Size = UDim2.new(1, 0, 1, 0)
+    NameLabel.Text = ""
+    NameLabel.Font = Enum.Font.RobotoMono -- ฟอนต์ที่คุณต้องการ
+    NameLabel.TextSize = 14
+    NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    NameLabel.TextStrokeTransparency = 0 -- ขอบดำช่วยให้อ่านง่าย
+    NameLabel.RichText = true
 
     local HealthOutline = Drawing.new("Square")
     HealthOutline.Visible = false
@@ -637,32 +643,29 @@ local function CreateESP(Player)
     HealthBar.Transparency = 1
 
     ESPCache[Player] = {
-        Name = Name,
+        Billboard = Billboard,
+        NameLabel = NameLabel,
         HealthOutline = HealthOutline,
         HealthBar = HealthBar
     }
 end
 
 local function RemoveESP(Player)
-
     local ESP = ESPCache[Player]
-
     if ESP then
-
-        for _,v in pairs(ESP) do
-            v:Remove()
-        end
-
+        if ESP.Billboard then ESP.Billboard:Destroy() end
+        if ESP.HealthOutline then ESP.HealthOutline:Remove() end
+        if ESP.HealthBar then ESP.HealthBar:Remove() end
         ESPCache[Player] = nil
     end
 end
 
 local function HideESP(ESP)
-
-    ESP.Name.Visible = false
+    if ESP.Billboard then ESP.Billboard.Enabled = false end
     ESP.HealthOutline.Visible = false
     ESP.HealthBar.Visible = false
 end
+
 
 for _,Player in ipairs(Players:GetPlayers()) do
     CreateESP(Player)
@@ -718,22 +721,30 @@ RunService.RenderStepped:Connect(function()
         local X = RootPos.X - Width / 2
         local Y = RootPos.Y - Height / 2
 
+              -- ส่วนจัดการชื่อและระยะทาง (แก้ไขเป็น Username ตามสั่ง)
         if _G.NameESPEnabled or _G.DistanceESPEnabled then
-            ESP.Name.Visible = true
-            ESP.Name.Size = math.clamp(18 - (Distance / 120), 14, 18)
-            ESP.Name.Position = Vector2.new(RootPos.X, Y - 16)
+            ESP.Billboard.Enabled = true
+            ESP.Billboard.Parent = Head
+            
+            -- เปลี่ยนจาก DisplayName เป็น Name (Username)
+            local NameTag = _G.NameESPEnabled and Player.Name or "" 
+            local DistTag = _G.DistanceESPEnabled and string.format(" <font color='#AAAAAA'>[ %dm ]</font>", math.floor(Distance)) or ""
+            
+-- รวมข้อความ NAME [ Distance ] (เพิ่มช่องว่างตรงกลางให้สวยงาม)
+if _G.NameESPEnabled and _G.DistanceESPEnabled then
+    ESP.NameLabel.Text = NameTag .. " " .. DistTag
+else
+    ESP.NameLabel.Text = NameTag .. DistTag
+end
 
-            local NameTag = _G.NameESPEnabled and Player.Name or ""
-            local DistTag = _G.DistanceESPEnabled and string.format("[%dm]", math.floor(Distance)) or ""
-
-            if _G.NameESPEnabled and _G.DistanceESPEnabled then
-                ESP.Name.Text = NameTag .. " " .. DistTag
-            else
-                ESP.Name.Text = NameTag .. DistTag
-            end
+            
+            -- ปรับขนาดฟอนต์
+            ESP.NameLabel.TextSize = math.clamp(16 - (Distance / 150), 12, 16)
         else
-            ESP.Name.Visible = false
+            ESP.Billboard.Enabled = false
         end
+
+
 
         if _G.HealthESPEnabled then
 
