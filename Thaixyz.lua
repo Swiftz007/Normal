@@ -1529,7 +1529,7 @@ SmoothDropdown:OnChanged(function(Value)
         AimbotSettings.Smoothness = 1.0
     end
 end)
-)
+
 Tabs.Main:AddButton({
     Title = "รีเฟรชรายชื่อ",
     Description = "",
@@ -2393,7 +2393,7 @@ UIS.InputEnded:Connect(function(input)
         dragging = false
     end
 end)
-=
+
 local isOpen = true
 
 button.MouseButton1Click:Connect(function()
