@@ -35,17 +35,12 @@ local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")	
 local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
 local LogService = game:GetService("LogService")
-
---=========================
--- 🔥 PLAYER / CAMERA / WORLD
---=========================
 local LocalPlayer = Players.LocalPlayer
 local LP = LocalPlayer
 local Camera = workspace.CurrentCamera
 local lp = LocalPlayer
---=========================
--- 🔥 WINDOW
---=========================
+
+-- WINDOW
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
 SubTitle = "Universal",
@@ -54,8 +49,6 @@ Size = UDim2.fromOffset(520, 360),
 Theme = "ExtremeReaper",
 MinimizeKey = Enum.KeyCode.RightControl
 })
-
-_G.Window = Window
 
 local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Icon.lua"))()
 
