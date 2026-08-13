@@ -1,4 +1,4 @@
---3
+--4
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -132,7 +132,7 @@ local function saveVerifiedKey(key)
 end
 
 local function loadVerifiedKey()
-    if not fileSystemSupported then nil end
+    if not fileSystemSupported then return nil end
     local ok, content = pcall(function() return readfile(SAVE_FILE_NAME) end)
     if not ok or not content or content == "" then return nil end
     return content
@@ -352,7 +352,7 @@ local function Build()
 	main.Size = UDim2.new(0, 0, 0, 0)
 	main.Position = UDim2.new(0.5, 0, 0.5, 0)
 	main.AnchorPoint = Vector2.new(0.5, 0.5)
-จ	main.BackgroundColor3 = Configuration.Colors.Bg
+	main.BackgroundColor3 = Configuration.Colors.Bg
 	main.BackgroundTransparency = 0.2
 	main.ClipsDescendants = true
 	main.Visible = false
@@ -360,7 +360,7 @@ local function Build()
 	Utils.Round(main, 24)
 	Utils.Stroke(main, Configuration.Colors.Border, 1, 0.85)
 
-	-- 🟢 หน่วงเวลา 1.5 วินาทีก่อนเริ่มขยายโลโก้
+	-- หน่วงเวลา 1.5 วินาทีก่อนเริ่มขยายโลโก้
 	task.wait(1.5)
 
 	Utils.Tween(introLogo, {Size = UDim2.new(0, 72, 0, 72)}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
