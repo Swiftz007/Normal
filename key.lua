@@ -1,4 +1,4 @@
---4
+--5
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -336,10 +336,12 @@ local function Build()
 	screen.ResetOnSpawn = false
 	screen.Parent = parent
 
+	-- เปิดเบลอฉากหลังทันที
 	SetBlur(true)
 
+	-- 1. สร้างโลโก้ขนาดเล็กมากๆ ไว้ที่กลางจอ
 	local introLogo = Instance.new("ImageLabel")
-	introLogo.Size = UDim2.new(0, 10, 0, 10)
+	introLogo.Size = UDim2.new(0, 5, 0, 5)
 	introLogo.Position = UDim2.new(0.5, 0, 0.5, 0)
 	introLogo.AnchorPoint = Vector2.new(0.5, 0.5)
 	introLogo.BackgroundTransparency = 1
@@ -348,6 +350,14 @@ local function Build()
 	introLogo.ZIndex = 100
 	introLogo.Parent = screen
 
+	-- 🟢 ขั้นตอนที่ 1: รอ 1 วินาที แล้วขยายโลโก้ให้ใหญ่ขึ้น
+	task.wait(1.0)
+	Utils.Tween(introLogo, {Size = UDim2.new(0, 80, 0, 80)}, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+
+	-- 🟢 ขั้นตอนที่ 2: รออีก 2 วินาที (รวมเป็น 3 วิ) แล้วขยายโลโก้นั้นกลายเป็นหน้าต่าง GUI หลักเต็มรูปแบบ
+	task.wait(2.0)
+	introLogo:Destroy()
+
 	local main = Instance.new("Frame")
 	main.Size = UDim2.new(0, 0, 0, 0)
 	main.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -355,20 +365,11 @@ local function Build()
 	main.BackgroundColor3 = Configuration.Colors.Bg
 	main.BackgroundTransparency = 0.2
 	main.ClipsDescendants = true
-	main.Visible = false
 	main.Parent = screen
 	Utils.Round(main, 24)
 	Utils.Stroke(main, Configuration.Colors.Border, 1, 0.85)
 
-	-- หน่วงเวลา 1.5 วินาทีก่อนเริ่มขยายโลโก้
-	task.wait(1.5)
-
-	Utils.Tween(introLogo, {Size = UDim2.new(0, 72, 0, 72)}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-	task.wait(0.4)
-
-	introLogo:Destroy()
-	main.Visible = true
-	Utils.Tween(main, {Size = Configuration.Window.Size}, 0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+	Utils.Tween(main, {Size = Configuration.Window.Size}, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 
 	local bar = Instance.new("Frame")
 	bar.Size = UDim2.new(1, 0, 0, 40)
