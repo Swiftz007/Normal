@@ -1,4 +1,3 @@
---9
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -147,7 +146,7 @@ local Icons = {
 	Info = "rbxassetid://94529541997278",
 	Copy = "rbxassetid://107485544510830",
 	ErrorFolder = "rbxassetid://113312905787220",
-	ReaperIcon = "rbxassetid://131279093559313" -- 🟢 ใช้ไอคอน REAPER ที่ถูกต้อง
+	ReaperIcon = "rbxassetid://131279093559313"
 }
 
 local Configuration = {
@@ -338,8 +337,24 @@ local function Build()
 
 	SetBlur(true)
 
+	local introLogo = Instance.new("ImageLabel")
+	introLogo.Size = UDim2.new(0, 5, 0, 5)
+	introLogo.Position = UDim2.new(0.5, 0, 0.5, 0)
+	introLogo.AnchorPoint = Vector2.new(0.5, 0.5)
+	introLogo.BackgroundTransparency = 1
+	introLogo.Image = Icons.ReaperIcon
+	introLogo.ScaleType = Enum.ScaleType.Fit
+	introLogo.ZIndex = 100
+	introLogo.Parent = screen
+
+	task.wait(1.0)
+	Utils.Tween(introLogo, {Size = UDim2.new(0, 80, 0, 80)}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+
+	task.wait(2.0)
+	introLogo:Destroy()
+
 	local main = Instance.new("Frame")
-	main.Size = Configuration.Window.Size
+	main.Size = UDim2.new(0, 0, 0, 0)
 	main.Position = UDim2.new(0.5, 0, 0.5, 0)
 	main.AnchorPoint = Vector2.new(0.5, 0.5)
 	main.BackgroundColor3 = Configuration.Colors.Bg
@@ -348,6 +363,8 @@ local function Build()
 	main.Parent = screen
 	Utils.Round(main, 24)
 	Utils.Stroke(main, Configuration.Colors.Border, 1, 0.85)
+
+	Utils.Tween(main, {Size = Configuration.Window.Size}, 0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 
 	local bar = Instance.new("Frame")
 	bar.Size = UDim2.new(1, 0, 0, 40)
@@ -615,6 +632,40 @@ local function Build()
 		sImg.Image = icon
 	end
 
+	local function PlayCloseAnimation(onComplete)
+		for _, child in ipairs(main:GetChildren()) do
+			if child:IsA("GuiObject") then
+				Utils.Tween(child, {BackgroundTransparency = 1}, 0.2)
+				for _, sub in ipairs(child:GetDescendants()) do
+					if sub:IsA("TextLabel") or sub:IsA("TextBox") or sub:IsA("ImageLabel") then
+						pcall(function() Utils.Tween(sub, {TextTransparency = 1, ImageTransparency = 1}, 0.2) end)
+					end
+				end
+			end
+		end
+
+		Utils.Tween(main, {Size = UDim2.new(0, 0, 0, 0)}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+		task.wait(0.4)
+		main.Visible = false
+
+		local outLogo = Instance.new("ImageLabel")
+		outLogo.Size = UDim2.new(0, 80, 0, 80)
+		outLogo.Position = UDim2.new(0.5, 0, 0.5, 0)
+		outLogo.AnchorPoint = Vector2.new(0.5, 0.5)
+		outLogo.BackgroundTransparency = 1
+		outLogo.Image = Icons.ReaperIcon
+		outLogo.ScaleType = Enum.ScaleType.Fit
+		outLogo.ZIndex = 200
+		outLogo.Parent = screen
+
+		SetBlur(false)
+
+		Utils.Tween(outLogo, {Size = UDim2.new(0, 0, 0, 0), ImageTransparency = 1}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+		task.wait(0.4)
+
+		if onComplete then onComplete() end
+	end
+
 	verifyBtn.MouseButton1Click:Connect(function()
 		local userKey = box.Text:gsub("%s+", "")
 		SetStatus("verifying")
@@ -633,11 +684,9 @@ local function Build()
 			SetStatus("success")
 			ToastSystem.Create(screen, "Access granted!", "success")
 			task.wait(0.8)
-			SetBlur(false)
-			Utils.Tween(main, {Position = UDim2.new(0.5, 0, 0.5, 60), BackgroundTransparency = 1}, 0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.In)
-			
-			task.delay(0.7, function() 
-				screen:Destroy() 
+
+			PlayCloseAnimation(function()
+				screen:Destroy()
 				RunMainScript()
 			end)
 		else
