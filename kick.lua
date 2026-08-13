@@ -1,57 +1,38 @@
-local TeleportService = game:GetService("TeleportService")
-local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 
--- === 1. ระบบ Auto Rejoin (รันดักไว้ก่อน) ===
-GuiService.ErrorMessageChanged:Connect(function()
-    local message = GuiService:GetErrorMessage()
-    if message ~= "" then
-        warn("Detected Kick: " .. message)
-        task.wait(2) -- รอ 2 วินาทีก่อนเริ่ม Rejoin
-        TeleportService:Teleport(game.PlaceId, LocalPlayer)
-    end
-end)
-
--- === 2. สร้าง GUI สำหรับทดสอบ ===
--- ลบ GUI เก่าถ้ามีอยู่
-if CoreGui:FindFirstChild("RejoinTestUI") then
-    CoreGui.RejoinTestUI:Destroy()
+-- ลบ UI เก่าถ้ามีค้างอยู่
+if CoreGui:FindFirstChild("TestKickUI") then
+    CoreGui.TestKickUI:Destroy()
 end
 
+-- สร้าง GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "RejoinTestUI"
+ScreenGui.Name = "TestKickUI"
 ScreenGui.Parent = CoreGui
 
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 200, 0, 100)
-MainFrame.Position = UDim2.new(0.5, -100, 0.4, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true -- ทำให้ลากไปมาได้
-MainFrame.Parent = ScreenGui
+-- ปุ่มกด
+local KickButton = Instance.new("TextButton")
+KickButton.Size = UDim2.new(0, 150, 0, 50)
+KickButton.Position = UDim2.new(0.5, -75, 0.1, 0) -- อยู่ด้านบนกลางหน้าจอ
+KickButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+KickButton.Text = "KICK"
+KickButton.TextColor3 = Color3.new(1, 1, 1)
+KickButton.Font = Enum.Font.GothamBold
+KickButton.TextSize = 14
+KickButton.Parent = ScreenGui
 
-local UICorner = Instance.new("UICorner")
-UICorner.Parent = MainFrame
+-- ใส่ขอบมน
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 8)
+Corner.Parent = KickButton
 
-local TestButton = Instance.new("TextButton")
-TestButton.Size = UDim2.new(0, 180, 0, 80)
-TestButton.Position = UDim2.new(0, 10, 0, 10)
-TestButton.Text = "CLICK TO KICK\n(TEST REJOIN)"
-TestButton.TextColor3 = Color3.new(1, 1, 1)
-TestButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-TestButton.Font = Enum.Font.GothamBold
-TestButton.TextSize = 14
-TestButton.Parent = MainFrame
+-- ระบบลากปุ่มได้ (เผื่อบังจอ)
+KickButton.Active = true
+KickButton.Draggable = true
 
-local ButtonCorner = Instance.new("UICorner")
-ButtonCorner.Parent = TestButton
-
--- === 3. คำสั่ง Kick เมื่อกดปุ่ม ===
-TestButton.MouseButton1Click:Connect(function()
-    LocalPlayer:Kick("\n[Rejoin System Test]\nคุณถูกเตะเพื่อทดสอบระบบ Auto Rejoin")
+-- คำสั่งเตะเมื่อกดปุ่ม
+KickButton.MouseButton1Click:Connect(function()
+    LocalPlayer:Kick("\n[TEST KICK]\nคุณทำการเตะตัวเองสำเร็จ!")
 end)
-
-print("Rejoin Test Script Loaded! (ปุ่มอยู่กลางหน้าจอ)")
