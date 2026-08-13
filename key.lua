@@ -1,3 +1,4 @@
+--2
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -47,28 +48,54 @@ local function RunMainScript()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libwebhook2.lua"))()
 end
 
+-- ===================================================
+-- 🔑 KEY CHECKING ENGINE (ใส่ฟังก์ชันเช็กคีย์กลับมาครบถ้วน)
+-- ===================================================
 local API = {}
 
 function API.get_key_link()
     return GETKEY_URL
 end
 
-local function ValidateKey(userKey)
-    if not userKey or not string.match(userKey, "^REAPER%-[A-Z0-9]+%-[A-Z0-9]+%-[A-Z0-9]+$") then
-        return false
+function API.check_key(key)
+    if not key or key == "" then
+        return {
+            valid = false,
+            message = "Please enter key"
+        }
     end
 
-    local requestUrl = DATABASE_URL .. userKey .. ".json"
+    if not string.match(key, "^REAPER%-[A-Z0-9]+%-[A-Z0-9]+%-[A-Z0-9]+$") then
+        return {
+            valid = false,
+            message = "Invalid format"
+        }
+    end
+
+    local requestUrl = DATABASE_URL .. key .. ".json"
     local success, responseRaw = pcall(function() return game:HttpGet(requestUrl) end)
 
-    if not success or not responseRaw or responseRaw == "null" then return false end
+    if not success or not responseRaw or responseRaw == "null" then
+        return {
+            valid = false,
+            message = "Key not found"
+        }
+    end
 
     local decodeSuccess, keyData = pcall(function() return HttpService:JSONDecode(responseRaw) end)
-    if not decodeSuccess or not keyData then return false end
+    if not decodeSuccess or not keyData then
+        return {
+            valid = false,
+            message = "Data Error"
+        }
+    end
 
     if keyData.expiresAt and keyData.expiresAt > 0 then
         if (os.time() * 1000) > keyData.expiresAt then
-            return false
+            return {
+                valid = false,
+                message = "Key expired"
+            }
         end
     end
 
@@ -81,18 +108,37 @@ local function ValidateKey(userKey)
             Body = HttpService:JSONEncode({ hwid = currentHWID })
         })
     elseif keyData.hwid ~= currentHWID then
-        return false
+        return {
+            valid = false,
+            message = "HWID Mismatch"
+        }
     end
 
-    return true
+    return {
+        valid = true,
+        message = "KEY_VALID"
+    }
 end
 
-if readfile and writefile and isfile and isfile(SAVE_FILE_NAME) then
-    local savedKey = readfile(SAVE_FILE_NAME)
-    if savedKey and savedKey ~= "" and ValidateKey(savedKey) then
-        RunMainScript()
-        return
-    end
+local function hasFileSystemSupport()
+    local hasWrite = pcall(function() return type(writefile) == "function" end)
+    local hasRead = pcall(function() return type(readfile) == "function" end)
+    local hasIs = pcall(function() return type(isfile) == "function" end)
+    return hasWrite and hasRead and hasIs
+end
+
+local fileSystemSupported = hasFileSystemSupport()
+
+local function saveVerifiedKey(key)
+    if not fileSystemSupported then return false end
+    return pcall(function() writefile(SAVE_FILE_NAME, key) end)
+end
+
+local function loadVerifiedKey()
+    if not fileSystemSupported then return nil end
+    local ok, content = pcall(function() return readfile(SAVE_FILE_NAME) end)
+    if not ok or not content or content == "" then return nil end
+    return content
 end
 
 local Icons = {
@@ -293,10 +339,8 @@ local function Build()
 	screen.ResetOnSpawn = false
 	screen.Parent = parent
 
-	-- เปิดใช้งานเบลอฉากหลังทันที
 	SetBlur(true)
 
-	-- 1. สร้างโลโก้เริ่มต้นขนาดจิ๋วที่กลางจอเพื่อทำอนิเมชั่นพุ่งขยาย
 	local introLogo = Instance.new("ImageLabel")
 	introLogo.Size = UDim2.new(0, 10, 0, 10)
 	introLogo.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -307,7 +351,6 @@ local function Build()
 	introLogo.ZIndex = 100
 	introLogo.Parent = screen
 
-	-- 2. สร้าง MainFrame แบบย่อส่วนไว้ที่กลางจอ
 	local main = Instance.new("Frame")
 	main.Size = UDim2.new(0, 0, 0, 0)
 	main.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -320,15 +363,11 @@ local function Build()
 	Utils.Round(main, 24)
 	Utils.Stroke(main, Configuration.Colors.Border, 1, 0.85)
 
-	-- 🟢 อนิเมชั่นเปิดตัว: ขยายโลโก้จากกลางจอก่อน
 	Utils.Tween(introLogo, {Size = UDim2.new(0, 72, 0, 72)}, 0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 	task.wait(0.35)
 
-	-- ซ่อนโลโก้เดี่ยว แล้วเปิดแสดง MainFrame หลักขึ้นมาพร้อมกัน
 	introLogo:Destroy()
 	main.Visible = true
-
-	-- ขยายหน้าต่างหลักให้เต็มขนาด (520 x 255) พร้อมอนิเมชั่นเด้งสมูท
 	Utils.Tween(main, {Size = Configuration.Window.Size}, 0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 
 	local bar = Instance.new("Frame")
