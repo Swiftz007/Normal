@@ -1,3 +1,4 @@
+--1
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
@@ -34,5 +35,5 @@ KickButton.Draggable = true
 
 -- คำสั่งเตะเมื่อกดปุ่ม
 KickButton.MouseButton1Click:Connect(function()
-    LocalPlayer:Kick("\n[TEST KICK]\nคุณทำการเตะตัวเองสำเร็จ!")
+    LocalPlayer:Kick("\n[KICK]\nKick Success by Reaper!")
 end)
