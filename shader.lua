@@ -1,5 +1,3 @@
--- ts file was generated at discord.gg/25ms
-
 local _call3 = Instance.new('ScreenGui')
 
 _call3.Name = 'Shaders'
