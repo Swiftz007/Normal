@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 5
+-- 🔥 Lib Load Screen Reaper Hub 6
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -23,23 +23,24 @@ local lighting = Lighting
 local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
 local Stats = game:GetService("Stats")
+local TeleportService = game:GetService("TeleportService")
+local localPlayer = Players.LocalPlayer
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
-local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")	
 local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
-local PlaceId = game.PlaceId
-
-
---=========================
--- 🔥 PLAYER / CAMERA / WORLD
---=========================
+local LogService = game:GetService("LogService")
 local LocalPlayer = Players.LocalPlayer
 local LP = LocalPlayer
 local Camera = workspace.CurrentCamera
 local lp = LocalPlayer
---=========================
--- 🔥 WINDOW
---=========================
+
+-- WINDOW
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
 SubTitle = "Universal",
@@ -48,8 +49,6 @@ Size = UDim2.fromOffset(520, 360),
 Theme = "ExtremeReaper",
 MinimizeKey = Enum.KeyCode.RightControl
 })
-
-_G.Window = Window
 
 local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Icon.lua"))()
 
@@ -1436,7 +1435,6 @@ end)
 
 local spectating = false
 local originalCameraSubject = nil
-local Camera = workspace.CurrentCamera
 
 -- =========================
 -- SPECTATE TOGGLE
@@ -1446,8 +1444,6 @@ Tabs.Teleport:AddToggle("spec", {
     Default = false
 }):OnChanged(function(state)
     spectating = state
-
-    local localPlayer = Players.LocalPlayer
 
     if state then
         if selectedPlayer and selectedPlayer.Character then
@@ -1489,7 +1485,8 @@ task.defer(function()
     end)
 end)
 
--- Auto Rejoin
+-- Server 🌟
+-- [[ AUTO REJOIN LOGIC ]] --
 local AutoRejoinEnabled = false
 task.spawn(function()
     GuiService.ErrorMessageChanged:Connect(function()
@@ -1513,8 +1510,10 @@ Tabs.Server:AddToggle("AutoRejoinToggle", {
     end
 })
 
--- Server 🌟
+
+
 -- Join low server
+local PlaceId = game.PlaceId
 local function getServers(cursor)
     local url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
     if cursor then
@@ -1580,10 +1579,6 @@ Tabs.Server:AddButton({
 })
 
 -- JobID
-local LocalPlayer = Players.LocalPlayer
-local PlaceId = game.PlaceId
-
-local LocalPlayer = Players.LocalPlayer
 local currentJobIdInput = ""
 
 -- 📋 Copy JobId
@@ -2324,8 +2319,6 @@ Tabs.Misc:AddToggle("AntiAFK", {
 })
 
 
-
-
 -- FPS BOOST
 local saved = {}
 local connection = nil
@@ -2454,12 +2447,7 @@ Tabs.Misc:AddButton({
 
 
 
-
-
 -- Console
---// SERVICES
-local LogService = game:GetService("LogService")
-
 --// STATE
 local consoleEnabled = false
 local MAX_LOGS = 1000
@@ -2675,7 +2663,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 
 SaveManager:LoadAutoloadConfig() -- 🔥 ตัวนี้แหละ
 
-Window:SelectTab(3)
+Window:SelectTab(1)
 -- Lib Toggle
 --=========================
 -- TOGGLE BUTTON
