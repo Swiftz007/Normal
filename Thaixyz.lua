@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 4
+-- 🔥 Lib Load Screen Reaper Hub 5
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -1778,7 +1778,7 @@ IgnoreDropdown:OnChanged(function(Value)
 end)
 
 local PartDropdown = Tabs.Main:AddDropdown("PartDropdown", {
-    Title = "ส่วนที่ล็อกเป้า,
+    Title = "ส่วนที่ล็อกเป้า",
     Values = {"หัว", "ตัว", "ขา"},
     Multi = false,
     Default = 1,
