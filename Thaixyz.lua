@@ -1269,8 +1269,8 @@ task.spawn(function()
 end)
 
 Tabs.Server:AddToggle("AutoRejoinToggle", {
-    Title = "Auto Rejoin",
-    Description = "Auto Rejoin When kicked",
+    Title = "กลับเข้าเซิร์ฟเวอร์เดิมอัตโนมัติ
+    Description = "กลับเข้าเซิร์ฟเวอร์เดิมเมื่อโดนเตะ",
     Default = true,
     Callback = function(Value)
         AutoRejoinEnabled = Value
