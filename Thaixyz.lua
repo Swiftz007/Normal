@@ -1,5 +1,4 @@
 --4
---3
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/SaveManager.lua"))()
@@ -1251,12 +1250,29 @@ task.defer(function()
     end)
 end)
 
-local HttpService = game:GetService("HttpService")
-local TeleportService = game:GetService("TeleportService")
-local Players = game:GetService("Players")
+local AutoRejoinEnabled = false
+task.spawn(function()
+    GuiService.ErrorMessageChanged:Connect(function()
+        if AutoRejoinEnabled then
+            local message = GuiService:GetErrorMessage()
+            if message ~= "" then
+                warn("Reaper Hub: Detected kick/disconnect. Rejoining in 5 seconds...")
+                task.wait(5)
+                TeleportService:Teleport(game.PlaceId, LocalPlayer)
+            end
+        end
+    end)
+end)
 
-local LocalPlayer = Players.LocalPlayer
-local PlaceId = game.PlaceId
+Tabs.Server:AddToggle("AutoRejoinToggle", {
+    Title = "Auto Rejoin",
+    Description = "Auto Rejoin When kicked",
+    Default = true,
+    Callback = function(Value)
+        AutoRejoinEnabled = Value
+    end
+})
+
 
 local function getServers(cursor)
     local url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
@@ -1320,10 +1336,9 @@ Tabs.Server:AddButton({
     end
 })
 
-local TeleportService = game:GetService("TeleportService")
-local Players = game:GetService("Players")
 
-local LocalPlayer = Players.LocalPlayer
+local PlaceId = game.PlaceId
+
 local currentJobIdInput = ""
 
 Tabs.Server:AddButton({
@@ -1359,11 +1374,6 @@ Tabs.Server:AddButton({
     end
 })
 
-local Camera = workspace.CurrentCamera
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
 
 local AimbotSettings = {
     Enabled = false,
@@ -1890,7 +1900,6 @@ Tabs.Misc:AddToggle("SafeModeToggle", {
     end
 })
 
-local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
 
 Tabs.Misc:AddToggle("MaxZoom", {
     Title = "ซูมไม่จำกัด",
