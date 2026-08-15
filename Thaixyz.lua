@@ -19,6 +19,10 @@ local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
 local Stats = game:GetService("Stats")
 local LogService = game:GetService("LogService")
+local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
 
 local LocalPlayer = Players.LocalPlayer
 local LP = LocalPlayer
