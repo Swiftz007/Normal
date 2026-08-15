@@ -543,7 +543,7 @@ Callback = function(v) State.INFJ = v
 })
 
 Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
-    Title = "สิ่งกีดขวาง",
+    Title = "ทะลุสิ่งกีดขวาง",
     Description = "",
     Default = false,
     Callback = function(Value)
