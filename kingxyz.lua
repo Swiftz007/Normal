@@ -26,6 +26,7 @@ local Stats = game:GetService("Stats")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
+local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
 
 --=========================
 -- 🔥 PLAYER / CAMERA / WORLD
@@ -2200,8 +2201,6 @@ Tabs.Misc:AddToggle("SafeModeToggle", {
 
 
 -- Max Zoom
-local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
-
 Tabs.Misc:AddToggle("MaxZoom", {
     Title = "Max Zoom",
     Default = false,
