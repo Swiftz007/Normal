@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 3
+-- 🔥 Lib Load Screen Reaper Hub 4
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
@@ -23,6 +23,9 @@ local lighting = Lighting
 local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
 local Stats = game:GetService("Stats")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
 
 --=========================
 -- 🔥 PLAYER / CAMERA / WORLD
@@ -1483,15 +1486,32 @@ task.defer(function()
     end)
 end)
 
+-- Auto Rejoin
+local AutoRejoinEnabled = false
+task.spawn(function()
+    GuiService.ErrorMessageChanged:Connect(function()
+        if AutoRejoinEnabled then
+            local message = GuiService:GetErrorMessage()
+            if message ~= "" then
+                warn("Reaper Hub: Detected kick/disconnect. Rejoining in 5 seconds...")
+                task.wait(5)
+                TeleportService:Teleport(game.PlaceId, LocalPlayer)
+            end
+        end
+    end)
+end)
+
+Tabs.Server:AddToggle("AutoRejoinToggle", {
+    Title = "Auto Rejoin",
+    Description = "Auto Rejoin When kicked",
+    Default = true,
+    Callback = function(Value)
+        AutoRejoinEnabled = Value
+    end
+})
+
 -- Server 🌟
 -- Join low server
-local HttpService = game:GetService("HttpService")
-local TeleportService = game:GetService("TeleportService")
-local Players = game:GetService("Players")
-
-local LocalPlayer = Players.LocalPlayer
-local PlaceId = game.PlaceId
-
 local function getServers(cursor)
     local url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
     if cursor then
@@ -1557,8 +1577,8 @@ Tabs.Server:AddButton({
 })
 
 -- JobID
-local TeleportService = game:GetService("TeleportService")
-local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlaceId = game.PlaceId
 
 local LocalPlayer = Players.LocalPlayer
 local currentJobIdInput = ""
@@ -1600,12 +1620,6 @@ Tabs.Server:AddButton({
 })
 
 -- main tab
-local Camera = workspace.CurrentCamera
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-
 -- === 1. ปรับปรุง Settings เพิ่ม IgnoredPlayers ===
 local AimbotSettings = {
     Enabled = false,
