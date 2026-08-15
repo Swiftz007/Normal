@@ -1,4 +1,4 @@
---4
+--5
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/SaveManager.lua"))()
@@ -23,6 +23,8 @@ local DefaultZoom = LocalPlayer.CameraMaxZoomDistance
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
+local PlaceId = game.PlaceId 
+
 
 local LocalPlayer = Players.LocalPlayer
 local LP = LocalPlayer
