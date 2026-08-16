@@ -1,5 +1,95 @@
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+local FIREBASE_URL = "https://sentupdate-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/text.json"
+
+local lastProcessedTime = 0
+local TIME_WINDOW = 10
+
+local function SpawnNotify(msg)
+    task.spawn(function()
+        if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
+        local gui = Instance.new("ScreenGui", CoreGui)
+        gui.Name = "ReaperNotify"
+        gui.DisplayOrder = 999999
+        
+        local frame = Instance.new("Frame", gui)
+        frame.Size = UDim2.new(0, 280, 0, 70)
+        frame.Position = UDim2.new(1, 300, 0, 20)
+        frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
+        frame.BackgroundTransparency = 0.25
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+        
+        local stroke = Instance.new("UIStroke", frame)
+        stroke.Thickness = 2
+        stroke.Color = Color3.fromRGB(255, 60, 60)
+        
+        local icon = Instance.new("ImageLabel", frame)
+        icon.Size = UDim2.new(0, 40, 0, 40)
+        icon.Position = UDim2.new(0, 12, 0, 15)
+        icon.BackgroundTransparency = 1
+        icon.Image = "rbxassetid://131279093559313"
+        
+        local text = Instance.new("TextLabel", frame)
+        text.Size = UDim2.new(1, -70, 1, 0)
+        text.Position = UDim2.new(0, 60, 0, 0)
+        text.BackgroundTransparency = 1
+        text.Text = "<b>REAPER SYSTEM</b>\n" .. msg
+        text.TextColor3 = Color3.fromRGB(255, 200, 200)
+        text.TextXAlignment = Enum.TextXAlignment.Left
+        text.Font = Enum.Font.SourceSansSemibold
+        text.TextSize = 14
+        text.RichText = true
+        
+        TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(1, -300, 0, 20)}):Play()
+        task.wait(2.5)
+        
+        local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint), {Position = UDim2.new(1, 300, 0, 20), BackgroundTransparency = 1})
+        tweenOut:Play()
+        tweenOut.Completed:Wait()
+        gui:Destroy()
+    end)
+end
+
+task.spawn(function()
+    print("Reaper System: Monitoring text.json...")
+    while true do
+        local success, response = pcall(function()
+            return request({
+                Url = FIREBASE_URL,
+                Method = "GET"
+            })
+        end)
+
+        if success and response.StatusCode == 200 then
+            local data = HttpService:JSONDecode(response.Body)
+            
+            -- ตรวจสอบว่าในพาธ text มี message และ sentAt
+            if data and data.message and data.sentAt then
+                local currentTime = os.time()
+                local messageTime = data.sentAt
+                
+                -- เช็คว่าเป็นข้อความใหม่จริงๆ
+                if messageTime > lastProcessedTime then
+                    if (currentTime - messageTime) <= TIME_WINDOW then
+                        lastProcessedTime = messageTime
+                        SpawnNotify(data.message)
+                    else
+                        -- อัปเดต time ล่าสุดเพื่อข้ามข้อความเก่า
+                        lastProcessedTime = messageTime
+                    end
+                end
+            end
+        end
+        task.wait(2) -- ปรับความเร็วเป็น 2 วินาที (กำลังดี ไม่หน่วง)
+    end
+end)
+
+-- 🔥🔥🔥🔥
+
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -751,88 +841,3 @@ if keyToCheck then
 end
 
 Build()
-
--- 🔥🔥🔥🔥🔥🔥🔥🔥🔥
-local FIREBASE_URL = "https://sentupdate-reaper-default-rtdb.asia-southeast1.firebasedatabase.app/text.json"
-
-local lastProcessedTime = 0
-local TIME_WINDOW = 10
-
-local function SpawnNotify(msg)
-    task.spawn(function()
-        if CoreGui:FindFirstChild("ReaperNotify") then CoreGui.ReaperNotify:Destroy() end
-        local gui = Instance.new("ScreenGui", CoreGui)
-        gui.Name = "ReaperNotify"
-        gui.DisplayOrder = 999999
-        
-        local frame = Instance.new("Frame", gui)
-        frame.Size = UDim2.new(0, 280, 0, 70)
-        frame.Position = UDim2.new(1, 300, 0, 20)
-        frame.BackgroundColor3 = Color3.fromRGB(70, 10, 10)
-        frame.BackgroundTransparency = 0.25
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
-        
-        local stroke = Instance.new("UIStroke", frame)
-        stroke.Thickness = 2
-        stroke.Color = Color3.fromRGB(255, 60, 60)
-        
-        local icon = Instance.new("ImageLabel", frame)
-        icon.Size = UDim2.new(0, 40, 0, 40)
-        icon.Position = UDim2.new(0, 12, 0, 15)
-        icon.BackgroundTransparency = 1
-        icon.Image = "rbxassetid://131279093559313"
-        
-        local text = Instance.new("TextLabel", frame)
-        text.Size = UDim2.new(1, -70, 1, 0)
-        text.Position = UDim2.new(0, 60, 0, 0)
-        text.BackgroundTransparency = 1
-        text.Text = "<b>REAPER SYSTEM</b>\n" .. msg
-        text.TextColor3 = Color3.fromRGB(255, 200, 200)
-        text.TextXAlignment = Enum.TextXAlignment.Left
-        text.Font = Enum.Font.SourceSansSemibold
-        text.TextSize = 14
-        text.RichText = true
-        
-        TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(1, -300, 0, 20)}):Play()
-        task.wait(2.5)
-        
-        local tweenOut = TweenService:Create(frame, TweenInfo.new(0.45, Enum.EasingStyle.Quint), {Position = UDim2.new(1, 300, 0, 20), BackgroundTransparency = 1})
-        tweenOut:Play()
-        tweenOut.Completed:Wait()
-        gui:Destroy()
-    end)
-end
-
-task.spawn(function()
-    print("Reaper System: Monitoring text.json...")
-    while true do
-        local success, response = pcall(function()
-            return request({
-                Url = FIREBASE_URL,
-                Method = "GET"
-            })
-        end)
-
-        if success and response.StatusCode == 200 then
-            local data = HttpService:JSONDecode(response.Body)
-            
-            -- ตรวจสอบว่าในพาธ text มี message และ sentAt
-            if data and data.message and data.sentAt then
-                local currentTime = os.time()
-                local messageTime = data.sentAt
-                
-                -- เช็คว่าเป็นข้อความใหม่จริงๆ
-                if messageTime > lastProcessedTime then
-                    if (currentTime - messageTime) <= TIME_WINDOW then
-                        lastProcessedTime = messageTime
-                        SpawnNotify(data.message)
-                    else
-                        -- อัปเดต time ล่าสุดเพื่อข้ามข้อความเก่า
-                        lastProcessedTime = messageTime
-                    end
-                end
-            end
-        end
-        task.wait(2) -- ปรับความเร็วเป็น 2 วินาที (กำลังดี ไม่หน่วง)
-    end
-end)
