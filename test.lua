@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 2
+-- 🔥 Lib Load Screen Reaper Hub 3
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/gui/main.lua"))()
@@ -39,6 +39,7 @@ local LocalPlayer = Players.LocalPlayer
 local LP = LocalPlayer
 local Camera = workspace.CurrentCamera
 local lp = LocalPlayer
+local LP = Players.LocalPlayer
 
 -- WINDOW
 local Window = Fluent:CreateWindow({
@@ -554,36 +555,53 @@ Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
 local spinning = false
-local spinSpeed = 150
+local spinSpeed = 100
 local spinConnection
 local antiFlingEnabled = false
 
+local function GetHum()
+    return LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+end
+
+--========================================================
+-- 🔥 CORE LOGIC: IY STYLE SPIN FLING
+--========================================================
 local function startFling()
     if spinConnection then spinConnection:Disconnect() end
+    
     spinConnection = RunService.Heartbeat:Connect(function()
         local char = LP.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         
         if hrp and hum and spinning then
-            hum.Sit = true 
+            -- IY Technique: สลับสถานะ PlatformStand เพื่อตัดการคำนวณฟิสิกส์พื้นฐาน
+            hum.PlatformStand = true
+            hum.HipHeight = 0.5 -- ระยะทองคำ กันขาจมแต่เดินเนียน
+            
+            -- หมุนตัวละคร (CFrame)
             hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed), 0)
             
-            local rawV = hrp.Velocity
-            hrp.Velocity = Vector3.new(1e6, 0, 1e6) 
+            -- พลังดีดมหาศาล (Triple Axis 1e7)
+            hrp.Velocity = Vector3.new(1e7, 1e7, 1e7) 
+            hrp.RotVelocity = Vector3.new(0, 15000, 0)
+            
+            -- รอจังหวะเฟรมเพื่อให้ฟิสิกส์ทำงาน
             RunService.RenderStepped:Wait()
-            if hrp then hrp.Velocity = rawV end
+            
+            -- คืนค่าสถานะเพื่อให้ควบคุมการเดินได้ปกติ
+            if hum then hum.PlatformStand = false end
+            if hrp and hum then
+                local moveDir = hum.MoveDirection
+                hrp.Velocity = Vector3.new(moveDir.X * hum.WalkSpeed, 0, moveDir.Z * hum.WalkSpeed)
+            end
         end
     end)
 end
 
-LP.CharacterAdded:Connect(function()
-    task.wait(0.5)
-    if spinning then
-        startFling()
-    end
-end)
-
+--========================================================
+-- 🛡️ ANTI-FLING (PROTECTION)
+--========================================================
 task.spawn(function()
     while true do
         if antiFlingEnabled then
@@ -601,9 +619,13 @@ task.spawn(function()
                 end
             end)
         end
-        task.wait(0.2)
+        task.wait(0.1)
     end
 end)
+
+--========================================================
+-- 🔘 UI CONTROLS (TABS/SECTION)
+--========================================================
 
 Tabs.Player:AddToggle("SpinFling", {
     Title = "Spin Fling",
@@ -616,11 +638,15 @@ Tabs.Player:AddToggle("SpinFling", {
         else
             if spinConnection then spinConnection:Disconnect() end
             local hum = GetHum()
+            local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
             if hum then 
-                hum.Sit = false 
+                hum.PlatformStand = false
+                hum.HipHeight = 0
                 hum:ChangeState(Enum.HumanoidStateType.GettingUp)
-                local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
-                if hrp then hrp.Velocity = Vector3.zero end
+            end
+            if hrp then 
+                hrp.Velocity = Vector3.zero
+                hrp.RotVelocity = Vector3.zero
             end
         end
     end
@@ -629,8 +655,8 @@ Tabs.Player:AddToggle("SpinFling", {
 Tabs.Player:AddSlider("FlingSpeed", {
     Title = "Fling Speed",
     Min = 1,
-    Max = 1500,
-    Default = 150,
+    Max = 2500,
+    Default = 100,
     Rounding = 0,
     Callback = function(v)
         spinSpeed = v
@@ -639,12 +665,18 @@ Tabs.Player:AddSlider("FlingSpeed", {
 
 Tabs.Player:AddToggle("AntiFling", {
     Title = "Anti-Fling",
-    Description = "",
     Default = false,
     Callback = function(v)
         antiFlingEnabled = v
     end
 })
+
+-- Auto-Restart when respawn
+LP.CharacterAdded:Connect(function()
+    task.wait(0.5)
+    if spinning then startFling() end
+end)
+
 
 
 
