@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 4
+-- 🔥 Lib Load Screen Reaper Hub 1111
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/gui/main.lua"))()
@@ -553,77 +553,105 @@ Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
 
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
---================ SPIN PLAYER FIX =================--
-local LocalPlayer = Players.LocalPlayer
-
+--========================================================
+-- 🔥 [FINAL OPTIMIZED] SPIN FLING & ANTI-FLING (AUTO-RESPAWN)
+--========================================================
 local spinning = false
-local spinSpeed = 20
+local spinSpeed = 150
 local spinConnection
+local antiFlingEnabled = false
 
--- ดึง HRP แบบชัวร์
-
-local function getHRP()
-    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    return char:WaitForChild("HumanoidRootPart")
-end
-
--- เริ่มหมุน (ใช้ dt กันเฟรมเรท)
-local function startSpin()
-    if spinConnection then
-        spinConnection:Disconnect()
-    end
-
-    spinConnection = RunService.RenderStepped:Connect(function(dt)
-        local hrp = getHRP()
-        if not hrp then return end
-
-        -- ใช้ dt ทำให้ลื่นขึ้น
-        hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed * dt * 60), 0)
+-- Logic: ระบบหมุนดีด
+local function startFling()
+    if spinConnection then spinConnection:Disconnect() end
+    spinConnection = RunService.Heartbeat:Connect(function()
+        local char = LP.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        
+        if hrp and hum and spinning then
+            hum.PlatformStand = true -- บังคับสถานะยืนแข็ง (กันล้มตอนเกิดใหม่)
+            hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed), 0)
+            
+            local rawV = hrp.Velocity
+            hrp.Velocity = Vector3.new(1e6, 1e6, 1e6) -- แรงดีดระดับพระเจ้า
+            RunService.RenderStepped:Wait()
+            if hrp then hrp.Velocity = rawV end
+        end
     end)
 end
 
--- หยุด
-local function stopSpin()
-    if spinConnection then
-        spinConnection:Disconnect()
-        spinConnection = nil
-    end
-end
-
--- รีตัวไม่พัง
-LocalPlayer.CharacterAdded:Connect(function()
+-- 🔥 ระบบ Auto-Restart เมื่อตัวละครเกิดใหม่
+LP.CharacterAdded:Connect(function()
+    task.wait(0.5) -- รอตัวละครโหลดเสร็จ
     if spinning then
-        task.wait(1)
-        startSpin()
+        startFling() -- ถ้าเปิดปุ่มค้างไว้ ให้เริ่มหมุนใหม่ทันที
     end
 end)
 
--- Toggle
-Tabs.Player:AddToggle("SpinPlayer", {
-    Title = "Spin Player",
+-- Logic: Anti-Fling (ทำงานเบื้องหลังตลอดเวลา)
+task.spawn(function()
+    while true do
+        if antiFlingEnabled then
+            pcall(function()
+                for _, p in ipairs(Players:GetPlayers()) do
+                    if p ~= LP and p.Character then
+                        for _, v in ipairs(p.Character:GetChildren()) do
+                            if v:IsA("BasePart") then
+                                v.CanTouch = false
+                                v.Velocity = Vector3.zero
+                                v.RotVelocity = Vector3.zero
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+        task.wait(0.2)
+    end
+end)
+
+-- UI CONTROLS
+Tabs.Player:AddToggle("SpinFling", {
+    Title = "Spin Fling",
+    Description = "Recommended to use with Noclip",
     Default = false,
     Callback = function(v)
         spinning = v
-
         if v then
-            startSpin()
+            startFling()
         else
-            stopSpin()
+            if spinConnection then spinConnection:Disconnect() end
+            local hum = GetHum()
+            if hum then 
+                hum.PlatformStand = false 
+                local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then hrp.Velocity = Vector3.zero end
+            end
         end
     end
 })
 
--- Slider
-Tabs.Player:AddSlider("SpinSpeed", {
-    Title = "Spin Speed",
-    Min = 1,
-    Max = 100,
-    Default = 20,
-	Rounding = 0,
+Tabs.Player:AddSlider("FlingSpeed", {
+    Title = "Fling Speed",
+    Min = 50,
+    Max = 1500,
+    Default = 150,
+    Rounding = 0,
     Callback = function(v)
         spinSpeed = v
     end
 })
+
+Tabs.Player:AddToggle("AntiFling", {
+    Title = "Anti-Fling",
+    Description = "",
+    Default = false,
+    Callback = function(v)
+        antiFlingEnabled = v
+    end
+})
+
 
 -- ESP Chams🔥
 local ChamsCache = {} -- ตะกร้าเก็บ Highlight เพื่อลดภาระการหา (Optimization)
