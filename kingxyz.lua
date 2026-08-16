@@ -615,8 +615,8 @@ Tabs.Player:AddToggle("SpinPlayer", {
 Tabs.Player:AddSlider("SpinSpeed", {
     Title = "Spin Speed",
     Min = 1,
-    Max = 100,
-    Default = 20,
+    Max = 1000,
+    Default = 1,
 	Rounding = 0,
     Callback = function(v)
         spinSpeed = v
