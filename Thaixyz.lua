@@ -554,8 +554,6 @@ Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
 --================ SPIN PLAYER FIX =================--
-local LocalPlayer = Players.LocalPlayer
-
 local spinning = false
 local spinSpeed = 20
 local spinConnection
@@ -617,8 +615,8 @@ Tabs.Player:AddToggle("SpinPlayer", {
 Tabs.Player:AddSlider("SpinSpeed", {
     Title = "ความเร็วหมุน",
     Min = 1,
-    Max = 100,
-    Default = 20,
+    Max = 1000,
+    Default = 1,
 	Rounding = 0,
     Callback = function(v)
         spinSpeed = v
