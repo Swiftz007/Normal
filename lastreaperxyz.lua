@@ -35,7 +35,7 @@ local function SpawnNotify(msg)
         text.Size = UDim2.new(1, -70, 1, 0)
         text.Position = UDim2.new(0, 60, 0, 0)
         text.BackgroundTransparency = 1
-        text.Text = "<b>REAPER SYSTEM</b>\n" .. msg
+        text.Text = "<b>Notification</b>\n" .. msg
         text.TextColor3 = Color3.fromRGB(255, 200, 200)
         text.TextXAlignment = Enum.TextXAlignment.Left
         text.Font = Enum.Font.SourceSansSemibold
@@ -53,7 +53,6 @@ local function SpawnNotify(msg)
 end
 
 task.spawn(function()
-    print("Reaper System: Monitoring text.json...")
     while true do
         local success, response = pcall(function()
             return request({
