@@ -554,11 +554,6 @@ Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
 
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local LP = Players.LocalPlayer
-
--- Variables
 local flinging = false
 local flingPower = 500
 local antiFlingEnabled = false
