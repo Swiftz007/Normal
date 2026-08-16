@@ -51,7 +51,7 @@ Theme = "ExtremeReaper",
 MinimizeKey = Enum.KeyCode.RightControl
 })
 
-local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/Icon.lua"))()
+local icon = loadstring(game:HttpGet("https://raw.githubusercontent.com/x2sxqz/Libwtf/refs/heads/main/Icon.lua"))()
 
 --=========================
 -- 🔥Tab
