@@ -554,145 +554,75 @@ Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
 
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local LP = Players.LocalPlayer
+--================ SPIN PLAYER FIX =================--
+local spinning = false
+local spinSpeed = 20
+local spinConnection
 
-local flinging = false
-local flingPower = 100
-local antiFlingEnabled = false
-local flingSpin = nil
-local flingLoop = nil
-local antiFlingLoop = nil
+-- ดึง HRP แบบชัวร์
 
---========================================================
--- 🌀 SPIN FLING LOGIC (FIXED: NO SINK / NO SELF-FLING)
---========================================================
-local function startFling()
-    local char = LP.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-    
-    if not hrp or not hum then return end
+local function getHRP()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
+end
 
-    -- 1. ล็อคฟิสิกส์กันจม (ยกสูงขึ้นเป็น 2.0 เพื่อชัวร์ว่าขาไม่ขัดพื้น)
-    hum.HipHeight = 2.0
-    for _, v in pairs(char:GetDescendants()) do
-        if v:IsA("BasePart") then
-            v.CustomPhysicalProperties = PhysicalProperties.new(100, 0.3, 0.5)
-            v.Massless = true
-            v.CanTouch = false -- สำคัญมาก: กันแขนขาฟาดกันเอง
-        end
+-- เริ่มหมุน (ใช้ dt กันเฟรมเรท)
+local function startSpin()
+    if spinConnection then
+        spinConnection:Disconnect()
     end
 
-    -- 2. แรงหมุน IY Style
-    flingSpin = Instance.new("BodyAngularVelocity")
-    flingSpin.Name = "IY_Spin"
-    flingSpin.Parent = hrp
-    flingSpin.MaxTorque = Vector3.new(0, math.huge, 0)
-    flingSpin.P = math.huge
-    flingSpin.AngularVelocity = Vector3.new(0, flingPower * 10, 0)
+    spinConnection = RunService.RenderStepped:Connect(function(dt)
+        local hrp = getHRP()
+        if not hrp then return end
 
-    -- 3. Loop ดีดแบบกระชาก (Pulse)
-    flingLoop = RunService.Heartbeat:Connect(function()
-        if not flinging or not hrp.Parent then return end
-        
-        local moveDir = hum.MoveDirection
-        -- ดีดคนอื่นด้วยแรงมหาศาล
-        hrp.Velocity = Vector3.new(9e7, 9e7, 9e7)
-        
-        RunService.RenderStepped:Wait()
-        
-        -- ดึงความเร็วกลับมาที่การเดินปกติทันที (กันไหล)
-        if hrp then
-            hrp.Velocity = moveDir * hum.WalkSpeed
-        end
+        -- ใช้ dt ทำให้ลื่นขึ้น
+        hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed * dt * 60), 0)
     end)
 end
 
-local function stopFling()
-    flinging = false
-    if flingLoop then flingLoop:Disconnect() end
-    
-    local char = LP.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-
-    -- 🔥 [FIX] หยุดแรงทั้งหมดก่อนคืนค่าฟิสิกส์ (กันดีดตัวเองตอนปิด)
-    if hrp then
-        hrp.Velocity = Vector3.zero
-        hrp.RotVelocity = Vector3.zero
+-- หยุด
+local function stopSpin()
+    if spinConnection then
+        spinConnection:Disconnect()
+        spinConnection = nil
     end
-    
-    if flingSpin then flingSpin:Destroy() end
-    
-    -- รอให้ฟิสิกส์นิ่ง 1 เฟรม
-    task.wait(0.1)
+end
 
-    if char then
-        for _, v in pairs(char:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CustomPhysicalProperties = nil
-                v.Massless = false
-                v.CanTouch = true -- คืนค่าสัมผัสหลังจากหยุดนิ่งแล้ว
-            end
+-- รีตัวไม่พัง
+LocalPlayer.CharacterAdded:Connect(function()
+    if spinning then
+        task.wait(1)
+        startSpin()
+    end
+end)
+
+-- Toggle
+Tabs.Player:AddToggle("SpinPlayer", {
+    Title = "Spin Player",
+    Default = false,
+    Callback = function(v)
+        spinning = v
+
+        if v then
+            startSpin()
+        else
+            stopSpin()
         end
-        if hum then hum.HipHeight = 0 end
-    end
-end
-
---========================================================
--- 🛡️ ANTI-FLING LOGIC (STABLE)
---========================================================
-local function toggleAntiFling(state)
-    if antiFlingLoop then antiFlingLoop:Disconnect() end
-    if state then
-        antiFlingLoop = RunService.Stepped:Connect(function()
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= LP and p.Character then
-                    for _, v in pairs(p.Character:GetDescendants()) do
-                        if v:IsA("BasePart") then v.CanCollide = false end
-                    end
-                end
-            end
-        end)
-    end
-end
-
---========================================================
--- 🔘 UI INTEGRATION
---========================================================
-Tabs.Player:AddToggle("SpinFling", {
-    Title = "Spin Fling",
-    Default = false,
-    Callback = function(v)
-        flinging = v
-        if v then startFling() else stopFling() end
     end
 })
 
-Tabs.Player:AddSlider("FlingSpeed", {
-    Title = "Fling Speed",
-    Min = 1, 
-	Max = 150, 
-	Default = 50,
+-- Slider
+Tabs.Player:AddSlider("SpinSpeed", {
+    Title = "Spin Speed",
+    Min = 1,
+    Max = 1000,
+    Default = 1,
+	Rounding = 0,
     Callback = function(v)
-        flingPower = v
-        if flingSpin then flingSpin.AngularVelocity = Vector3.new(0, v * 10, 0) end
+        spinSpeed = v
     end
 })
-
-Tabs.Player:AddToggle("AntiFling", {
-    Title = "Anti Fling",
-    Default = false,
-    Callback = function(v)
-        antiFlingEnabled = v
-        toggleAntiFling(v)
-    end
-})
-
-
-
 
 
 
