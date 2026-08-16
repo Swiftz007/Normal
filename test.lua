@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 1111
+-- 🔥 Lib Load Screen Reaper Hub 2
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Advanced/refs/heads/main/gui/main.lua"))()
@@ -553,15 +553,11 @@ Tabs.Player:AddToggle("NC", { -- เปลี่ยน ID เป็น NC
 
 
 -- มึงอย่ามาล้อเล่นกับเดอะหมุน
---========================================================
--- 🔥 [FINAL OPTIMIZED] SPIN FLING & ANTI-FLING (AUTO-RESPAWN)
---========================================================
 local spinning = false
 local spinSpeed = 150
 local spinConnection
 local antiFlingEnabled = false
 
--- Logic: ระบบหมุนดีด
 local function startFling()
     if spinConnection then spinConnection:Disconnect() end
     spinConnection = RunService.Heartbeat:Connect(function()
@@ -570,26 +566,24 @@ local function startFling()
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         
         if hrp and hum and spinning then
-            hum.PlatformStand = true -- บังคับสถานะยืนแข็ง (กันล้มตอนเกิดใหม่)
+            hum.Sit = true 
             hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed), 0)
             
             local rawV = hrp.Velocity
-            hrp.Velocity = Vector3.new(1e6, 1e6, 1e6) -- แรงดีดระดับพระเจ้า
+            hrp.Velocity = Vector3.new(1e6, 0, 1e6) 
             RunService.RenderStepped:Wait()
             if hrp then hrp.Velocity = rawV end
         end
     end)
 end
 
--- 🔥 ระบบ Auto-Restart เมื่อตัวละครเกิดใหม่
 LP.CharacterAdded:Connect(function()
-    task.wait(0.5) -- รอตัวละครโหลดเสร็จ
+    task.wait(0.5)
     if spinning then
-        startFling() -- ถ้าเปิดปุ่มค้างไว้ ให้เริ่มหมุนใหม่ทันที
+        startFling()
     end
 end)
 
--- Logic: Anti-Fling (ทำงานเบื้องหลังตลอดเวลา)
 task.spawn(function()
     while true do
         if antiFlingEnabled then
@@ -611,10 +605,9 @@ task.spawn(function()
     end
 end)
 
--- UI CONTROLS
 Tabs.Player:AddToggle("SpinFling", {
     Title = "Spin Fling",
-    Description = "Recommended to use with Noclip",
+    Description = "",
     Default = false,
     Callback = function(v)
         spinning = v
@@ -624,7 +617,8 @@ Tabs.Player:AddToggle("SpinFling", {
             if spinConnection then spinConnection:Disconnect() end
             local hum = GetHum()
             if hum then 
-                hum.PlatformStand = false 
+                hum.Sit = false 
+                hum:ChangeState(Enum.HumanoidStateType.GettingUp)
                 local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
                 if hrp then hrp.Velocity = Vector3.zero end
             end
@@ -634,7 +628,7 @@ Tabs.Player:AddToggle("SpinFling", {
 
 Tabs.Player:AddSlider("FlingSpeed", {
     Title = "Fling Speed",
-    Min = 50,
+    Min = 1,
     Max = 1500,
     Default = 150,
     Rounding = 0,
@@ -651,6 +645,7 @@ Tabs.Player:AddToggle("AntiFling", {
         antiFlingEnabled = v
     end
 })
+
 
 
 -- ESP Chams🔥
