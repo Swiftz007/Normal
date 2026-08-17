@@ -1371,8 +1371,10 @@ local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
 -- 🔥 IMPORTANT: delay bind กัน Fluent บัค
 task.defer(function()
     Dropdown:OnChanged(function(value)
+		if value then
         selectedPlayer = Players:FindFirstChild(value)
-    end)
+		end
+	end)
 end)
 
 -- =========================
@@ -1466,6 +1468,7 @@ end)
 -- =========================
 task.defer(function()
     Dropdown:OnChanged(function(value)
+		if value then
         selectedPlayer = Players:FindFirstChild(value)
 
         -- ถ้ากำลัง spectate อยู่ → เปลี่ยนทันที
@@ -1473,7 +1476,8 @@ task.defer(function()
             local humanoid = selectedPlayer.Character:FindFirstChildOfClass("Humanoid")
             if humanoid then
                 Camera.CameraSubject = humanoid
-            end
+				end
+			end
         end
     end)
 end)
