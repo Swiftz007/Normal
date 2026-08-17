@@ -44,7 +44,7 @@ local LP = Players.LocalPlayer
 -- WINDOW
 local Window = Fluent:CreateWindow({
 Title = "Reaper Hub",
-SubTitle = "Universal",
+SubTitle = "Lib Beta Test",
 TabWidth = 160,
 Size = UDim2.fromOffset(520, 360),
 Theme = "ExtremeReaper",
