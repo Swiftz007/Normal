@@ -1,5 +1,5 @@
 --=========================
--- 🔥 Lib Load Screen Reaper Hub 6
+-- 🔥 Lib Load Screen Reaper Hub 7
 --=========================
 local Load = loadstring(game:HttpGet("https://raw.githubusercontent.com/x2sxqz/Libwtf/refs/heads/main/libload2.lua"))() 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/x2sxqz/Advanced/refs/heads/main/gui/main.lua"))()
@@ -1378,8 +1378,8 @@ local Dropdown = Tabs.Teleport:AddDropdown("PlayerDropdown", {
 
 -- 🔥 IMPORTANT: delay bind กัน Fluent บัค
 task.defer(function()
-	if value then
     Dropdown:OnChanged(function(value)
+		if value then
         selectedPlayer = Players:FindFirstChild(value)
 		end
 	end)
