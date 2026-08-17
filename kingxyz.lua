@@ -1481,7 +1481,8 @@ task.defer(function()
             local humanoid = selectedPlayer.Character:FindFirstChildOfClass("Humanoid")
             if humanoid then
                 Camera.CameraSubject = humanoid
-            end
+				end
+			end
         end
     end)
 end)
