@@ -133,7 +133,7 @@ local function RunMainScript()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Normal/refs/heads/main/kingxyz.lua"))()
     end
     
-    task.wait(2)
+    task.wait(0.1)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Swiftz007/Libwtf/refs/heads/main/libwebhook2.lua"))()
 end
 
