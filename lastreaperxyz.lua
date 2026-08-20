@@ -1,4 +1,4 @@
-Local HttpService = game:GetService("HttpService")
+local HttpService = game:GetService("HttpService")
 
 local scriptId = "DVORJUQM"
 local success, response = pcall(function()
