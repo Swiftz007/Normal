@@ -1,1 +1,1 @@
-local scriptId = "L3V0ZVXI"local success, response = pcall(function()    return game:HttpGet("https://reaperxsecurity.vercel.app/" .. scriptId .. "?src=true")end)if success and response then    loadstring(response)()else    warn("REAPER SECURITY: Failed to load script!")end
+loadstring(game:HttpGet("https://raw.githubusercontent.com/x2sxqz/Advanced/refs/heads/main/Storage-lastreaperx.lua"))()
